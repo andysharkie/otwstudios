@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OTW AI Receptionist — Answer every call. Capture every lead.</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@vapi-ai/web@latest/dist/vapi.umd.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              950: '#04080F',
+              900: '#0A0F1E',
+              800: '#0F1629',
+              700: '#172035',
+              600: '#1E2D47',
+              500: '#2A3F5F',
+            },
+            gold: {
+              300: '#FDE68A',
+              400: '#FCD34D',
+              500: '#F59E0B',
+              600: '#D97706',
+              700: '#B45309',
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'Inter', 'Segoe UI', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    html { scroll-behavior: smooth; }
+
+    /* ── SCROLL-TRIGGERED SECTION FADE ── */
+    .section-reveal-950,
+    .section-reveal-900,
+    .section-reveal-800 {
+      background-color: #f8fafc;
+      transition: background-color 600ms ease;
+    }
+    .section-reveal-950.is-visible { background-color: #04080F; }
+    .section-reveal-900.is-visible { background-color: #0A0F1E; }
+    .section-reveal-800.is-visible { background-color: #0F1629; }
+
+    /* ── BUTTON ANIMATIONS ── */
+    .btn-gold {
+      transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1),
+                  box-shadow 0.22s ease,
+                  background-color 0.15s ease;
+    }
+    .btn-gold:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(245,158,11,0.45);
+    }
+    .btn-gold:active { transform: translateY(0); transition-duration: 0.08s; }
+
+    .btn-dark {
+      transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1),
+                  box-shadow 0.22s ease,
+                  background-color 0.15s ease;
+    }
+    .btn-dark:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+    .btn-dark:active { transform: translateY(0); transition-duration: 0.08s; }
+
+    .btn-ghost {
+      position: relative;
+      overflow: hidden;
+      transition: color 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
+    }
+    .btn-ghost::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.08);
+      transform: translateY(101%);
+      transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+      border-radius: inherit;
+      z-index: 0;
+    }
+    .btn-ghost > * { position: relative; z-index: 1; }
+    .btn-ghost:hover::after { transform: translateY(0); }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.30) !important; color: rgba(255,255,255,0.92) !important; transform: translateY(-1px); }
+
+    .btn-ghost-light { transition: all 0.2s ease; }
+    .btn-ghost-light:hover { background-color: #f1f5f9; transform: translateY(-1px); }
+
+    /* ── VOICE DEMO ANIMATIONS ── */
+    .gold-glow { box-shadow: 0 0 40px rgba(245, 158, 11, 0.2); }
+    .card-dark { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s ease; }
+    .card-dark:hover { background: rgba(255,255,255,0.07); border-color: rgba(245,158,11,0.25); }
+    @keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(1.7); opacity: 0; } }
+    @keyframes sound-wave { 0%, 100% { height: 4px; } 50% { height: 20px; } }
+    .sound-bar { animation: sound-wave 0.7s ease-in-out infinite; }
+    .sound-bar:nth-child(2) { animation-delay: 0.1s; }
+    .sound-bar:nth-child(3) { animation-delay: 0.2s; }
+    .sound-bar:nth-child(4) { animation-delay: 0.3s; }
+    .sound-bar:nth-child(5) { animation-delay: 0.15s; }
+    .pulse-ring::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.3);
+      animation: pulse-ring 1.4s ease-out infinite;
+    }
+  </style>
+</head>
+<body class="bg-white text-slate-900 antialiased">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    /* ── SVG LINE ART ICONS (Features) ── */
+    const Ic = ({ children, cls = "" }) => (
+      <svg className={cls} width="22" height="22" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        {children}
+      </svg>
+    );
+    const IconPhone   = ({ cls }) => <Ic cls={cls}><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.9 10.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012.81 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.25a16 16 0 006.29 6.29l1.61-1.35a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></Ic>;
+    const IconCheck   = ({ cls }) => <Ic cls={cls}><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></Ic>;
+    const IconBell    = ({ cls }) => <Ic cls={cls}><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></Ic>;
+    const IconMsg     = ({ cls }) => <Ic cls={cls}><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></Ic>;
+    const IconCal     = ({ cls }) => <Ic cls={cls}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></Ic>;
+    const IconChart   = ({ cls }) => <Ic cls={cls}><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></Ic>;
+
+    const VAPI_PUBLIC_KEY = "YOUR_VAPI_PUBLIC_KEY";
+    const VAPI_ASSISTANT_ID = "YOUR_VAPI_ASSISTANT_ID";
+
+    const DEMO_LEAD = {
+      caller: "Sarah Thompson", phone: "0412 555 018",
+      suburb: "Mount Lawley", issue: "Burst pipe / active leak",
+      urgency: "HIGH", status: "Escalated to team",
+      nextStep: "Priority callback — team notified",
+      notify: "SMS + email sent to Northside Plumbing",
+    };
+
+    function SoundWave() {
+      return (
+        <div className="flex items-center gap-0.5 h-5">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="sound-bar w-1 rounded-full bg-gold-400" style={{ animationDelay: `${i * 0.1}s` }} />
+          ))}
+        </div>
+      );
+    }
+
+    function CallTimer({ startTime }) {
+      const [elapsed, setElapsed] = useState(0);
+      useEffect(() => {
+        const t = setInterval(() => setElapsed(Math.floor((Date.now() - startTime) / 1000)), 1000);
+        return () => clearInterval(t);
+      }, [startTime]);
+      const m = Math.floor(elapsed / 60).toString().padStart(2, "0");
+      const s = (elapsed % 60).toString().padStart(2, "0");
+      return <span className="font-mono text-sm tabular-nums text-white/60">{m}:{s}</span>;
+    }
+
+    function VoiceDemo() {
+      const vapiRef = useRef(null);
+      const transcriptRef = useRef(null);
+      const [callState, setCallState] = useState("idle");
+      const [isSpeaking, setIsSpeaking] = useState(false);
+      const [speakerRole, setSpeakerRole] = useState(null);
+      const [transcript, setTranscript] = useState([]);
+      const [callStartTime, setCallStartTime] = useState(null);
+
+      useEffect(() => {
+        if (typeof Vapi !== "undefined") {
+          vapiRef.current = new Vapi(VAPI_PUBLIC_KEY);
+          const v = vapiRef.current;
+          v.on("call-start", () => { setCallState("active"); setCallStartTime(Date.now()); setTranscript([]); });
+          v.on("call-end", () => { setCallState("ended"); setIsSpeaking(false); setSpeakerRole(null); });
+          v.on("speech-start", () => setIsSpeaking(true));
+          v.on("speech-end", () => { setIsSpeaking(false); setSpeakerRole(null); });
+          v.on("message", (msg) => {
+            if (msg.type === "transcript" && msg.transcriptType === "final") {
+              setSpeakerRole(msg.role);
+              setTranscript(prev => [...prev, { role: msg.role, text: msg.transcript, id: Date.now() }]);
+            }
+          });
+          v.on("error", (err) => {
+            if (err.error?.message?.includes("Permission denied") || err.error?.message?.includes("NotAllowedError")) {
+              setCallState("mic-denied");
+            } else { setCallState("error"); }
+          });
+        }
+        return () => { if (vapiRef.current) vapiRef.current.stop(); };
+      }, []);
+
+      useEffect(() => {
+        if (transcriptRef.current) transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
+      }, [transcript]);
+
+      const startCall = useCallback(async () => {
+        setCallState("connecting"); setTranscript([]);
+        try { await vapiRef.current.start(VAPI_ASSISTANT_ID); }
+        catch (err) { setCallState("error"); }
+      }, []);
+
+      const endCall = useCallback(() => {
+        if (vapiRef.current) vapiRef.current.stop();
+        setCallState("ended");
+      }, []);
+
+      const vapiReady = typeof Vapi !== "undefined" && VAPI_PUBLIC_KEY !== "YOUR_VAPI_PUBLIC_KEY";
+
+      return (
+        <div className="rounded-3xl border border-white/10 bg-navy-800 overflow-hidden">
+          {/* Demo header */}
+          <div className="flex items-center justify-between gap-4 border-b border-white/5 px-6 py-4">
+            <div>
+              <div className="text-sm font-semibold text-white">Live voice demo</div>
+              <div className="text-xs text-white/35">Talk to the AI Receptionist · Northside Plumbing</div>
+            </div>
+            <div className="flex items-center gap-2">
+              {callState === "active" && (
+                <div className="flex items-center gap-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold-400 opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-gold-500" />
+                  </span>
+                  <span className="text-xs font-medium text-gold-400">Live</span>
+                </div>
+              )}
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/30">Demo</span>
+            </div>
+          </div>
+
+          {/* IDLE */}
+          {callState === "idle" && (
+            <div className="flex flex-col items-center gap-7 px-6 py-12">
+              <div className="text-center">
+                <div className="text-lg font-semibold text-white">Call the AI Receptionist</div>
+                <p className="mt-2 max-w-sm text-sm text-white/40">Use your microphone for a real conversation. Try asking about a burst pipe, a quote, or your service area.</p>
+              </div>
+
+              {vapiReady ? (
+                <button onClick={startCall}
+                  className="pulse-ring relative flex h-20 w-20 items-center justify-center rounded-full bg-gold-500 text-white shadow-lg hover:bg-gold-600 transition-colors gold-glow">
+                  <svg className="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                  </svg>
+                </button>
+              ) : (
+                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/5 border border-white/10 text-white/20">
+                  <svg className="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                  </svg>
+                </div>
+              )}
+
+              {!vapiReady && (
+                <div className="rounded-2xl border border-gold-500/20 bg-gold-500/5 px-5 py-3 text-center text-xs text-gold-400 max-w-xs">
+                  Add your Vapi credentials to activate the live demo
+                </div>
+              )}
+
+              <div className="flex items-center gap-5 text-xs text-white/25">
+                <span className="flex items-center gap-1.5">
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+                  Mic required
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                  Secure
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  ~2 min demo
+                </span>
+              </div>
+
+              <div className="w-full rounded-2xl border border-white/5 bg-white/[0.02] p-4">
+                <div className="text-xs font-semibold uppercase tracking-widest text-white/20 mb-3">Try saying...</div>
+                <div className="flex flex-wrap gap-2">
+                  {["I've got a burst pipe", "I need a quote for hot water", "Do you service my area?", "I need to book a plumber"].map((s) => (
+                    <span key={s} className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/40">"{s}"</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* CONNECTING */}
+          {callState === "connecting" && (
+            <div className="flex flex-col items-center gap-5 px-6 py-14">
+              <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gold-500 text-white">
+                <div className="absolute inset-0 animate-ping rounded-full bg-gold-400 opacity-25" />
+                <svg className="h-8 w-8 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                </svg>
+              </div>
+              <div className="text-sm font-medium text-white">Connecting...</div>
+              <div className="text-xs text-white/35">Allow microphone access when prompted</div>
+            </div>
+          )}
+
+          {/* ACTIVE */}
+          {callState === "active" && (
+            <div className="flex flex-col gap-4 p-5">
+              <div className="flex items-center justify-between rounded-2xl bg-navy-700 px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gold-500/15 border border-gold-500/30">
+                    <svg className="h-4 w-4 text-gold-400" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-white">Northside Plumbing</div>
+                    <div className="text-xs text-white/35">OTW AI Receptionist</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  {isSpeaking && <SoundWave />}
+                  {callStartTime && <CallTimer startTime={callStartTime} />}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between px-1 text-xs">
+                <span className={`flex items-center gap-1.5 transition-all ${speakerRole === "assistant" ? "text-gold-400 font-medium" : "text-white/25"}`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${speakerRole === "assistant" ? "bg-gold-400" : "bg-white/15"}`} />
+                  Assistant speaking
+                </span>
+                <span className={`flex items-center gap-1.5 transition-all ${speakerRole === "user" ? "text-gold-400 font-medium" : "text-white/25"}`}>
+                  You speaking
+                  <span className={`h-1.5 w-1.5 rounded-full ${speakerRole === "user" ? "bg-gold-400" : "bg-white/15"}`} />
+                </span>
+              </div>
+
+              <div ref={transcriptRef} className="space-y-2 rounded-2xl bg-white/[0.02] border border-white/5 p-4 overflow-y-auto" style={{ maxHeight: "200px", minHeight: "100px" }}>
+                {transcript.length === 0 ? (
+                  <div className="flex items-center justify-center h-14 text-sm text-white/25">Listening...</div>
+                ) : transcript.map((msg) => (
+                  <div key={msg.id} className={`rounded-2xl px-3 py-2.5 text-sm ${msg.role === "assistant" ? "bg-white/5 text-white/70" : "ml-auto max-w-[85%] bg-gold-500/15 text-gold-200 border border-gold-500/20"}`}>
+                    <span className="text-xs font-medium opacity-60 mr-1">{msg.role === "assistant" ? "AI:" : "You:"}</span>
+                    {msg.text}
+                  </div>
+                ))}
+              </div>
+
+              <button onClick={endCall}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/10 py-3 text-sm font-medium text-red-400 hover:bg-red-500/20 transition-colors">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a2 2 0 00-2 2v1c0 8.284 6.716 15 15 15h1a2 2 0 002-2v-3.28a1 1 0 00-.684-.948l-4.493-1.498a1 1 0 00-1.21.502l-1.13 2.257a11.042 11.042 0 01-5.516-5.517l2.257-1.128a1 1 0 00.502-1.21L9.228 3.683A1 1 0 008.279 3H5z" /></svg>
+                End call
+              </button>
+            </div>
+          )}
+
+          {/* ENDED */}
+          {callState === "ended" && (
+            <div className="flex flex-col gap-4 p-5">
+              <div className="flex items-center gap-3 rounded-2xl bg-gold-500/10 border border-gold-500/20 px-4 py-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gold-500/20">
+                  <svg className="h-4 w-4 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-white">Call complete</div>
+                  <div className="text-xs text-white/35">Lead captured · Team notified</div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                <div className="text-xs font-semibold uppercase tracking-widest text-white/25 mb-3">Lead summary</div>
+                {Object.entries(DEMO_LEAD).map(([k, v]) => (
+                  <div key={k} className="mt-1.5 flex items-center justify-between rounded-xl bg-white/[0.04] px-3 py-2 text-xs">
+                    <span className="text-white/30 capitalize">{k}</span>
+                    <span className={`font-medium ${k === "urgency" ? "text-gold-400" : "text-white/70"}`}>{v}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex gap-2">
+                <a href="#audit" className="btn-gold flex-1 rounded-full bg-gold-500 py-2.5 text-center text-xs font-semibold text-white hover:bg-gold-600">
+                  Book a free audit
+                </a>
+                <button onClick={() => { setCallState("idle"); setTranscript([]); }}
+                  className="btn-ghost flex-1 rounded-full border border-white/10 py-2.5 text-xs font-medium text-white/50">
+                  Try again
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ERROR / MIC DENIED */}
+          {(callState === "error" || callState === "mic-denied") && (
+            <div className="flex flex-col items-center gap-4 px-6 py-12 text-center">
+              <div className="text-sm text-white/50">
+                {callState === "mic-denied" ? "Microphone access required for the voice demo." : "Something went wrong connecting the demo."}
+              </div>
+              <button onClick={() => setCallState("idle")} className="rounded-full border border-white/15 px-5 py-2 text-xs text-white/50 hover:text-white/80">Try again</button>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function App() {
+      const [scrolled, setScrolled] = useState(false);
+      const [mobileOpen, setMobileOpen] = useState(false);
+      const [openFaq, setOpenFaq] = useState(null);
+      const heroRef = useRef(null);
+
+      useEffect(() => {
+        const onScroll = () => {
+          const heroBottom = heroRef.current ? heroRef.current.getBoundingClientRect().bottom : 300;
+          setScrolled(heroBottom < 60);
+        };
+        window.addEventListener("scroll", onScroll, { passive: true });
+        return () => window.removeEventListener("scroll", onScroll);
+      }, []);
+
+      // Scroll-triggered section fade via IntersectionObserver
+      useEffect(() => {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0, rootMargin: '0px 0px -40px 0px' }
+        );
+        const timer = setTimeout(() => {
+          document.querySelectorAll('.section-reveal-950, .section-reveal-900, .section-reveal-800')
+            .forEach(el => observer.observe(el));
+        }, 50);
+        return () => { clearTimeout(timer); observer.disconnect(); };
+      }, []);
+
+      const navBg = scrolled ? "bg-navy-900/95 backdrop-blur border-white/10 shadow-lg shadow-black/20" : "bg-white/95 backdrop-blur border-slate-200";
+      const navLogo = scrolled ? "text-white" : "text-slate-900";
+      const navLogoSub = scrolled ? "text-white/40" : "text-slate-400";
+      const navLink = scrolled ? "text-white/60 hover:text-white" : "text-slate-600 hover:text-slate-900";
+
+      const features = [
+        { Icon: IconPhone, title: "Answers every call",     body: "24/7, no missed calls, no voicemail — every inbound call is answered and handled to your rules." },
+        { Icon: IconCheck, title: "Qualifies every lead",   body: "Captures name, phone, suburb, job type, and urgency before the call ends." },
+        { Icon: IconBell,  title: "Escalates emergencies",  body: "Detects urgent and emergency situations and transfers the call to your mobile in real time." },
+        { Icon: IconMsg,   title: "Answers your FAQs",      body: "Service area, pricing policy, hours, availability — answered instantly from your approved FAQ list." },
+        { Icon: IconCal,   title: "Books appointments",     body: "Full Service plan: books jobs directly into your calendar during the call. Confirmation sent automatically." },
+        { Icon: IconChart, title: "Monthly reporting",      body: "Call volume, lead quality, urgency breakdown, and estimated job value captured each month." },
+      ];
+
+      const faqs = [
+        { q: "Will callers know they're talking to an AI?", a: "Yes — the assistant is transparent that it's an AI receptionist. It doesn't pretend to be human. Most callers don't care as long as their call is handled quickly and professionally." },
+        { q: "What happens if the AI can't handle a call?", a: "For anything outside its scope, the assistant takes the caller's details, commits to a callback, and notifies you immediately. Nothing is dropped." },
+        { q: "How long does setup take?", a: "Core plan: 48 hours from sale to live. Full Service: 72 hours. We handle all the setup — you just review and approve before anything goes live." },
+        { q: "Can I change the configuration after launch?", a: "Yes. Update requests are handled by OTW, usually within 24 hours. You never have to touch any technical settings." },
+        { q: "Does it work for my industry?", a: "Currently configured for plumbing, electrical, HVAC, and carpentry. Other trades are being onboarded — contact us to check your industry." },
+        { q: "What does it cost?", a: "Core plan from $297/month. Full Service from $497/month. No setup fee, no lock-in contracts. We earn your business every month." },
+      ];
+
+      return (
+        <div className="min-h-screen bg-white">
+          {/* NAV */}
+          <header className={`fixed top-0 left-0 right-0 z-50 border-b transition-all duration-300 ${navBg}`}>
+            <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+              <a href="otw_homepage.html" className="flex flex-col leading-tight">
+                <span className={`text-base font-semibold tracking-tight transition-colors duration-300 ${navLogo}`}>OTW Studios</span>
+                <span className={`text-[11px] transition-colors duration-300 ${navLogoSub}`}>Optimise The Workflow</span>
+              </a>
+
+              <nav className="hidden gap-7 text-sm md:flex">
+                {[["#demo","Demo"],["#features","Features"],["#pricing","Pricing"],["#faq","FAQ"]].map(([href, label]) => (
+                  <a key={href} href={href} className={`transition-colors duration-300 ${navLink}`}>{label}</a>
+                ))}
+              </nav>
+
+              <div className="hidden gap-3 md:flex">
+                <a href="#demo" className={`rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300 ${scrolled ? "border-white/20 text-white/80 hover:border-white/40 hover:text-white" : "border-slate-300 text-slate-700 hover:bg-slate-50"}`}>
+                  Try the demo
+                </a>
+                <a href="#audit" className="btn-gold rounded-full bg-gold-500 px-4 py-2 text-sm font-semibold text-white hover:bg-gold-600 shadow-sm">
+                  Book a free audit
+                </a>
+              </div>
+
+              <button onClick={() => setMobileOpen(!mobileOpen)}
+                className={`rounded-xl border p-2 md:hidden transition-colors duration-300 ${scrolled ? "border-white/20 text-white" : "border-slate-200 text-slate-700"}`}>
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {mobileOpen ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /> : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />}
+                </svg>
+              </button>
+            </div>
+          </header>
+
+          <main>
+            {/* HERO (LIGHT) */}
+            <section ref={heroRef} className="bg-white pt-28 pb-20 lg:pt-36 lg:pb-24">
+              <div className="mx-auto max-w-7xl px-6">
+                <div className="max-w-4xl">
+                  <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-medium text-slate-500">
+                    <span className="h-1.5 w-1.5 rounded-full bg-gold-500"></span>
+                    Available now for trade businesses · Australia
+                  </div>
+                  <h1 className="text-5xl font-bold tracking-tight text-slate-950 leading-[1.07] sm:text-6xl lg:text-7xl">
+                    Answer every call.<br/>Capture every lead.<br/>
+                    <span className="text-gold-600">Miss nothing.</span>
+                  </h1>
+                  <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-500">
+                    Your AI receptionist handles inbound calls 24/7 — qualifies leads, escalates emergencies, books jobs, and sends lead notifications while your team stays focused on the work.
+                  </p>
+                  <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <a href="#audit" className="btn-dark rounded-full bg-slate-950 px-7 py-3.5 text-sm font-semibold text-white hover:bg-slate-800 shadow-sm">
+                      Book a free audit
+                    </a>
+                    <a href="#demo" className="btn-ghost-light rounded-full border border-slate-300 px-7 py-3.5 text-sm font-medium text-slate-700 flex items-center gap-2">
+                      <svg className="h-4 w-4 text-gold-500" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                      Hear it live
+                    </a>
+                  </div>
+                  <p className="mt-4 text-xs text-slate-400">Set up in 48 hours · No tech skills required · Fully managed</p>
+                </div>
+
+                <div className="mt-16 grid gap-px bg-slate-200 sm:grid-cols-2 lg:grid-cols-4 rounded-2xl overflow-hidden border border-slate-200">
+                  {[["24/7","Always answering"],["48 hrs","Setup time"],["< 90s","Emergency escalation"],["0","Tech skills needed"]].map(([v, l]) => (
+                    <div key={l} className="bg-white px-6 py-6">
+                      <div className="text-3xl font-bold tracking-tight text-slate-950">{v}</div>
+                      <div className="mt-1.5 text-sm text-slate-400">{l}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* PROBLEM (LIGHT → TRANSITION) */}
+            <section className="bg-slate-50 border-t border-slate-200 py-20">
+              <div className="mx-auto max-w-7xl px-6">
+                <div className="max-w-3xl">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">The problem</p>
+                  <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+                    Every missed call is a missed job.
+                  </h2>
+                  <p className="mt-4 text-lg text-slate-500">
+                    Trade businesses run on inbound calls. When you miss one, the caller doesn't wait — they call the next number. OTW AI Receptionist makes sure that never happens.
+                  </p>
+                </div>
+                <div className="mt-10 grid gap-4 md:grid-cols-3">
+                  {[
+                    { title: "Called during a job", body: "You're onsite, hands full. Phone rings. You can't answer. They hang up and call someone else." },
+                    { title: "After-hours enquiry", body: "10pm on a Sunday. Customer has a leak. Your phone is off. OTW answers, qualifies the lead, and alerts you." },
+                    { title: "Emergency you didn't know about", body: "Burst pipe at midnight. Customer needed immediate help. Without OTW, you find out at 8am." },
+                  ].map((c) => (
+                    <div key={c.title} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                      <div className="text-base font-semibold text-slate-900">{c.title}</div>
+                      <p className="mt-3 text-sm leading-6 text-slate-500">{c.body}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+
+            {/* DEMO (DARK) */}
+            <section id="demo" className="section-reveal-900 py-24">
+              <div className="mx-auto max-w-7xl px-6">
+                <div className="flex flex-col gap-12 lg:flex-row lg:items-start lg:gap-16">
+                  <div className="max-w-md lg:sticky lg:top-28">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">Live demo</p>
+                    <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                      Hear it handle a real call.
+                    </h2>
+                    <p className="mt-4 text-base leading-7 text-white/50">
+                      This is the actual AI Receptionist — not a recording, not a chatbot. Use your microphone and have a real conversation with the Northside Plumbing demo assistant.
+                    </p>
+                    <p className="mt-4 text-sm text-white/30">Powered by Vapi · Claude · Deepgram · ElevenLabs</p>
+
+                    <div className="mt-8 space-y-3">
+                      {[
+                        ["Try an emergency", "Tell it you have a burst pipe"],
+                        ["Request a quote", "Ask about hot water system cost"],
+                        ["Check service area", "Ask if they come to your suburb"],
+                      ].map(([title, hint]) => (
+                        <div key={title} className="flex items-start gap-3">
+                          <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold-500" />
+                          <div>
+                            <div className="text-sm font-medium text-white">{title}</div>
+                            <div className="text-xs text-white/35">{hint}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex-1 max-w-md">
+                    <VoiceDemo />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* FEATURES (DARK) */}
+            <section id="features" className="section-reveal-800 py-24 border-t border-white/5">
+              <div className="mx-auto max-w-7xl px-6">
+                <div className="max-w-2xl">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">Features</p>
+                  <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                    Everything a receptionist does. None of the overhead.
+                  </h2>
+                </div>
+                <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {features.map((f) => (
+                    <div key={f.title} className="card-dark rounded-2xl p-6">
+                      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-gold-500/20 bg-gold-500/8 text-gold-400">
+                        <f.Icon />
+                      </div>
+                      <div className="text-base font-semibold text-white">{f.title}</div>
+                      <p className="mt-2 text-sm leading-6 text-white/50">{f.body}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* HOW IT WORKS (DARK) */}
+            <section className="section-reveal-900 py-24 border-t border-white/5">
+              <div className="mx-auto max-w-7xl px-6">
+                <div className="max-w-2xl mb-12">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">How it works</p>
+                  <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                    Live in 48 hours. Managed forever.
+                  </h2>
+                </div>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    { n: "01", title: "Discovery call", body: "30 minutes. We map your services, service area, escalation contacts, FAQs, and urgency rules." },
+                    { n: "02", title: "OTW configures", body: "We build the system — system prompt, voice profile, call flows, notification pipeline." },
+                    { n: "03", title: "You review and approve", body: "We run QA test calls together. You approve. Nothing goes live without your sign-off." },
+                    { n: "04", title: "Go live", body: "Forward your number to OTW's line. Every call is answered from this point forward." },
+                  ].map((s) => (
+                    <div key={s.n} className="card-dark rounded-2xl p-6">
+                      <div className="text-sm font-bold text-gold-500 mb-3">{s.n}</div>
+                      <div className="text-base font-semibold text-white">{s.title}</div>
+                      <p className="mt-2 text-sm leading-6 text-white/45">{s.body}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* VOICE STACK (DARK) */}
+            <section className="section-reveal-800 py-20 border-t border-white/5">
+              <div className="mx-auto max-w-7xl px-6">
+                <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:gap-16">
+                  <div className="max-w-lg">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">The technology</p>
+                    <h2 className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                      Best-in-class voice stack, configured for Australian businesses.
+                    </h2>
+                    <p className="mt-4 text-sm leading-7 text-white/45">
+                      OTW combines four purpose-built components into a single, managed voice pipeline. You don't interact with any of it — we do.
+                    </p>
+                  </div>
+                  <div className="flex-1 grid grid-cols-2 gap-3">
+                    {[
+                      { name: "Deepgram", role: "Speech recognition", note: "en-AU tuned" },
+                      { name: "Claude", role: "AI reasoning", note: "Anthropic" },
+                      { name: "ElevenLabs / Cartesia", role: "Natural voice", note: "T2 / T1" },
+                      { name: "Vapi + Twilio", role: "Call infrastructure", note: "AU numbers" },
+                    ].map((t) => (
+                      <div key={t.name} className="card-dark rounded-2xl p-4">
+                        <div className="text-sm font-semibold text-white">{t.name}</div>
+                        <div className="text-xs text-white/40 mt-0.5">{t.role}</div>
+                        <div className="mt-2 inline-block rounded-full bg-gold-500/10 border border-gold-500/20 px-2 py-0.5 text-xs text-gold-400">{t.note}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* PRICING (DARK) */}
+            <section id="pricing" className="section-reveal-900 py-24 border-t border-white/5">
+              <div className="mx-auto max-w-7xl px-6">
+                <div className="max-w-2xl mb-12">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">Pricing</p>
+                  <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                    Flat monthly fee. No lock-in. We earn your business every month.
+                  </h2>
+                </div>
+
+                <div className="grid gap-5 lg:grid-cols-2 max-w-3xl">
+                  {/* T1 */}
+                  <div className="card-dark rounded-3xl p-8">
+                    <div className="text-xs font-semibold uppercase tracking-widest text-white/30 mb-1">Core</div>
+                    <div className="text-4xl font-bold text-white mt-2">$297 <span className="text-lg font-normal text-white/35">/month</span></div>
+                    <p className="mt-3 text-sm text-white/45">Everything you need to stop missing calls and start capturing leads.</p>
+                    <ul className="mt-7 space-y-3">
+                      {["24/7 call answering","Lead capture and qualification","Emergency call transfer","FAQ handling","Lead email notifications","Monthly reporting"].map(f => (
+                        <li key={f} className="flex items-center gap-3 text-sm text-white/65">
+                          <span className="h-1.5 w-1.5 rounded-full bg-white/25 shrink-0" />{f}
+                        </li>
+                      ))}
+                    </ul>
+                    <a href="#audit" className="btn-ghost mt-8 block rounded-full border border-white/15 py-3 text-center text-sm font-semibold text-white">
+                      Get started →
+                    </a>
+                  </div>
+
+                  {/* T2 */}
+                  <div className="rounded-3xl bg-gold-500 p-8 relative overflow-hidden gold-glow">
+                    <div className="absolute top-4 right-4 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white">Most popular</div>
+                    <div className="text-xs font-semibold uppercase tracking-widest text-white/70 mb-1">Full Service</div>
+                    <div className="text-4xl font-bold text-white mt-2">$497 <span className="text-lg font-normal text-white/60">/month</span></div>
+                    <p className="mt-3 text-sm text-white/80">The complete package — AI books jobs while you're on the tools.</p>
+                    <ul className="mt-7 space-y-3">
+                      {["Everything in Core","Direct calendar booking","SMS lead notifications","Custom voice cloning","Priority support","Deeper integrations"].map(f => (
+                        <li key={f} className="flex items-center gap-3 text-sm text-white/90">
+                          <span className="h-1.5 w-1.5 rounded-full bg-white/60 shrink-0" />{f}
+                        </li>
+                      ))}
+                    </ul>
+                    <a href="#audit" className="btn-dark mt-8 block rounded-full bg-white py-3 text-center text-sm font-bold text-gold-600 hover:bg-gold-50 shadow-sm">
+                      Get Full Service →
+                    </a>
+                  </div>
+                </div>
+
+                <p className="mt-6 text-xs text-white/25 max-w-lg">No setup fee. No lock-in contracts. Cancel anytime. Australian businesses only.</p>
+              </div>
+            </section>
+
+            {/* FAQ (DARK) */}
+            <section id="faq" className="section-reveal-800 py-24 border-t border-white/5">
+              <div className="mx-auto max-w-7xl px-6">
+                <div className="max-w-2xl mb-12">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">FAQ</p>
+                  <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">Common questions</h2>
+                </div>
+                <div className="max-w-2xl space-y-2">
+                  {faqs.map((faq, i) => (
+                    <div key={i} className={`rounded-2xl border overflow-hidden transition-all ${openFaq === i ? "border-gold-500/30 bg-gold-500/5" : "card-dark"}`}>
+                      <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                        className="flex w-full items-center justify-between px-6 py-4 text-left">
+                        <span className="text-sm font-medium text-white pr-4">{faq.q}</span>
+                        <svg className={`h-4 w-4 shrink-0 text-gold-500 transition-transform ${openFaq === i ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      {openFaq === i && <div className="px-6 pb-5 text-sm leading-6 text-white/50">{faq.a}</div>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* AUDIT CTA (DARKEST) */}
+            <section id="audit" className="section-reveal-950 py-24 border-t border-white/5">
+              <div className="mx-auto max-w-7xl px-6">
+                <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="max-w-2xl">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">Start here</p>
+                    <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                      Book a free call audit. See exactly what you're missing.
+                    </h2>
+                    <p className="mt-4 text-base leading-7 text-white/45">
+                      30 minutes. We'll map out exactly how OTW AI Receptionist would be configured for your business — no obligation, no tech knowledge needed. You'll leave with a clear picture of how many calls you're currently missing and what they're worth.
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 flex-col gap-3">
+                    <a href="mailto:andyngo.consulting@gmail.com?subject=OTW Free Audit Request"
+                      className="btn-gold rounded-full bg-gold-500 px-9 py-4 text-center text-sm font-bold text-white hover:bg-gold-600 gold-glow">
+                      Book free audit
+                    </a>
+                    <a href="#demo"
+                      className="btn-ghost rounded-full border border-white/15 px-9 py-4 text-center text-sm font-medium text-white/50">
+                      Try the demo first
+                    </a>
+                    <p className="text-center text-xs text-white/20">No obligation. No tech knowledge needed.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </main>
+
+          {/* FOOTER */}
+          <footer className="section-reveal-950 border-t border-white/5 py-12">
+            <div className="mx-auto max-w-7xl px-6">
+              <div className="flex flex-col gap-10 md:flex-row md:justify-between">
+                <div>
+                  <div className="text-base font-semibold text-white">OTW Studios</div>
+                  <div className="mt-0.5 text-sm text-white/30">Optimise The Workflow</div>
+                  <p className="mt-4 max-w-xs text-sm leading-6 text-white/25">Managed AI workflow tools for service businesses. Set up for you, not by you.</p>
+                </div>
+                <div className="grid gap-8 text-sm sm:grid-cols-3">
+                  {[
+                    { heading: "Product", links: [["#features","Features"],["#pricing","Pricing"],["#demo","Try demo"]] },
+                    { heading: "Company", links: [["otw_homepage.html","OTW Studios"],["otw_homepage.html#about","About"],["otw_homepage.html#industries","Industries"]] },
+                    { heading: "Get started", links: [["#audit","Book an audit"],["#demo","Live demo"],["otw_homepage.html#waitlist","Join waitlist"]] },
+                  ].map((col) => (
+                    <div key={col.heading}>
+                      <div className="font-semibold text-white/50">{col.heading}</div>
+                      <ul className="mt-3 space-y-2">
+                        {col.links.map(([href, label]) => (
+                          <li key={label}><a href={href} className="text-white/25 hover:text-white/60 transition-colors">{label}</a></li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-10 flex flex-col gap-2 border-t border-white/5 pt-6 text-xs text-white/15 sm:flex-row sm:justify-between">
+                <span>© {new Date().getFullYear()} OTW Studios. All rights reserved.</span>
+                <span>Optimise The Workflow</span>
+              </div>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
