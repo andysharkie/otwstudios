@@ -1100,15 +1100,25 @@ function Sidebar({ view, setView, unreadCount, pendingDraftCount, pendingInvoice
   return (
     <div className="sidebar">
       <div className="sb-logo">
-        <div className="sb-logo-row">
-          <div className="sb-dot"/>
-          <div className="sb-name">OTW Studios</div>
-        </div>
-        <div className="sb-product">TriageAI</div>
+        <a href="index.html" style={{textDecoration:'none', display:'block'}}>
+          <div className="sb-logo-row">
+            <div className="sb-dot"/>
+            <div className="sb-name">OTW Studios</div>
+          </div>
+          <div className="sb-product">TriageAI</div>
+        </a>
         <div className="demo-badge">
           <div className="demo-dot"/>
           <span className="demo-text">Demo Mode</span>
         </div>
+        <a href="otw_audit.html" style={{
+          display:'block', marginTop:'12px',
+          background:'#F59E0B', color:'#04080F',
+          borderRadius:'50px', padding:'7px 12px',
+          fontSize:'10px', fontWeight:'800',
+          textAlign:'center', textDecoration:'none',
+          letterSpacing:'0.04em', textTransform:'uppercase',
+        }}>Start free audit</a>
       </div>
 
       <div className="sb-nav">
