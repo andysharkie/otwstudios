@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OTW Studios — Product Ecosystem</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: #04080F; color: #F1F5F9; min-height: 100vh; display: flex; flex-direction: column; }
+.page { flex: 1; max-width: 1020px; margin: 0 auto; padding: 48px 32px 64px; width: 100%; }
+
+/* Header */
+.page-header { text-align: center; margin-bottom: 56px; }
+.otw-row { display: flex; align-items: center; gap: 8px; justify-content: center; margin-bottom: 8px; }
+.otw-dot { width: 8px; height: 8px; border-radius: 50%; background: #F59E0B; }
+.otw-name { font-size: 13px; font-weight: 800; color: #fff; }
+.page-eyebrow { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(245,158,11,0.6); margin-bottom: 12px; }
+.page-title { font-size: 32px; font-weight: 900; letter-spacing: -0.04em; margin-bottom: 10px; }
+.page-sub { font-size: 14px; color: rgba(255,255,255,0.4); line-height: 1.8; max-width: 560px; margin: 0 auto; }
+
+/* Layer header */
+.layer-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em; color: rgba(255,255,255,0.2); text-align: center; margin-bottom: 14px; }
+.layer { margin-bottom: 12px; }
+
+/* Flow arrow */
+.flow-arrow { display: flex; align-items: center; justify-content: center; height: 32px; gap: 4px; }
+.arrow-line { width: 1px; height: 100%; background: rgba(245,158,11,0.25); }
+.arrow-text { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(245,158,11,0.4); }
+
+/* Product card */
+.product-card {
+  background: #0A0F1E;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 22px 24px;
+  position: relative;
+  transition: border-color 0.2s;
+}
+.product-card:hover { border-color: rgba(245,158,11,0.25); }
+.product-card.highlight { border-color: rgba(245,158,11,0.25); background: linear-gradient(135deg, #0A0F1E, #0D1325); }
+.product-card.coming { border-color: rgba(255,255,255,0.05); opacity: 0.75; }
+
+.card-badge { display: inline-block; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 8px; margin-bottom: 12px; }
+.badge-capture { background: rgba(99,102,241,0.1); color: #818CF8; border: 1px solid rgba(99,102,241,0.2); }
+.badge-organise { background: rgba(245,158,11,0.1); color: #F59E0B; border: 1px solid rgba(245,158,11,0.22); }
+.badge-retain { background: rgba(34,197,94,0.08); color: #4ADE80; border: 1px solid rgba(34,197,94,0.18); }
+.badge-soon { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.08); }
+
+.card-icon { font-size: 26px; margin-bottom: 10px; }
+.card-name { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
+.card-tagline { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 14px; line-height: 1.5; }
+
+.card-input { margin-bottom: 8px; }
+.flow-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.2); margin-bottom: 5px; }
+.flow-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; margin-bottom: 4px; }
+.flow-item-icon { font-size: 12px; }
+.flow-item-text { font-size: 12px; color: rgba(255,255,255,0.5); }
+
+.flow-item.output { background: rgba(245,158,11,0.06); border-color: rgba(245,158,11,0.15); }
+.flow-item.output .flow-item-text { color: rgba(245,158,11,0.7); }
+
+.card-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 12px 0; }
+
+/* Work Order badge */
+.work-order-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); border-radius: 8px; padding: 5px 10px; font-size: 11px; font-weight: 700; color: #F59E0B; }
+
+/* Grid layouts */
+.capture-grid { display: grid; grid-template-columns: 1fr 40px 1fr; gap: 0; align-items: center; margin-bottom: 0; }
+.connector-col { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.connector-line { width: 1px; height: 40px; background: rgba(245,158,11,0.2); }
+.connector-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(245,158,11,0.4); }
+.connector-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(245,158,11,0.35); text-align: center; writing-mode: vertical-rl; }
+
+.retain-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* Merge arrow */
+.merge-block { display: flex; flex-direction: column; align-items: center; margin: 8px 0; }
+.merge-row { display: flex; align-items: flex-end; gap: 0; width: 100%; }
+.merge-left { flex: 1; height: 32px; border-bottom: 1px solid rgba(245,158,11,0.25); border-right: 1px solid rgba(245,158,11,0.25); border-bottom-right-radius: 0; }
+.merge-right { flex: 1; height: 32px; border-bottom: 1px solid rgba(245,158,11,0.25); border-left: 1px solid rgba(245,158,11,0.25); border-bottom-left-radius: 0; }
+.merge-arrow-down { display: flex; flex-direction: column; align-items: center; }
+.merge-shaft { width: 1px; height: 20px; background: rgba(245,158,11,0.35); }
+.merge-head { width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 7px solid rgba(245,158,11,0.5); }
+.merge-tag { font-size: 10px; font-weight: 700; color: rgba(245,158,11,0.6); background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.18); border-radius: 8px; padding: 3px 9px; margin-top: 6px; }
+
+/* Summary strip */
+.summary-strip { background: #0A0F1E; border: 1px solid rgba(245,158,11,0.15); border-radius: 16px; padding: 24px 28px; margin-top: 48px; }
+.summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+.summary-item { text-align: center; }
+.summary-num { font-size: 26px; font-weight: 900; color: #F59E0B; margin-bottom: 4px; }
+.summary-desc { font-size: 11px; color: rgba(255,255,255,0.35); line-height: 1.5; }
+
+/* Footer */
+.page-footer { text-align: center; padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 10px; color: rgba(255,255,255,0.18); letter-spacing: 0.06em; }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="otw-row">
+      <div class="otw-dot"></div>
+      <span class="otw-name">OTW Studios</span>
+    </div>
+    <div class="page-eyebrow">Product Ecosystem</div>
+    <h1 class="page-title">Five products. One connected system.</h1>
+    <p class="page-sub">Every OTW product works independently — but together they become a complete AI front office that handles every touchpoint from first call to five-star review.</p>
+  </div>
+
+  <!-- ─── CAPTURE LAYER ─── -->
+  <div class="layer">
+    <div class="layer-label">Capture Layer — How leads and jobs come in</div>
+
+    <div class="capture-grid">
+
+      <!-- AI Receptionist -->
+      <div class="product-card highlight">
+        <div><span class="card-badge badge-capture">Capture · Voice</span></div>
+        <div class="card-icon">📞</div>
+        <div class="card-name">OTW Receptionist</div>
+        <div class="card-tagline">Every call answered. Every lead captured. 24/7.</div>
+
+        <div class="card-input">
+          <div class="flow-label">Receives</div>
+          <div class="flow-item"><span class="flow-item-icon">📞</span><span class="flow-item-text">Inbound phone call</span></div>
+        </div>
+        <div>
+          <div class="flow-label">Does</div>
+          <div class="flow-item"><span class="flow-item-icon">🎙</span><span class="flow-item-text">Answers, qualifies, collects job details</span></div>
+          <div class="flow-item"><span class="flow-item-icon">🌙</span><span class="flow-item-text">Handles after-hours + emergencies</span></div>
+          <div class="flow-item"><span class="flow-item-icon">↗</span><span class="flow-item-text">Escalates to owner on request</span></div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="flow-label">Outputs</div>
+        <div class="flow-item output"><span class="flow-item-icon">📋</span><span class="flow-item-text">Work Order → AI Scheduling</span></div>
+      </div>
+
+      <!-- Merge connector -->
+      <div class="connector-col">
+        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:rgba(245,158,11,0.3);writing-mode:vertical-rl;text-orientation:mixed;">Both channels</div>
+      </div>
+
+      <!-- TriageAI -->
+      <div class="product-card highlight">
+        <div><span class="card-badge badge-capture">Capture · Email</span></div>
+        <div class="card-icon">📧</div>
+        <div class="card-name">OTW TriageAI</div>
+        <div class="card-tagline">Every email read, categorised, and replied to. Automatically.</div>
+
+        <div class="card-input">
+          <div class="flow-label">Receives</div>
+          <div class="flow-item"><span class="flow-item-icon">📧</span><span class="flow-item-text">Inbound Gmail email</span></div>
+        </div>
+        <div>
+          <div class="flow-label">Does</div>
+          <div class="flow-item"><span class="flow-item-icon">🔴</span><span class="flow-item-text">Triages: Urgent / Work / Inbox</span></div>
+          <div class="flow-item"><span class="flow-item-icon">✍</span><span class="flow-item-text">Drafts reply in owner's voice</span></div>
+          <div class="flow-item"><span class="flow-item-icon">🧠</span><span class="flow-item-text">Learns from every edit made</span></div>
+          <div class="flow-item"><span class="flow-item-icon">📄</span><span class="flow-item-text">AI generates quote / invoice</span></div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="flow-label">Outputs</div>
+        <div class="flow-item output"><span class="flow-item-icon">📋</span><span class="flow-item-text">Work Order → AI Scheduling</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Merge arrows down to AI Scheduling -->
+  <div class="merge-block">
+    <div class="merge-row">
+      <div class="merge-left"></div>
+      <div class="merge-right"></div>
+    </div>
+    <div class="merge-arrow-down">
+      <div class="merge-shaft"></div>
+      <div class="merge-head"></div>
+    </div>
+    <div class="merge-tag">Work Orders flow into AI Scheduling</div>
+  </div>
+
+  <!-- ─── ORGANISE LAYER ─── -->
+  <div class="layer" style="margin-bottom:12px;">
+    <div class="layer-label">Organise Layer — How work gets planned and routed</div>
+
+    <div class="product-card" style="border-color:rgba(245,158,11,0.3);background:linear-gradient(135deg,#0A0F1E,#0E1628);">
+      <div style="display:flex;align-items:flex-start;gap:20px;">
+        <div style="flex-shrink:0;">
+          <div><span class="card-badge badge-organise">Organise · Schedule</span></div>
+          <div class="card-icon">🗺</div>
+          <div class="card-name">OTW Scheduling</div>
+          <div class="card-tagline" style="max-width:280px;">Turns a list of jobs into the most efficient day possible — grouped by suburb, optimised by route.</div>
+        </div>
+        <div style="flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+          <div>
+            <div class="flow-label">Receives</div>
+            <div class="flow-item"><span class="flow-item-icon">📋</span><span class="flow-item-text">Work Orders from Receptionist</span></div>
+            <div class="flow-item"><span class="flow-item-icon">📋</span><span class="flow-item-text">Work Orders from TriageAI</span></div>
+          </div>
+          <div>
+            <div class="flow-label">Does</div>
+            <div class="flow-item"><span class="flow-item-icon">⏱</span><span class="flow-item-text">Checks availability windows</span></div>
+            <div class="flow-item"><span class="flow-item-icon">📍</span><span class="flow-item-text">Groups jobs by suburb</span></div>
+            <div class="flow-item"><span class="flow-item-icon">🗺</span><span class="flow-item-text">Optimises travel route</span></div>
+            <div class="flow-item"><span class="flow-item-icon">⚡</span><span class="flow-item-text">Re-routes for urgent jobs</span></div>
+          </div>
+          <div>
+            <div class="flow-label">Outputs</div>
+            <div class="flow-item output"><span class="flow-item-icon">📅</span><span class="flow-item-text">Jobs added to calendar</span></div>
+            <div class="flow-item output"><span class="flow-item-icon">💬</span><span class="flow-item-text">Customer ETA confirmation</span></div>
+            <div class="flow-item output"><span class="flow-item-icon">🗺</span><span class="flow-item-text">Optimised day route map</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-divider"></div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:10px;padding:10px 14px;flex:1;min-width:160px;">
+          <div style="font-size:10px;font-weight:700;color:rgba(245,158,11,0.6);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Without OTW</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.7;">Northcote 8am → Dandenong 10am → Northcote 2pm. 3+ hours of wasted travel.</div>
+        </div>
+        <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:10px;padding:10px 14px;flex:1;min-width:160px;">
+          <div style="font-size:10px;font-weight:700;color:rgba(34,197,94,0.6);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">With AI Scheduling</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.7;">All Northcote jobs back-to-back. All Dandenong jobs clustered. 40 minutes saved per day.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow down to Retain -->
+  <div class="merge-block" style="margin:4px 0 8px;">
+    <div class="merge-arrow-down">
+      <div class="merge-shaft" style="height:28px;"></div>
+      <div class="merge-head"></div>
+    </div>
+    <div class="merge-tag" style="background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.18);color:rgba(34,197,94,0.7);">Job completed</div>
+  </div>
+
+  <!-- ─── RETAIN LAYER ─── -->
+  <div class="layer">
+    <div class="layer-label">Retain Layer — After the job is done</div>
+
+    <div class="retain-grid">
+
+      <!-- ReviewGenius -->
+      <div class="product-card coming">
+        <div><span class="card-badge badge-retain">Retain · Reviews</span></div>
+        <div class="card-icon">⭐</div>
+        <div class="card-name">OTW ReviewGenius</div>
+        <div class="card-tagline">Turn every completed job into a 5-star Google review. Automatically.</div>
+        <div>
+          <div class="flow-label">How it works</div>
+          <div class="flow-item"><span class="flow-item-icon">✅</span><span class="flow-item-text">Job marked complete in ServiceM8 / Tradify</span></div>
+          <div class="flow-item"><span class="flow-item-icon">💬</span><span class="flow-item-text">Personalised review request sent within 2 hrs</span></div>
+          <div class="flow-item output"><span class="flow-item-icon">⭐</span><span class="flow-item-text">Customer leaves Google review</span></div>
+        </div>
+        <div class="card-divider"></div>
+        <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:4px 10px;">
+          <span style="font-size:10px;color:rgba(255,255,255,0.25);font-weight:600;">Coming soon</span>
+        </div>
+      </div>
+
+      <!-- DebtCollector -->
+      <div class="product-card coming">
+        <div><span class="card-badge badge-retain">Retain · Cashflow</span></div>
+        <div class="card-icon">💰</div>
+        <div class="card-name">OTW DebtCollector</div>
+        <div class="card-tagline">Stop chasing. Get paid. Automated follow-up from Xero or MYOB.</div>
+        <div>
+          <div class="flow-label">How it works</div>
+          <div class="flow-item"><span class="flow-item-icon">📊</span><span class="flow-item-text">Connects to Xero / MYOB (one OAuth click)</span></div>
+          <div class="flow-item"><span class="flow-item-icon">⏰</span><span class="flow-item-text">Day 7: friendly reminder · Day 14: follow-up · Day 28: final notice</span></div>
+          <div class="flow-item output"><span class="flow-item-icon">💰</span><span class="flow-item-text">Invoice paid. Sequence stops.</span></div>
+        </div>
+        <div class="card-divider"></div>
+        <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:4px 10px;">
+          <span style="font-size:10px;color:rgba(255,255,255,0.25);font-weight:600;">Coming soon</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Summary strip -->
+  <div class="summary-strip">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.14em;color:rgba(245,158,11,0.6);margin-bottom:6px;">The Complete Picture</div>
+      <div style="font-size:18px;font-weight:800;letter-spacing:-0.02em;">Every touchpoint. Every channel. One system.</div>
+    </div>
+    <div class="summary-grid">
+      <div class="summary-item">
+        <div class="summary-num">0</div>
+        <div class="summary-desc">Missed calls<br/>per week</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-num">0</div>
+        <div class="summary-desc">Unanswered<br/>emails</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-num">40+</div>
+        <div class="summary-desc">Travel minutes<br/>saved per day</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-num">3–5×</div>
+        <div class="summary-desc">More Google<br/>reviews</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-num">100%</div>
+        <div class="summary-desc">Invoices<br/>followed up</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-footer">Powered by OTW Studios</div>
+
+</body>
+</html>

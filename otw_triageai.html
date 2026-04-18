@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OTW TriageAI — Smart Email Triage for Trade Businesses | OTW Studios</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg0: #F2F5FA;
+  --bg1: #FFFFFF;
+  --bg2: #FFFFFF;
+  --bg3: #EEF2F8;
+  --bg4: #E4EAF5;
+  --border: rgba(0,0,0,0.07);
+  --border2: rgba(0,0,0,0.12);
+  --gold: #F59E0B;
+  --gold-dim: rgba(245,158,11,0.10);
+  --gold-border: rgba(245,158,11,0.32);
+  --gold-text: #B45309;
+  --red: #EF4444;
+  --red-dim: rgba(239,68,68,0.08);
+  --red-border: rgba(239,68,68,0.22);
+  --green: #22C55E;
+  --green-dim: rgba(34,197,94,0.08);
+  --t1: #0F172A;
+  --t2: rgba(15,23,42,0.58);
+  --t3: rgba(15,23,42,0.36);
+  --t4: rgba(15,23,42,0.18);
+}
+html, body { height: 100%; overflow: hidden; }
+body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg0); color: var(--t1); font-size: 14px; line-height: 1.5; }
+button { font-family: inherit; cursor: pointer; }
+textarea, input, select { font-family: inherit; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 2px; }
+
+/* ─── LAYOUT ─────────────────────────────────── */
+.app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+.app-main { display: flex; flex: 1; overflow: hidden; }
+.sidebar { width: 204px; min-width: 204px; background: var(--bg1); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 1px 0 0 rgba(0,0,0,0.04); }
+.main-content { flex: 1; display: flex; overflow: hidden; }
+.triage-view { flex: 1; display: flex; overflow: hidden; }
+.app-footer { flex-shrink: 0; padding: 7px 20px; background: var(--bg1); border-top: 1px solid var(--border); text-align: center; font-size: 10px; font-weight: 500; letter-spacing: 0.07em; color: rgba(15,23,42,0.25); }
+
+/* ─── SIDEBAR ────────────────────────────────── */
+.sb-logo { padding: 18px 16px 14px; border-bottom: 1px solid var(--border); }
+.sb-logo-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.sb-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); flex-shrink: 0; box-shadow: 0 0 6px rgba(245,158,11,0.5); }
+.sb-name { font-size: 14px; font-weight: 800; letter-spacing: -0.02em; color: var(--t1); }
+.sb-product { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em; color: var(--gold); padding-left: 16px; margin-bottom: 8px; }
+.demo-badge { display: flex; align-items: center; gap: 6px; background: var(--gold-dim); border: 1px solid var(--gold-border); border-radius: 6px; padding: 6px 10px; margin: 12px 16px 0; }
+.demo-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: pulse 2s infinite; }
+.demo-text { font-size: 10px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.08em; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.sb-nav { flex: 1; padding: 12px 8px; overflow-y: auto; }
+.sb-section { margin-bottom: 20px; }
+.sb-section-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--t4); padding: 0 8px; margin-bottom: 4px; }
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; cursor: pointer; transition: all 0.15s; position: relative; border: 1px solid transparent; }
+.nav-item:hover { background: rgba(255,255,255,0.04); }
+.nav-item.active { background: var(--gold-dim); border-color: var(--gold-border); }
+.nav-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
+.nav-label { font-size: 13px; font-weight: 500; color: var(--t2); flex: 1; }
+.nav-item.active .nav-label { color: var(--gold); font-weight: 600; }
+.nav-badge { min-width: 18px; height: 18px; border-radius: 9px; background: var(--red); color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
+.nav-badge.gold { background: var(--gold); color: var(--bg0); }
+
+.sb-profile { padding: 12px 14px; border-top: 1px solid var(--border); }
+.sb-profile-name { font-size: 12px; font-weight: 700; color: var(--t1); margin-bottom: 2px; }
+.sb-profile-sub { font-size: 10px; color: var(--t3); }
+.connection-pill { display: inline-flex; align-items: center; gap: 4px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-radius: 10px; padding: 2px 7px; font-size: 9px; font-weight: 700; color: #16A34A; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 5px; }
+
+/* ─── EMAIL LIST ─────────────────────────────── */
+.email-list-pane { width: 304px; min-width: 304px; background: var(--bg1); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 1px 0 0 rgba(0,0,0,0.04); }
+.list-header { padding: 16px 16px 0; flex-shrink: 0; }
+.list-title { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 12px; }
+.filter-row { display: flex; gap: 4px; padding-bottom: 12px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+.filter-pill { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid var(--border2); background: transparent; color: var(--t3); white-space: nowrap; transition: all 0.15s; }
+.filter-pill:hover { color: var(--t2); border-color: var(--border2); }
+.filter-pill.active { background: var(--gold-dim); border-color: var(--gold-border); color: var(--gold); }
+.filter-pill.urgent.active { background: var(--red-dim); border-color: var(--red-border); color: var(--red); }
+
+.email-list { flex: 1; overflow-y: auto; }
+.email-row { padding: 12px 14px 12px 12px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.1s; display: flex; gap: 10px; align-items: flex-start; position: relative; }
+.email-row:hover { background: var(--bg3); }
+.email-row.selected { background: var(--bg4); }
+.email-row.selected::before { content:''; position:absolute; left:0; top:0; bottom:0; width:2px; background: var(--gold); }
+.email-unread-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+.email-unread-dot.urgent { background: var(--red); }
+.email-unread-dot.work { background: var(--gold); }
+.email-unread-dot.inbox { background: var(--t4); }
+.email-unread-dot.read { background: transparent; }
+.email-row-main { flex: 1; min-width: 0; }
+.email-row-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; }
+.email-sender { font-size: 13px; font-weight: 600; color: var(--t1); truncate: true; }
+.email-row.read .email-sender { font-weight: 500; color: var(--t2); }
+.email-time { font-size: 10px; color: var(--t3); white-space: nowrap; margin-left: 8px; }
+.email-subject { font-size: 12px; color: var(--t2); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.email-row.selected .email-subject { color: var(--t1); }
+.email-preview { font-size: 11px; color: var(--t3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cat-pill { display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-top: 4px; }
+.cat-pill.urgent { background: var(--red-dim); color: var(--red); border: 1px solid var(--red-border); }
+.cat-pill.work { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold-border); }
+.cat-pill.inbox { background: rgba(255,255,255,0.04); color: var(--t3); border: 1px solid var(--border); }
+.approved-check { font-size: 10px; font-weight: 700; color: var(--green); background: var(--green-dim); border: 1px solid rgba(34,197,94,0.2); padding: 1px 6px; border-radius: 8px; margin-top: 4px; display: inline-block; }
+
+/* ─── DETAIL PANE ────────────────────────────── */
+.detail-pane { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg0); border-left: 1px solid var(--border); }
+.detail-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+.empty-icon { font-size: 36px; opacity: 0.2; }
+.empty-text { font-size: 13px; color: var(--t3); text-align: center; line-height: 1.7; }
+
+.detail-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); flex-shrink: 0; background: var(--bg1); }
+.detail-tab { padding: 13px 20px; font-size: 12px; font-weight: 600; color: var(--t3); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; transition: all 0.15s; }
+.detail-tab:hover { color: var(--t2); }
+.detail-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+.detail-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+
+/* Email header */
+.email-header { padding: 22px 28px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.email-header-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+.email-subject-big { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.3; flex: 1; padding-right: 16px; }
+.cat-pill-big { padding: 5px 12px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; flex-shrink: 0; }
+.cat-pill-big.urgent { background: var(--red-dim); color: var(--red); border: 1px solid var(--red-border); }
+.cat-pill-big.work { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold-border); }
+.cat-pill-big.inbox { background: rgba(255,255,255,0.04); color: var(--t2); border: 1px solid var(--border2); }
+.sender-row { display: flex; align-items: center; gap: 10px; }
+.sender-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.sender-info { flex: 1; }
+.sender-name { font-size: 13px; font-weight: 600; color: var(--t1); }
+.sender-email { font-size: 11px; color: var(--t3); }
+.email-date { font-size: 11px; color: var(--t3); margin-left: auto; }
+
+/* Email body */
+.email-body { padding: 22px 28px; flex-shrink: 0; border-bottom: 1px solid var(--border); }
+.email-body-text { font-size: 14px; line-height: 1.8; color: var(--t2); white-space: pre-wrap; }
+
+/* ─── AI DRAFT PANEL ─────────────────────────── */
+.draft-panel { padding: 22px 28px 28px; }
+.draft-eyebrow { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.draft-eyebrow-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em; color: var(--gold); }
+.draft-divider-line { flex: 1; height: 1px; background: var(--gold-border); }
+.learning-indicator { display: flex; align-items: center; gap: 5px; background: var(--gold-dim); border: 1px solid var(--gold-border); border-radius: 10px; padding: 3px 8px; font-size: 10px; font-weight: 600; color: var(--gold); }
+.learning-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); }
+
+.draft-text { width: 100%; background: var(--bg0); border: 1px solid var(--border2); border-radius: 10px; padding: 16px; font-size: 13px; line-height: 1.85; color: var(--t2); resize: none; min-height: 200px; outline: none; transition: border-color 0.2s; }
+.draft-text:focus { border-color: var(--gold-border); background: rgba(245,158,11,0.03); color: var(--t1); }
+.draft-text[readonly] { cursor: default; }
+
+.draft-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
+.btn-approve { padding: 10px 22px; border-radius: 50px; background: var(--gold); border: none; color: #04080F; font-size: 13px; font-weight: 800; transition: all 0.15s; letter-spacing: 0.01em; }
+.btn-approve:hover { background: #FBBF24; transform: translateY(-1px); }
+.btn-approve.sent { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.3); cursor: default; transform: none; }
+.btn-ghost { padding: 10px 18px; border-radius: 50px; background: transparent; border: 1px solid var(--border2); color: var(--t2); font-size: 13px; font-weight: 600; transition: all 0.15s; }
+.btn-ghost:hover { border-color: var(--border2); color: var(--t1); background: rgba(255,255,255,0.04); }
+.btn-teach { padding: 10px 18px; border-radius: 50px; background: var(--gold-dim); border: 1px solid var(--gold-border); color: var(--gold); font-size: 13px; font-weight: 700; transition: all 0.15s; }
+.btn-teach:hover { background: rgba(245,158,11,0.18); }
+.regen-spin { display: inline-block; animation: spin 0.6s linear; }
+@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+.sent-banner { background: var(--green-dim); border: 1px solid rgba(34,197,94,0.2); border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; gap: 10px; }
+.sent-banner-icon { font-size: 18px; }
+.sent-banner-text { font-size: 13px; font-weight: 600; color: var(--green); }
+.sent-banner-sub { font-size: 11px; color: rgba(22,163,74,0.7); margin-top: 2px; }
+
+/* ─── INVOICE PANEL ──────────────────────────── */
+.invoice-wrap { padding: 22px 28px 32px; }
+.invoice-card { background: #fff; border-radius: 12px; overflow: hidden; color: #111; }
+.inv-header { background: #0A0F1E; padding: 24px 28px; display: flex; justify-content: space-between; align-items: flex-start; }
+.inv-logo-name { font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+.inv-logo-sub { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+.inv-title-block { text-align: right; }
+.inv-title { font-size: 22px; font-weight: 900; color: #F59E0B; letter-spacing: -0.03em; }
+.inv-num { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+.inv-body { padding: 24px 28px; }
+.inv-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.inv-meta-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #999; margin-bottom: 4px; }
+.inv-meta-val { font-size: 13px; font-weight: 600; color: #111; }
+.inv-meta-val-sub { font-size: 11px; color: #666; margin-top: 1px; }
+.inv-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+.inv-table th { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #999; padding: 8px 0; border-bottom: 2px solid #F1F1F1; text-align: left; }
+.inv-table th:last-child { text-align: right; }
+.inv-table td { padding: 11px 0; border-bottom: 1px solid #F5F5F5; font-size: 13px; color: #333; vertical-align: top; }
+.inv-table td:last-child { text-align: right; font-weight: 600; }
+.inv-totals { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.inv-total-row { display: flex; gap: 24px; font-size: 13px; }
+.inv-total-label { color: #666; }
+.inv-total-val { font-weight: 600; color: #333; min-width: 80px; text-align: right; }
+.inv-total-row.grand { border-top: 2px solid #111; padding-top: 8px; margin-top: 4px; }
+.inv-total-row.grand .inv-total-label { font-weight: 800; color: #111; font-size: 15px; }
+.inv-total-row.grand .inv-total-val { font-weight: 900; color: #F59E0B; font-size: 15px; }
+.inv-footer { background: #F9FAFB; padding: 14px 28px; font-size: 11px; color: #999; display: flex; justify-content: space-between; align-items: center; }
+.inv-actions { display: flex; gap: 8px; margin-top: 16px; }
+.btn-inv-approve { padding: 10px 22px; border-radius: 50px; background: #F59E0B; border: none; color: #04080F; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.15s; }
+.btn-inv-approve:hover { background: #FBBF24; }
+.btn-inv-ghost { padding: 10px 18px; border-radius: 50px; background: transparent; border: 1px solid rgba(0,0,0,0.15); color: #555; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+/* ─── FULL VIEWS ─────────────────────────────── */
+.full-view { flex: 1; overflow-y: auto; padding: 32px; }
+.view-header { margin-bottom: 28px; }
+.view-eyebrow { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em; color: var(--gold); margin-bottom: 6px; }
+.view-title { font-size: 22px; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 4px; }
+.view-desc { font-size: 13px; color: var(--t3); line-height: 1.7; }
+
+/* Learning view */
+.learning-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 12px; }
+.lc-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
+.lc-rule { font-size: 14px; font-weight: 600; color: var(--t1); line-height: 1.5; flex: 1; padding-right: 16px; }
+.lc-applied { font-size: 11px; color: var(--gold); font-weight: 600; background: var(--gold-dim); border: 1px solid var(--gold-border); padding: 3px 8px; border-radius: 8px; white-space: nowrap; }
+.lc-meta { font-size: 11px; color: var(--t3); }
+.lc-source { color: var(--t2); font-style: italic; }
+.new-learning-banner { background: var(--gold-dim); border: 1px solid var(--gold-border); border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; animation: fadeIn 0.4s; }
+@keyframes fadeIn { from{opacity:0; transform:translateY(-6px)} to{opacity:1; transform:translateY(0)} }
+.nlb-text { font-size: 13px; font-weight: 600; color: var(--gold); }
+
+/* ─── LIVE DEMO ANIMATIONS ───────────────────── */
+@keyframes emailSlideIn { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
+.email-arriving { animation: emailSlideIn 0.45s cubic-bezier(.34,1.56,.64,1) forwards; }
+@keyframes aiScan { 0%{left:-80%;opacity:0} 15%{opacity:1} 85%{opacity:1} 100%{left:180%;opacity:0} }
+.ai-scan-line { position:absolute; bottom:0; left:0; right:0; height:1px; overflow:hidden; pointer-events:none; }
+.ai-scan-line::after { content:''; position:absolute; top:0; width:50%; height:100%; background:linear-gradient(90deg,transparent,var(--gold),transparent); animation:aiScan 1.3s ease-in-out infinite; }
+@keyframes dotBounce { 0%,100%{opacity:0.25;transform:scale(0.8)} 50%{opacity:1;transform:scale(1)} }
+.ai-dot { display:inline-block; width:4px; height:4px; border-radius:50%; background:var(--gold); animation:dotBounce 1s ease-in-out infinite; }
+.ai-dot:nth-child(2){animation-delay:.18s} .ai-dot:nth-child(3){animation-delay:.36s}
+.cursor-blink { display:inline-block; width:2px; height:13px; background:var(--gold); animation:cursorBlink 0.65s step-end infinite; vertical-align:text-bottom; margin-left:1px; }
+@keyframes cursorBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+@keyframes toastIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+.live-toast { position:fixed; top:20px; right:20px; background:#0F172A; border:1px solid rgba(245,158,11,0.45); border-radius:12px; padding:11px 18px; display:flex; align-items:center; gap:10px; z-index:300; box-shadow:0 8px 32px rgba(0,0,0,0.18); animation:toastIn 0.35s cubic-bezier(.34,1.56,.64,1); }
+.toast-pulse { width:8px; height:8px; border-radius:50%; background:var(--gold); box-shadow:0 0 10px var(--gold); animation:pulse 1s ease-in-out infinite; }
+.toast-text { font-size:12px; font-weight:700; color:var(--gold); }
+@keyframes approvePulse { 0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0)} 50%{box-shadow:0 0 0 8px rgba(245,158,11,0.25)} }
+.approve-pulse { animation:approvePulse 1.2s ease-in-out infinite; }
+
+/* Settings view */
+.settings-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 20px; }
+.settings-card-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--t3); margin-bottom: 18px; }
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--t3); margin-bottom: 7px; }
+.field input, .field textarea, .field select { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border2); border-radius: 9px; padding: 10px 13px; font-size: 13px; color: var(--t1); outline: none; transition: border-color 0.2s; }
+.field input:focus, .field textarea:focus { border-color: var(--gold-border); background: rgba(245,158,11,0.03); }
+.field input::placeholder, .field textarea::placeholder { color: var(--t4); }
+.field textarea { resize: vertical; min-height: 72px; }
+.settings-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.btn-save { padding: 11px 26px; border-radius: 50px; background: var(--gold); border: none; color: #04080F; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.15s; }
+.btn-save:hover { background: #FBBF24; }
+
+/* Drafts view table */
+.drafts-table { width: 100%; }
+.dt-row { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: background 0.15s; }
+.dt-row:hover { background: var(--bg3); }
+.dt-cat { flex-shrink: 0; }
+.dt-main { flex: 1; min-width: 0; }
+.dt-sender { font-size: 13px; font-weight: 700; color: var(--t1); }
+.dt-subject { font-size: 12px; color: var(--t2); margin-top: 2px; }
+.dt-preview { font-size: 11px; color: var(--t3); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dt-action { flex-shrink: 0; }
+
+/* Invoices view */
+.inv-list-row { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 16px; }
+.inv-amount { font-size: 18px; font-weight: 800; color: var(--gold); }
+.inv-status { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 8px; }
+.inv-status.pending { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold-border); }
+.inv-status.sent { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+.inv-status.draft { background: rgba(255,255,255,0.04); color: var(--t3); border: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+
+/* ════════════════════════════════════════════════
+   DEMO DATA
+════════════════════════════════════════════════ */
+
+const BUSINESS = {
+  name: 'OTW Plumbing & Gas',
+  owner: 'Jake Mitchell',
+  phone: '0412 888 777',
+  email: 'jake@otwplumbing.com.au',
+  services: 'Hot water systems, Gas fitting, Leak detection & repair, Drain unblocking, New builds & rough-in, Grease traps',
+  hourlyRate: '140',
+  callOutFee: '95',
+  serviceArea: 'Inner-north Melbourne — Northcote, Thornbury, Preston, Fitzroy, Carlton',
+  tone: 'Professional but approachable — like a trusted expert, not a salesperson. Always mention our 12-month workmanship guarantee.',
+  signature: 'Cheers,\nJake Mitchell\nOTW Plumbing & Gas  |  0412 888 777\nFully licensed & insured  |  otwplumbing.com.au',
+};
+
+const EMAILS = [
+  {
+    id: 1,
+    category: 'urgent',
+    from: 'Sarah Chen',
+    email: 'sarah.chen@gmail.com',
+    avatarBg: '#7C3AED',
+    subject: 'URGENT — burst pipe, flooding under floorboards',
+    preview: 'Our main bathroom pipe just burst about 20 minutes ago...',
+    body: `Hi,
+
+Our main bathroom pipe just burst about 20 minutes ago and water is flooding under the floorboards. We've turned off the mains but there's already a lot of damage spreading into the hallway.
+
+We're at 14 Rosella Street, Northcote. Can someone please come out as soon as possible?
+
+We're in a bit of a panic.
+
+Sarah Chen
+0423 111 222`,
+    time: '8:42 AM',
+    date: 'Today',
+    unread: true,
+    draft: `Hi Sarah,
+
+We're on our way — expect us between 9:30–10:00 AM.
+
+In the meantime:
+• Keep the mains turned off
+• Place towels along the water line to limit spread
+• Move any electronics or valuables out of the affected area
+• Don't use any electrical appliances near the water
+
+We'll assess the full extent when we arrive and walk you through the work and cost before we start anything. Our call-out is $95 and any work after that we'll quote on-site.
+
+Hang tight — we'll be there shortly.
+
+${BUSINESS.signature}`,
+    hasInvoice: false,
+  },
+  {
+    id: 2,
+    category: 'work',
+    from: 'Dave Thompson',
+    email: 'd.thompson@icloud.com',
+    avatarBg: '#0EA5E9',
+    subject: 'Quote request — hot water system replacement',
+    preview: 'Our Rheem system is about 14 years old and has been playing up...',
+    body: `Hi there,
+
+Our Rheem hot water system is about 14 years old and has been playing up lately — slow to heat, and I think there might be a slow leak at the base.
+
+We're a family of 4 and we're interested in replacing it with a gas continuous flow. We're at 7 Elm Street, Thornbury.
+
+Could you give us a quote? Happy to have someone come and take a look.
+
+Thanks,
+Dave Thompson`,
+    time: '7:15 AM',
+    date: 'Today',
+    unread: true,
+    draft: `Hi Dave,
+
+Thanks for reaching out — a 14-year-old Rheem has had a solid run. Based on what you've described (slow heating + possible base leak), it's likely at end-of-life rather than worth repairing.
+
+For a family of 4 on continuous flow, we'd typically recommend a Rinnai 26L or Rinnai B26 — reliable, gas-efficient, and excellent pressure. All-in installed, you're generally looking at $2,100–$2,600 depending on the complexity of the run and whether the gas line needs extending.
+
+I'd like to pop out and take a look before we lock anything in — no charge for the site visit. Are you free this week, or would Saturday morning work?
+
+${BUSINESS.signature}`,
+    hasInvoice: true,
+    invoiceData: {
+      number: 'QTE-2026-0041',
+      date: '16 Apr 2026',
+      to: 'Dave Thompson',
+      address: '7 Elm Street, Thornbury VIC 3071',
+      items: [
+        { desc: 'Rinnai 26L Continuous Flow Gas Hot Water System (B26 — supply & install)', qty: 1, rate: 1850, amount: 1850 },
+        { desc: 'Removal & disposal of existing Rheem storage unit', qty: 1, rate: 185, amount: 185 },
+        { desc: 'Gas line inspection, pressure test & connection', qty: 1, rate: 160, amount: 160 },
+        { desc: 'Certificate of compliance (gas work)', qty: 1, rate: 95, amount: 95 },
+      ],
+      subtotal: 2290,
+      gst: 229,
+      total: 2519,
+    }
+  },
+  {
+    id: 3,
+    category: 'work',
+    from: 'Marcus Reid',
+    email: 'marcus@reidbuilds.com.au',
+    avatarBg: '#059669',
+    subject: 'Rough-in quote — 4-bed townhouse, Coburg North',
+    preview: 'Hi Jake, Marcus here from Reid Builds. We\'ve got a 4-bedroom...',
+    body: `Hi Jake,
+
+Marcus here from Reid Builds. We've got a 4-bedroom townhouse going up on Smith Street, Coburg North — slab pour is in 3 weeks so we need a rough-in quote sorted ASAP.
+
+Spec sheet attached (3 bathrooms + ensuite, laundry, kitchen, outdoor entertaining area with sink). We use copper throughout, no shortcuts.
+
+Let me know if you want to do a site visit before quoting. We've worked with you before on the Alphington project and the quality was excellent.
+
+Marcus
+Reid Builds | 0412 999 333`,
+    time: 'Yesterday',
+    date: 'Yesterday',
+    unread: false,
+    draft: `Hi Marcus,
+
+Great to hear from you — glad the Alphington job worked out well, the team enjoyed that one.
+
+We've got capacity starting next month so the timing lines up well. A site visit before the slab is the right call — saves headaches later, especially with 4 wet areas and an outdoor run.
+
+Are you free Thursday afternoon, say 1:30–2pm? I can walk the plans with you on-site and get you a firm number by end of week. For a 4-bed, 3.5-bath copper rough-in you're typically looking at $16k–$22k depending on run distances and fitting spec, but I'll nail that down after the site visit.
+
+${BUSINESS.signature}`,
+    hasInvoice: false,
+  },
+  {
+    id: 4,
+    category: 'inbox',
+    from: 'Tony Caruso',
+    email: 'tcaruso@tonysbistro.com.au',
+    avatarBg: '#DC2626',
+    subject: 'Invoice #1089 — can you resend?',
+    preview: 'Could you resend invoice #1089 for the grease trap work...',
+    body: `Hi,
+
+Could you resend invoice #1089 for the grease trap work you did on the 3rd? Our accounts person can't find the original email and the due date is coming up.
+
+No urgency — just when you get a chance.
+
+Cheers,
+Tony
+Tony's Bistro`,
+    time: '2 days ago',
+    date: 'Tuesday',
+    unread: false,
+    draft: `Hi Tony,
+
+No worries — I'll have our accounts team resend invoice #1089 to your address this afternoon. If it ends up in spam, check your junk folder, or let me know if you'd prefer it sent to a different email address.
+
+${BUSINESS.signature}`,
+    hasInvoice: false,
+  },
+  {
+    id: 5,
+    category: 'inbox',
+    from: 'Priya Sharma',
+    email: 'priya.sharma@gmail.com',
+    avatarBg: '#9333EA',
+    subject: '5 stars — best plumber we\'ve ever used',
+    preview: 'Just wanted to say the team was absolutely fantastic yesterday...',
+    body: `Hi Jake,
+
+Just wanted to say the team were absolutely fantastic yesterday. They arrived on time, explained everything clearly before starting, left the place completely spotless, and the price was exactly what you quoted — no surprises.
+
+We've already recommended you to our neighbours at number 12. I'm going to leave you a Google review right now.
+
+Thanks again,
+Priya`,
+    time: '3 days ago',
+    date: 'Monday',
+    unread: false,
+    draft: `Hi Priya,
+
+That genuinely made our day — thank you so much! The lads will be chuffed to hear it.
+
+A Google review means the world to a small business like ours — it really does help people find us when they need a plumber in a pinch. Here's the direct link if it's handy: https://g.page/otwplumbing/review
+
+And thanks for the recommendation to number 12 — we'll take great care of them.
+
+${BUSINESS.signature}`,
+    hasInvoice: false,
+  },
+];
+
+const INITIAL_LEARNING = [
+  {
+    id: 1,
+    rule: 'Always include specific product model recommendations (Rinnai, Rheem, etc.) in hot water quotes — not just generic descriptions',
+    source: 'Edited draft for Dave Thompson',
+    timestamp: '2 days ago',
+    applied: 14,
+  },
+  {
+    id: 2,
+    rule: 'Sign off as "Cheers, Jake" — not "Kind regards" or "Best"',
+    source: 'Pattern detected across 12 approved drafts',
+    timestamp: '1 week ago',
+    applied: 31,
+  },
+  {
+    id: 3,
+    rule: 'For urgent jobs, include an arrival ETA and 3–4 bullet-point safety instructions before any other content',
+    source: 'Edited draft for Sarah Chen',
+    timestamp: 'Today',
+    applied: 3,
+  },
+  {
+    id: 4,
+    rule: 'When quoting builders, always reference a previous job together to reinforce the relationship',
+    source: 'Edited draft for Marcus Reid',
+    timestamp: '3 days ago',
+    applied: 7,
+  },
+];
+
+const INVOICE_LIST = [
+  { id: 'INV-2026-0038', to: 'Liam Walsh', desc: 'Bathroom leak repair + pipe reline', amount: 1240, status: 'sent', date: '12 Apr 2026' },
+  { id: 'INV-2026-0039', to: "Tony's Bistro", desc: 'Grease trap service & clean', amount: 580, status: 'sent', date: '3 Apr 2026' },
+  { id: 'QTE-2026-0041', to: 'Dave Thompson', desc: 'Rinnai 26L continuous flow supply & install', amount: 2519, status: 'pending', date: '16 Apr 2026' },
+  { id: 'QTE-2026-0040', to: 'Marcus Reid (Reid Builds)', desc: 'Rough-in quote — Smith St townhouse', amount: null, status: 'draft', date: '15 Apr 2026' },
+];
+
+/* ════════════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════════════ */
+const getInitials = name => name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+
+/* OTW line-art SVG icons — matches homepage style: 1.5px stroke, round caps */
+const s = { fill:'none', stroke:'currentColor', strokeWidth:'1.5', strokeLinecap:'round', strokeLinejoin:'round' };
+
+function NavIcon({ id }) {
+  const icons = {
+    triage: (
+      <svg width="16" height="16" viewBox="0 0 24 24" {...s}>
+        <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+        <path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/>
+      </svg>
+    ),
+    drafts: (
+      <svg width="16" height="16" viewBox="0 0 24 24" {...s}>
+        <path d="M12 20h9"/>
+        <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+      </svg>
+    ),
+    invoices: (
+      <svg width="16" height="16" viewBox="0 0 24 24" {...s}>
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+        <line x1="10" y1="9" x2="8" y2="9"/>
+      </svg>
+    ),
+    learning: (
+      <svg width="16" height="16" viewBox="0 0 24 24" {...s}>
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/>
+      </svg>
+    ),
+    settings: (
+      <svg width="16" height="16" viewBox="0 0 24 24" {...s}>
+        <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
+        <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
+        <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+        <line x1="1" y1="14" x2="7" y2="14"/>
+        <line x1="9" y1="8" x2="15" y2="8"/>
+        <line x1="17" y1="16" x2="23" y2="16"/>
+      </svg>
+    ),
+  };
+  return icons[id] || null;
+}
+
+function CatIcon({ cat }) {
+  const icons = {
+    urgent: (
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline-block',verticalAlign:'middle',marginRight:3}}>
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+    ),
+    work: (
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline-block',verticalAlign:'middle',marginRight:3}}>
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/>
+      </svg>
+    ),
+    inbox: (
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline-block',verticalAlign:'middle',marginRight:3}}>
+        <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+        <path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/>
+      </svg>
+    ),
+  };
+  return icons[cat] || null;
+}
+
+function CatPill({ cat, size = 'sm' }) {
+  const cls = size === 'lg' ? 'cat-pill-big' : 'cat-pill';
+  const labels = { urgent: 'Urgent', work: 'Work', inbox: 'Inbox' };
+  return <span className={`${cls} ${cat}`}><CatIcon cat={cat}/>{labels[cat]}</span>;
+}
+
+/* ════════════════════════════════════════════════
+   INVOICE PANEL
+════════════════════════════════════════════════ */
+function InvoicePanel({ email, onApprove, approved }) {
+  const d = email.invoiceData;
+  return (
+    <div className="invoice-wrap">
+      <div className="draft-eyebrow" style={{marginBottom:16}}>
+        <span className="draft-eyebrow-label">AI-Generated Quote</span>
+        <div className="draft-divider-line"/>
+        <span className="learning-indicator"><span className="learning-dot"/>Extracted from email</span>
+      </div>
+
+      <div className="invoice-card">
+        <div className="inv-header">
+          <div>
+            <div className="inv-logo-name">{BUSINESS.name}</div>
+            <div className="inv-logo-sub">{BUSINESS.phone}  ·  {BUSINESS.email}</div>
+          </div>
+          <div className="inv-title-block">
+            <div className="inv-title">QUOTE</div>
+            <div className="inv-num">{d.number} · {d.date}</div>
+          </div>
+        </div>
+
+        <div className="inv-body">
+          <div className="inv-meta">
+            <div>
+              <div className="inv-meta-label">Prepared for</div>
+              <div className="inv-meta-val">{d.to}</div>
+              <div className="inv-meta-val-sub">{d.address}</div>
+            </div>
+            <div>
+              <div className="inv-meta-label">Valid for</div>
+              <div className="inv-meta-val">30 days</div>
+              <div className="inv-meta-val-sub">Prices include GST</div>
+            </div>
+          </div>
+
+          <table className="inv-table">
+            <thead>
+              <tr>
+                <th style={{width:'55%'}}>Description</th>
+                <th style={{textAlign:'center'}}>Qty</th>
+                <th style={{textAlign:'right'}}>Rate</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {d.items.map((item, i) => (
+                <tr key={i}>
+                  <td>{item.desc}</td>
+                  <td style={{textAlign:'center',color:'#666'}}>{item.qty}</td>
+                  <td style={{textAlign:'right',color:'#666'}}>${item.rate.toLocaleString()}</td>
+                  <td>${item.amount.toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="inv-totals">
+            <div className="inv-total-row"><span className="inv-total-label">Subtotal</span><span className="inv-total-val">${d.subtotal.toLocaleString()}</span></div>
+            <div className="inv-total-row"><span className="inv-total-label">GST (10%)</span><span className="inv-total-val">${d.gst.toLocaleString()}</span></div>
+            <div className="inv-total-row grand"><span className="inv-total-label">Total (AUD)</span><span className="inv-total-val">${d.total.toLocaleString()}</span></div>
+          </div>
+        </div>
+
+        <div className="inv-footer">
+          <span>12-month workmanship guarantee  ·  All work fully insured</span>
+          <span>ABN: XX XXX XXX XXX</span>
+        </div>
+      </div>
+
+      <div className="inv-actions">
+        {approved
+          ? <div className="sent-banner" style={{flex:1}}><span className="sent-banner-icon">✓</span><div><div className="sent-banner-text">Quote sent to {email.from}</div><div className="sent-banner-sub">Sent along with your reply email</div></div></div>
+          : <>
+              <button className="btn-inv-approve" onClick={onApprove}>✓ Approve & Send Quote</button>
+              <button className="btn-inv-ghost">✏ Edit Quote</button>
+              <button className="btn-inv-ghost">⬇ Download PDF</button>
+            </>
+        }
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════
+   DRAFT PANEL
+════════════════════════════════════════════════ */
+function DraftPanel({ email, onApprove, onLearn, approved, learningCount, typingDraft, isTypingDraft, draftReady }) {
+  const [editing, setEditing] = useState(false);
+  const [text, setText] = useState(email.draft);
+  const [regen, setRegen] = useState(false);
+  const isLiveDraft = (isTypingDraft || draftReady) && email.id === 11;
+
+  const handleRegen = () => {
+    setRegen(true);
+    setTimeout(() => { setText(email.draft); setRegen(false); }, 900);
+  };
+
+  const handleSaveLearn = () => {
+    onLearn(email, text);
+    setEditing(false);
+  };
+
+  if (approved) {
+    return (
+      <div className="draft-panel">
+        <div className="draft-eyebrow">
+          <span className="draft-eyebrow-label">AI Draft</span>
+          <div className="draft-divider-line"/>
+        </div>
+        <div className="sent-banner">
+          <span className="sent-banner-icon">✅</span>
+          <div>
+            <div className="sent-banner-text">Reply sent to {email.from}</div>
+            <div className="sent-banner-sub">Draft approved and sent via Gmail · {email.time}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="draft-panel">
+      <div className="draft-eyebrow">
+        <span className="draft-eyebrow-label">{isTypingDraft && email.id===11 ? 'AI Drafting Reply…' : 'AI Draft'}</span>
+        <div className="draft-divider-line"/>
+        {isTypingDraft && email.id===11
+          ? <span style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:9,fontWeight:700,color:'var(--gold)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>
+              Writing <span className="ai-dot"/> <span className="ai-dot"/> <span className="ai-dot"/>
+            </span>
+          : <div className="learning-indicator">
+              <span className="learning-dot"/><span className="learning-dot" style={{opacity:0.5}}/><span className="learning-dot" style={{opacity:0.25}}/>
+              &nbsp;{learningCount} adaptations applied
+            </div>
+        }
+      </div>
+
+      {isLiveDraft
+        ? <div className="draft-text" style={{whiteSpace:'pre-wrap',overflowY:'auto',minHeight:200,cursor:'default',position:'relative'}}>
+            {isTypingDraft ? typingDraft : text}
+            {isTypingDraft && <span className="cursor-blink"/>}
+          </div>
+        : <textarea
+            className="draft-text"
+            value={regen ? '✦  Rewriting draft...' : text}
+            onChange={e => setText(e.target.value)}
+            readOnly={!editing || regen}
+            rows={10}
+            style={regen ? {color:'var(--t3)',fontStyle:'italic'} : {}}
+          />
+      }
+
+      <div className="draft-actions">
+        {isTypingDraft && email.id===11
+          ? <button className="btn-approve" style={{opacity:0.4,cursor:'not-allowed'}} disabled>✓ Approve & Send</button>
+          : !editing ? (
+          <>
+            <button className={`btn-approve ${draftReady && email.id===11 ? 'approve-pulse' : ''}`} onClick={() => onApprove(email.id)}>✓ Approve & Send</button>
+            <button className="btn-ghost" onClick={() => setEditing(true)}>✏ Edit Draft</button>
+            <button className="btn-ghost" onClick={handleRegen}>
+              <span className={regen ? 'regen-spin' : ''}>↺</span> Regenerate
+            </button>
+          </>
+        ) : (
+          <>
+            <button className="btn-teach" onClick={handleSaveLearn}>⚡ Save + Teach AI</button>
+
+            <button className="btn-ghost" onClick={() => { setEditing(false); setText(email.draft); }}>Cancel</button>
+          </>
+        )}
+      </div>
+
+      {editing && (
+        <p style={{fontSize:11,color:'var(--t3)',marginTop:10,lineHeight:1.7}}>
+          💡 After saving, the AI will learn from your changes and apply them to future drafts like this one.
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════
+   DETAIL PANE
+════════════════════════════════════════════════ */
+function DetailPane({ email, approvedIds, approvedInvoices, onApprove, onApproveInvoice, onLearn, learningCount, typingDraft, isTypingDraft, draftReady }) {
+  const [tab, setTab] = useState('email');
+  const approved = approvedIds.has(email.id);
+  const invApproved = approvedInvoices.has(email.id);
+
+  return (
+    <div className="detail-pane">
+      <div className="detail-tabs">
+        <button className={`detail-tab ${tab==='email'?'active':''}`} onClick={()=>setTab('email')}>Email & Reply</button>
+        {email.hasInvoice && <button className={`detail-tab ${tab==='invoice'?'active':''}`} onClick={()=>setTab('invoice')}>📋 Quote / Invoice</button>}
+      </div>
+
+      <div className="detail-scroll">
+        {tab === 'email' && (
+          <>
+            <div className="email-header">
+              <div className="email-header-top">
+                <div className="email-subject-big">{email.subject}</div>
+                <CatPill cat={email.category} size="lg"/>
+              </div>
+              <div className="sender-row">
+                <div className="sender-avatar" style={{background: email.avatarBg}}>
+                  {getInitials(email.from)}
+                </div>
+                <div className="sender-info">
+                  <div className="sender-name">{email.from}</div>
+                  <div className="sender-email">{email.email}</div>
+                </div>
+                <div className="email-date">{email.date} · {email.time}</div>
+              </div>
+            </div>
+
+            <div className="email-body">
+              <div className="email-body-text">{email.body}</div>
+            </div>
+
+            <DraftPanel
+              email={email}
+              onApprove={onApprove}
+              onLearn={onLearn}
+              approved={approved}
+              learningCount={learningCount}
+              typingDraft={typingDraft}
+              isTypingDraft={isTypingDraft}
+              draftReady={draftReady}
+            />
+          </>
+        )}
+
+        {tab === 'invoice' && email.hasInvoice && (
+          <InvoicePanel email={email} onApprove={() => onApproveInvoice(email.id)} approved={invApproved}/>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════
+   EMAIL LIST
+════════════════════════════════════════════════ */
+function EmailListPane({ emails, selectedId, onSelect, filter, setFilter, approvedIds, aiReadingId, arrivingId }) {
+  const filtered = filter === 'all' ? emails : emails.filter(e => e.category === filter);
+  const counts = { urgent: emails.filter(e=>e.category==='urgent').length, work: emails.filter(e=>e.category==='work').length, inbox: emails.filter(e=>e.category==='inbox').length };
+  const unreadCount = emails.filter(e => e.unread && !approvedIds.has(e.id)).length;
+
+  return (
+    <div className="email-list-pane">
+      <div className="list-header">
+        <div className="list-title" style={{display:'flex',alignItems:'center',gap:8}}>
+          Triage Queue
+          {unreadCount > 0 && <span className="nav-badge">{unreadCount}</span>}
+        </div>
+        <div className="filter-row">
+          <button className={`filter-pill ${filter==='all'?'active':''}`} onClick={()=>setFilter('all')}>All {emails.length}</button>
+          <button className={`filter-pill urgent ${filter==='urgent'?'active':''}`} onClick={()=>setFilter('urgent')}>Urgent {counts.urgent}</button>
+          <button className={`filter-pill ${filter==='work'?'active':''}`} onClick={()=>setFilter('work')}>Work {counts.work}</button>
+          <button className={`filter-pill ${filter==='inbox'?'active':''}`} onClick={()=>setFilter('inbox')}>Inbox {counts.inbox}</button>
+        </div>
+      </div>
+
+      <div className="email-list">
+        {filtered.map(email => {
+          const isApproved = approvedIds.has(email.id);
+          const isUnread = email.unread && !isApproved;
+          return (
+            <div
+              key={email.id}
+              className={`email-row ${selectedId === email.id ? 'selected' : ''} ${!isUnread ? 'read' : ''} ${arrivingId === email.id ? 'email-arriving' : ''}`}
+              style={{position:'relative', overflow:'hidden'}}
+              onClick={() => onSelect(email.id)}
+            >
+              <div className={`email-unread-dot ${isUnread ? email.category : 'read'}`}/>
+              <div className="email-row-main">
+                <div className="email-row-top">
+                  <span className="email-sender">{email.from}</span>
+                  <span className="email-time">{email.time}</span>
+                </div>
+                <div className="email-subject">{email.subject}</div>
+                <div className="email-preview">{email.preview}</div>
+                <div style={{marginTop:4}}>
+                  {aiReadingId === email.id
+                    ? <span style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:9,fontWeight:700,color:'var(--gold)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{color:'var(--gold)'}}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>
+                        AI reading <span className="ai-dot"/> <span className="ai-dot"/> <span className="ai-dot"/>
+                      </span>
+                    : isApproved
+                      ? <span className="approved-check">✓ Sent</span>
+                      : <CatPill cat={email.category}/>
+                  }
+                </div>
+              </div>
+              {aiReadingId === email.id && <div className="ai-scan-line"/>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════
+   LEARNING VIEW
+════════════════════════════════════════════════ */
+function LearningView({ history, newItems }) {
+  return (
+    <div className="full-view">
+      <div className="view-header">
+        <div className="view-eyebrow">AI Learning Loop</div>
+        <div className="view-title">Smart Triage Adaptations</div>
+        <div className="view-desc">Every time you edit or approve a draft, OTW TriageAI learns your preferences and applies them automatically to future replies. This is your AI getting smarter every day.</div>
+      </div>
+
+      {newItems.length > 0 && (
+        <div className="new-learning-banner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>
+          <div className="nlb-text">New: {newItems[newItems.length-1].rule}</div>
+        </div>
+      )}
+
+      <div style={{display:'flex',gap:16,marginBottom:24}}>
+        <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:12,padding:'16px 20px',flex:1}}>
+          <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em',color:'var(--t3)',marginBottom:6}}>Total Adaptations</div>
+          <div style={{fontSize:28,fontWeight:900,color:'var(--gold)'}}>{history.length}</div>
+        </div>
+        <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:12,padding:'16px 20px',flex:1}}>
+          <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em',color:'var(--t3)',marginBottom:6}}>Times Applied</div>
+          <div style={{fontSize:28,fontWeight:900,color:'var(--gold)'}}>{history.reduce((s,h)=>s+h.applied,0)}</div>
+        </div>
+        <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:12,padding:'16px 20px',flex:1}}>
+          <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em',color:'var(--t3)',marginBottom:6}}>Avg. Draft Time</div>
+          <div style={{fontSize:28,fontWeight:900,color:'var(--gold)'}}>2.4<span style={{fontSize:14,color:'var(--t3)',fontWeight:400}}> sec</span></div>
+        </div>
+      </div>
+
+      {[...history].reverse().map(item => (
+        <div key={item.id} className="learning-card">
+          <div className="lc-header">
+            <div className="lc-rule">"{item.rule}"</div>
+            <div className="lc-applied">Applied {item.applied}×</div>
+          </div>
+          <div className="lc-meta">
+            <span className="lc-source">Learned from: {item.source}</span>
+            &nbsp;·&nbsp;{item.timestamp}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════
+   DRAFTS VIEW
+════════════════════════════════════════════════ */
+function DraftsView({ emails, approvedIds, onSelectEmail }) {
+  const pending = emails.filter(e => !approvedIds.has(e.id));
+  return (
+    <div className="full-view">
+      <div className="view-header">
+        <div className="view-eyebrow">Pending Approval</div>
+        <div className="view-title">AI Drafts</div>
+        <div className="view-desc">{pending.length} draft{pending.length !== 1 ? 's' : ''} waiting for your approval. Review, edit if needed, then approve to send.</div>
+      </div>
+      {pending.length === 0
+        ? <div style={{textAlign:'center',padding:'60px 0',color:'var(--t3)'}}>
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{margin:'0 auto 12px',display:'block',opacity:0.7}}><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <div style={{fontWeight:600,marginBottom:4}}>All drafts approved</div>
+            <div style={{fontSize:12}}>Nothing waiting in the queue.</div>
+          </div>
+        : pending.map(email => (
+          <div key={email.id} className="dt-row" onClick={() => onSelectEmail(email.id)}>
+            <div className="dt-cat"><CatPill cat={email.category}/></div>
+            <div className="dt-main">
+              <div className="dt-sender">{email.from}</div>
+              <div className="dt-subject">{email.subject}</div>
+              <div className="dt-preview">{email.draft.slice(0, 100)}...</div>
+            </div>
+            <div className="dt-action">
+              <button className="btn-ghost" style={{fontSize:12,padding:'7px 14px'}}>Review →</button>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════
+   INVOICES VIEW
+════════════════════════════════════════════════ */
+function InvoicesView({ approvedInvoices }) {
+  const list = INVOICE_LIST.map(inv =>
+    inv.id === 'QTE-2026-0041' && approvedInvoices.has(2)
+      ? { ...inv, status: 'sent' }
+      : inv
+  );
+  const totalPending = list.filter(i => i.status === 'pending').reduce((s,i) => s + (i.amount||0), 0);
+
+  return (
+    <div className="full-view">
+      <div className="view-header">
+        <div className="view-eyebrow">Automated Invoicing</div>
+        <div className="view-title">Quotes & Invoices</div>
+        <div className="view-desc">AI extracts job details from email conversations and generates professional quotes ready for your approval.</div>
+      </div>
+
+      <div style={{display:'flex',gap:16,marginBottom:24}}>
+        <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:12,padding:'16px 20px',flex:1}}>
+          <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em',color:'var(--t3)',marginBottom:6}}>Pending approval</div>
+          <div style={{fontSize:24,fontWeight:900,color:'var(--gold)'}}>${totalPending.toLocaleString()}</div>
+        </div>
+        <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:12,padding:'16px 20px',flex:1}}>
+          <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em',color:'var(--t3)',marginBottom:6}}>Sent this month</div>
+          <div style={{fontSize:24,fontWeight:900,color:'var(--green)'}}>$1,820</div>
+        </div>
+        <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:12,padding:'16px 20px',flex:1}}>
+          <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em',color:'var(--t3)',marginBottom:6}}>Total generated</div>
+          <div style={{fontSize:24,fontWeight:900,color:'var(--t1)'}}>{list.length}</div>
+        </div>
+      </div>
+
+      {list.map(inv => (
+        <div key={inv.id} className="inv-list-row">
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--t1)',marginBottom:2}}>{inv.to}</div>
+            <div style={{fontSize:12,color:'var(--t2)'}}>{inv.desc}</div>
+            <div style={{fontSize:10,color:'var(--t3)',marginTop:3}}>{inv.id}  ·  {inv.date}</div>
+          </div>
+          <div style={{textAlign:'right',flexShrink:0}}>
+            <div className="inv-amount">{inv.amount ? '$'+inv.amount.toLocaleString() : <span style={{color:'var(--t3)',fontSize:14}}>TBC</span>}</div>
+            <div style={{marginTop:4}}><span className={`inv-status ${inv.status}`}>{inv.status}</span></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════
+   SETTINGS VIEW
+════════════════════════════════════════════════ */
+function SettingsView() {
+  const [profile, setProfile] = useState(BUSINESS);
+  const [saved, setSaved] = useState(false);
+  const set = (k, v) => setProfile(p => ({ ...p, [k]: v }));
+  const handleSave = () => { setSaved(true); setTimeout(() => setSaved(false), 2000); };
+
+  return (
+    <div className="full-view" style={{maxWidth:720}}>
+      <div className="view-header">
+        <div className="view-eyebrow">Configuration</div>
+        <div className="view-title">Business Profile</div>
+        <div className="view-desc">This is what the AI knows about your business. It uses this profile to draft replies, generate quotes, and match your tone of voice.</div>
+      </div>
+
+      <div className="settings-card">
+        <div className="settings-card-title">Business Identity</div>
+        <div className="settings-row">
+          <div className="field"><label>Business name</label><input value={profile.name} onChange={e=>set('name',e.target.value)}/></div>
+          <div className="field"><label>Owner name</label><input value={profile.owner} onChange={e=>set('owner',e.target.value)}/></div>
+        </div>
+        <div className="settings-row">
+          <div className="field"><label>Phone</label><input value={profile.phone} onChange={e=>set('phone',e.target.value)}/></div>
+          <div className="field"><label>Email</label><input value={profile.email} onChange={e=>set('email',e.target.value)}/></div>
+        </div>
+        <div className="field"><label>Service area</label><input value={profile.serviceArea} onChange={e=>set('serviceArea',e.target.value)}/></div>
+      </div>
+
+      <div className="settings-card">
+        <div className="settings-card-title">Services & Pricing</div>
+        <div className="field"><label>Services offered</label><textarea value={profile.services} onChange={e=>set('services',e.target.value)} rows={3}/></div>
+        <div className="settings-row">
+          <div className="field"><label>Hourly rate ($/hr)</label><input type="number" value={profile.hourlyRate} onChange={e=>set('hourlyRate',e.target.value)}/></div>
+          <div className="field"><label>Call-out fee ($)</label><input type="number" value={profile.callOutFee} onChange={e=>set('callOutFee',e.target.value)}/></div>
+        </div>
+      </div>
+
+      <div className="settings-card">
+        <div className="settings-card-title">Tone & Voice</div>
+        <div className="field"><label>Desired tone</label><textarea value={profile.tone} onChange={e=>set('tone',e.target.value)} rows={2} placeholder="e.g. Professional but approachable. Always mention our guarantee."/></div>
+        <div className="field"><label>Email signature</label><textarea value={profile.signature} onChange={e=>set('signature',e.target.value)} rows={4}/></div>
+      </div>
+
+      <button className="btn-save" onClick={handleSave}>
+        {saved ? '✓ Saved' : 'Save Profile'}
+      </button>
+      {saved && <span style={{fontSize:12,color:'var(--green)',marginLeft:12}}>AI will use these settings on your next draft.</span>}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════
+   SIDEBAR
+════════════════════════════════════════════════ */
+function Sidebar({ view, setView, unreadCount, pendingDraftCount, pendingInvoiceCount }) {
+  const navItems = [
+    { id: 'triage',   label: 'Triage Queue',    badge: unreadCount,      badgeType: 'red' },
+    { id: 'drafts',   label: 'AI Drafts',        badge: pendingDraftCount, badgeType: 'gold' },
+    { id: 'invoices', label: 'Invoices',          badge: null },
+    { id: 'learning', label: 'Learning Log',      badge: null },
+    { id: 'settings', label: 'Business Profile',  badge: null },
+  ];
+
+  return (
+    <div className="sidebar">
+      <div className="sb-logo">
+        <div className="sb-logo-row">
+          <div className="sb-dot"/>
+          <div className="sb-name">OTW Studios</div>
+        </div>
+        <div className="sb-product">TriageAI</div>
+        <div className="demo-badge">
+          <div className="demo-dot"/>
+          <span className="demo-text">Demo Mode</span>
+        </div>
+      </div>
+
+      <div className="sb-nav">
+        <div className="sb-section">
+          <div className="sb-section-label">Workflow</div>
+          {navItems.map(item => (
+            <div key={item.id} className={`nav-item ${view === item.id ? 'active' : ''}`} onClick={() => setView(item.id)}>
+              <span className="nav-icon" style={{color: view === item.id ? 'var(--gold)' : 'var(--t3)', display:'flex', alignItems:'center'}}>
+                <NavIcon id={item.id}/>
+              </span>
+              <span className="nav-label">{item.label}</span>
+              {item.badge > 0 && (
+                <span className={`nav-badge ${item.badgeType === 'gold' ? 'gold' : ''}`}>{item.badge}</span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="sb-profile">
+        <div className="sb-profile-name">{BUSINESS.name}</div>
+        <div className="sb-profile-sub">{BUSINESS.owner}</div>
+        <div className="connection-pill">
+          <svg width="6" height="6" viewBox="0 0 6 6" fill="#16A34A"><circle cx="3" cy="3" r="3"/></svg>
+          Demo Connected
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════
+   LIVE DEMO — AUTO-ARRIVING EMAILS
+════════════════════════════════════════════════ */
+const DEMO_EMAIL_A = {
+  id: 10, category: 'work', from: 'Chloe Bartlett', email: 'chloe.b@outlook.com', avatarBg: '#BE185D',
+  subject: 'No hot water since yesterday — Reservoir',
+  preview: "Hi, we've had no hot water since yesterday morning and we're a family of 3...",
+  body: `Hi,\n\nWe've had no hot water since yesterday morning. We're a family of 3 and starting to struggle. Not sure if it's the element or the whole system — it's about 8 years old.\n\nWe're at 22 Station Street, Reservoir. Can you come take a look?\n\nThanks,\nChloe\n0411 888 999`,
+  time: 'Just now', date: 'Today', unread: true, hasInvoice: false,
+  draft: `Hi Chloe,\n\nNo hot water with a young family is no fun — let's get this sorted quickly.\n\nBased on what you've described it could be a faulty element, thermostat, or end-of-life unit at 8 years. Worth a look before we call it.\n\nI can have someone out tomorrow morning — does 8–9am work? We'll diagnose on-site and give you a clear quote before touching anything.\n\nCheers,\nJake\nJake's Plumbing · 0400 123 456`,
+};
+const DEMO_EMAIL_B = {
+  id: 11, category: 'work', from: 'Tom Nguyen', email: 'tom.nguyen@gmail.com', avatarBg: '#0284C7',
+  subject: 'Quote — full bathroom reno, Preston',
+  preview: "Hi, we're planning a complete bathroom renovation starting next month...",
+  body: `Hi,\n\nWe're planning a full bathroom renovation starting next month. Complete strip-out — new shower, freestanding bath, double vanity, and the toilet needs to move about 400mm to the left for the new layout.\n\nProperty is at 8 Oakton Ave, Preston. We have a builder for tiling and fitout — just need a plumber for rough-in and final connections.\n\nCan you quote? Happy to do a site visit.\n\nThanks,\nTom\n0422 777 888`,
+  time: 'Just now', date: 'Today', unread: true, hasInvoice: false,
+  draft: `Hi Tom,\n\nThanks for reaching out — a full bathroom reno is a great project and the timing works well on our end.\n\nMoving a toilet 400mm is very doable; just depends on slab vs suspended floor, but nothing unusual for Preston homes.\n\nFor a full rough-in (shower, freestanding bath, double vanity, toilet relocation) plus final connections, you're typically looking at $3,200–$4,800 all-in — but I'd like to walk the space before locking in a number.\n\nAre you free for a quick site visit this week? Thursday afternoon or Friday morning work well for me. I can have a written quote to you within 24 hours of the visit.\n\nCheers,\nJake\nJake's Plumbing · 0400 123 456`,
+};
+
+/* ════════════════════════════════════════════════
+   APP ROOT
+════════════════════════════════════════════════ */
+function App() {
+  const [view, setView] = useState('triage');
+  const [selectedId, setSelectedId] = useState(null);
+  const [filter, setFilter] = useState('all');
+  const [approvedIds, setApprovedIds] = useState(new Set());
+  const [approvedInvoices, setApprovedInvoices] = useState(new Set());
+  const [learningHistory, setLearningHistory] = useState(INITIAL_LEARNING);
+  const [newLearningItems, setNewLearningItems] = useState([]);
+
+  // Live demo state
+  const [liveEmails, setLiveEmails] = useState(EMAILS.slice(1)); // Start without email 1
+  const [aiReadingId, setAiReadingId] = useState(null);
+  const [arrivingId, setArrivingId] = useState(null);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMsg, setToastMsg] = useState('');
+  const [typingDraft, setTypingDraft] = useState('');
+  const [isTypingDraft, setIsTypingDraft] = useState(false);
+  const [draftReady, setDraftReady] = useState(false);
+  const typeTimerRef = React.useRef(null);
+  const typeIdxRef = React.useRef(0);
+
+  // Auto-play on mount
+  React.useEffect(() => {
+    const timers = [];
+    const t = (ms, fn) => { const id = setTimeout(fn, ms); timers.push(id); };
+
+    // Email A arrives
+    t(1400, () => { setToastMsg('📧 New email'); setShowToast(true); });
+    t(2200, () => {
+      setArrivingId(10);
+      setLiveEmails(prev => [DEMO_EMAIL_A, ...prev]);
+      setAiReadingId(10);
+    });
+    t(4200, () => { setAiReadingId(null); setShowToast(false); });
+    t(4800, () => { setArrivingId(null); });
+
+    // Email B arrives
+    t(6000, () => { setToastMsg('📧 New email'); setShowToast(true); });
+    t(6800, () => {
+      setArrivingId(11);
+      setLiveEmails(prev => [DEMO_EMAIL_B, ...prev]);
+      setAiReadingId(11);
+    });
+    t(8600, () => { setAiReadingId(null); setShowToast(false); });
+    t(9200, () => { setArrivingId(null); setSelectedId(11); });
+
+    // Draft typewriter
+    t(10000, () => {
+      setIsTypingDraft(true);
+      typeIdxRef.current = 0;
+      const full = DEMO_EMAIL_B.draft;
+      typeTimerRef.current = setInterval(() => {
+        typeIdxRef.current += 1;
+        setTypingDraft(full.slice(0, typeIdxRef.current));
+        if (typeIdxRef.current >= full.length) {
+          clearInterval(typeTimerRef.current);
+          setIsTypingDraft(false);
+          setDraftReady(true);
+        }
+      }, 22);
+    });
+
+    return () => {
+      timers.forEach(clearTimeout);
+      if (typeTimerRef.current) clearInterval(typeTimerRef.current);
+    };
+  }, []);
+
+  const selectedEmail = liveEmails.find(e => e.id === selectedId);
+
+  const unreadCount = liveEmails.filter(e => e.unread && !approvedIds.has(e.id)).length;
+  const pendingDraftCount = liveEmails.filter(e => !approvedIds.has(e.id)).length;
+  const pendingInvoiceCount = liveEmails.filter(e => e.hasInvoice && !approvedInvoices.has(e.id)).length;
+
+  const handleApprove = id => {
+    setApprovedIds(prev => new Set([...prev, id]));
+  };
+
+  const handleApproveInvoice = id => {
+    setApprovedInvoices(prev => new Set([...prev, id]));
+    handleApprove(id); // also approve the email reply
+  };
+
+  const handleLearn = (email, editedText) => {
+    const newItem = {
+      id: Date.now(),
+      rule: `Adapted reply style for ${email.category} emails from ${email.from.split(' ')[0]}`,
+      source: `Manually edited draft for ${email.from}`,
+      timestamp: 'Just now',
+      applied: 1,
+    };
+    setLearningHistory(prev => [...prev, newItem]);
+    setNewLearningItems(prev => [...prev, newItem]);
+  };
+
+  const handleSelectEmail = id => {
+    setSelectedId(id);
+    setView('triage');
+  };
+
+  return (
+    <div className="app">
+      {showToast && (
+        <div className="live-toast">
+          <div className="toast-pulse"/>
+          <span className="toast-text">{toastMsg}</span>
+        </div>
+      )}
+
+      <div className="app-main">
+        <Sidebar
+          view={view}
+          setView={setView}
+          unreadCount={unreadCount}
+          pendingDraftCount={pendingDraftCount}
+          pendingInvoiceCount={pendingInvoiceCount}
+        />
+
+        <div className="main-content">
+          {view === 'triage' && (
+            <div className="triage-view">
+              <EmailListPane
+                emails={liveEmails}
+                selectedId={selectedId}
+                onSelect={setSelectedId}
+                filter={filter}
+                setFilter={setFilter}
+                approvedIds={approvedIds}
+                aiReadingId={aiReadingId}
+                arrivingId={arrivingId}
+              />
+              {selectedEmail
+                ? <DetailPane
+                    email={selectedEmail}
+                    approvedIds={approvedIds}
+                    approvedInvoices={approvedInvoices}
+                    onApprove={handleApprove}
+                    onApproveInvoice={handleApproveInvoice}
+                    onLearn={handleLearn}
+                    learningCount={learningHistory.length}
+                    typingDraft={typingDraft}
+                    isTypingDraft={isTypingDraft}
+                    draftReady={draftReady}
+                  />
+                : <div className="detail-pane">
+                    <div className="detail-empty">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(15,23,42,0.18)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+                        <path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/>
+                      </svg>
+                      <div className="empty-text">Emails arrive here automatically<br/>Watch the AI triage them in real time</div>
+                    </div>
+                  </div>
+              }
+            </div>
+          )}
+
+          {view === 'drafts' && (
+            <DraftsView emails={liveEmails} approvedIds={approvedIds} onSelectEmail={handleSelectEmail}/>
+          )}
+
+          {view === 'invoices' && (
+            <InvoicesView approvedInvoices={approvedInvoices}/>
+          )}
+
+          {view === 'learning' && (
+            <LearningView history={learningHistory} newItems={newLearningItems}/>
+          )}
+
+          {view === 'settings' && (
+            <SettingsView/>
+          )}
+        </div>
+      </div>
+      <div className="app-footer">Powered by OTW Studios</div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
