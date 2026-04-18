@@ -28,6 +28,12 @@
     .gold-glow { box-shadow: 0 0 40px rgba(245,158,11,0.18); }
     .card-dark { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s; }
     .card-dark:hover { background: rgba(255,255,255,0.07); border-color: rgba(245,158,11,0.3); }
+
+    /* Flowchart animations */
+    @keyframes drawLine { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+    @keyframes fadeNode { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes pulseDot { 0%,100% { r: 4; opacity:1; } 50% { r: 6; opacity:0.7; } }
+    @keyframes pulseRingScale { 0%,100% { transform:scale(1); opacity:0.18; } 50% { transform:scale(1.07); opacity:0.06; } }
     .section-fade { background: linear-gradient(180deg, #f8fafc 0%, #0A0F1E 100%); height: 100px; margin-top: -1px; }
     input:focus, textarea:focus { outline: none; }
   </style>
@@ -108,6 +114,300 @@ const stats = [
   { value:'< 90s',  label:'Emergency escalation' },
   { value:'0',      label:'Tech skills required' },
 ];
+
+// ── WORKFLOW FLOWCHART ───────────────────────────────
+function WorkflowChart() {
+  const [animStep, setAnimStep] = useState(0);
+  const [selectedId, setSelectedId] = useState(null);
+  const [svgKey, setSvgKey] = useState(0);
+  const containerRef = useRef(null);
+  const timersRef = useRef([]);
+
+  // ms from animation start when each step activates
+  const TIMING = [500, 1700, 2900, 4200, 5400, 6400];
+
+  function startAnimation() {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+    setAnimStep(0);
+    setSelectedId(null);
+    setSvgKey(k => k + 1);
+    TIMING.forEach((ms, i) => {
+      const t = setTimeout(() => setAnimStep(i + 1), ms);
+      timersRef.current.push(t);
+    });
+  }
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) startAnimation(); },
+      { threshold: 0.25 }
+    );
+    if (containerRef.current) observer.observe(containerRef.current);
+    return () => {
+      observer.disconnect();
+      timersRef.current.forEach(clearTimeout);
+    };
+  }, []);
+
+  // ── Node definitions ─────────────────────────────────────────────
+  // step: when this node activates in the sequence
+  // type: customer | product | product-hero | outcome
+  const NODES = {
+    cust_call:   { step:1, cx:65,  cy:130, r:42, type:'customer',     label:['Phone','Call'],      icon:'📞' },
+    cust_email:  { step:1, cx:65,  cy:305, r:42, type:'customer',     label:['Email','Enquiry'],   icon:'📧' },
+    receptionist:{ step:2, cx:238, cy:130, w:148, h:60, type:'product',     label:'AI Receptionist', sub:'FAQ · Quotes · Lead capture', href:'otw_ai_receptionist.html', live:true },
+    triageai:    { step:3, cx:228, cy:305, w:128, h:60, type:'product',     label:'OTW TriageAI',    sub:'Draft · Categorise · Log',    href:'otw_triageai.html',         live:true },
+    scheduling:  { step:4, cx:460, cy:218, w:172, h:74, type:'product-hero',label:'OTW Scheduling',  sub:'The automation hub',          href:'otw_scheduling.html',       live:false },
+    debt:        { step:5, cx:655, cy:130, w:148, h:60, type:'product',     label:'DebtCollector',   sub:'Invoice follow-up',           href:'otw_debtcollector.html',    live:false },
+    review:      { step:5, cx:655, cy:305, w:148, h:60, type:'product',     label:'ReviewGenius',    sub:'5-star requests',             href:'otw_reviewgenius.html',     live:false },
+    out_paid:    { step:6, cx:808, cy:130, r:36, type:'outcome',      label:['Invoice','Paid'],    icon:'💰' },
+    out_review:  { step:6, cx:808, cy:305, r:36, type:'outcome',      label:['5-Star','Review'],   icon:'⭐' },
+  };
+
+  // Edge helpers for rects
+  function rLeft(n)  { return n.cx - n.w/2; }
+  function rRight(n) { return n.cx + n.w/2; }
+
+  const R = NODES;
+  // ── Path definitions ─────────────────────────────────────────────
+  const PATHS = [
+    { id:'p1', step:2, fromStep:1, d:`M 107 130 L ${rLeft(R.receptionist)} 130`,           dotBegin:'1.0s', dotDur:'0.55s' },
+    { id:'p2', step:3, fromStep:1, d:`M 107 305 L ${rLeft(R.triageai)} 305`,               dotBegin:'2.2s', dotDur:'0.55s' },
+    { id:'p3', step:4, fromStep:2, d:`M ${rRight(R.receptionist)} 130 C 390 130 374 185 ${rLeft(R.scheduling)} 218`,  dotBegin:'3.4s', dotDur:'0.75s' },
+    { id:'p4', step:4, fromStep:3, d:`M ${rRight(R.triageai)} 305 C 390 305 374 255 ${rLeft(R.scheduling)} 218`,     dotBegin:'3.4s', dotDur:'0.75s' },
+    { id:'p5', step:5, fromStep:4, d:`M ${rRight(R.scheduling)} 218 C 565 218 580 178 ${rLeft(R.debt)} 130`,         dotBegin:'4.6s', dotDur:'0.65s' },
+    { id:'p6', step:5, fromStep:4, d:`M ${rRight(R.scheduling)} 218 C 565 218 580 258 ${rLeft(R.review)} 305`,       dotBegin:'4.6s', dotDur:'0.65s' },
+    { id:'p7', step:6, fromStep:5, d:`M ${rRight(R.debt)} 130 L 772 130`,                  dotBegin:'5.7s', dotDur:'0.4s' },
+    { id:'p8', step:6, fromStep:5, d:`M ${rRight(R.review)} 305 L 772 305`,                dotBegin:'5.7s', dotDur:'0.4s' },
+  ];
+
+  // ── Active step (auto-play OR selected node) ──────────────────────
+  const selStep    = selectedId ? (NODES[selectedId]?.step ?? animStep) : animStep;
+  const isLit      = step => step <= selStep;
+  const isDimmed   = step => selectedId !== null && step > selStep;
+
+  function nodeOpacity(step) {
+    if (!isLit(step)) return 0;
+    return isDimmed(step) ? 0.2 : 1;
+  }
+  function pathOpacity(step) {
+    if (!isLit(step)) return 0;
+    return isDimmed(step) ? 0.12 : 1;
+  }
+
+  // Stroke color for paths
+  function pathStroke(step) {
+    if (!isLit(step)) return 'rgba(255,255,255,0.1)';
+    if (isDimmed(step)) return 'rgba(255,255,255,0.15)';
+    return '#F59E0B';
+  }
+
+  function productFill(id, step) {
+    if (!isLit(step) || isDimmed(step)) return 'rgba(255,255,255,0.04)';
+    return NODES[id]?.type === 'product-hero' ? 'rgba(245,158,11,0.18)' : 'rgba(245,158,11,0.10)';
+  }
+  function productStroke(id, step) {
+    if (!isLit(step) || isDimmed(step)) return 'rgba(255,255,255,0.10)';
+    return NODES[id]?.type === 'product-hero' ? 'rgba(245,158,11,0.85)' : 'rgba(245,158,11,0.50)';
+  }
+
+  function handleNodeClick(id) {
+    setSelectedId(prev => prev === id ? null : id);
+    timersRef.current.forEach(clearTimeout); // pause auto-play when user interacts
+  }
+
+  const F = { fontFamily:'Inter,sans-serif' };
+  const GOLD = '#F59E0B';
+
+  return (
+    <div ref={containerRef} style={{ width:'100%' }}>
+      {/* Column labels */}
+      <div style={{ display:'flex', justifyContent:'space-between', paddingBottom:14, paddingLeft:14, paddingRight:14, userSelect:'none' }}>
+        {[['YOUR CUSTOMER','rgba(255,255,255,0.3)'],['OTW ECOSYSTEM','#F59E0B'],['OUTCOME','rgba(255,255,255,0.3)']].map(([label, color]) => (
+          <span key={label} style={{ fontSize:10, fontWeight:800, letterSpacing:'2px', color, ...F }}>{label}</span>
+        ))}
+      </div>
+
+      <svg key={svgKey} viewBox="0 0 858 440" style={{ width:'100%', height:'auto', overflow:'visible' }}>
+        <defs>
+          <filter id="glow-gold-jrn" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glow-hero" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="6" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          {PATHS.map(p => <path key={`def-${p.id}`} id={p.id} d={p.d}/>)}
+        </defs>
+
+        {/* ── PATHS ── drawn behind everything ─────────────────── */}
+        {PATHS.map(path => (
+          <g key={path.id}>
+            {/* Ghost track */}
+            <path d={path.d} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1.5" strokeLinecap="round"/>
+            {/* Live path */}
+            <path
+              d={path.d} fill="none"
+              stroke={pathStroke(path.step)}
+              strokeWidth={path.step === 4 ? 2 : 1.8}
+              strokeLinecap="round"
+              pathLength="1"
+              style={{
+                strokeDasharray: 1,
+                strokeDashoffset: isLit(path.step) ? 0 : 1,
+                transition: 'stroke-dashoffset 0.75s ease, opacity 0.35s',
+                opacity: pathOpacity(path.step),
+              }}
+            />
+            {/* Traveling dot — only during auto-play (no selectedId) */}
+            {!selectedId && (
+              <circle r="5.5" fill={GOLD} opacity="0">
+                <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.05;0.85;1"
+                  dur={path.dotDur} begin={path.dotBegin} fill="remove"/>
+                <animateMotion dur={path.dotDur} begin={path.dotBegin} fill="remove">
+                  <mpath href={`#${path.id}`}/>
+                </animateMotion>
+              </circle>
+            )}
+          </g>
+        ))}
+
+        {/* ── CUSTOMER CIRCLES ─────────────────────────────────── */}
+        {['cust_call','cust_email'].map(id => {
+          const n = NODES[id];
+          const lit = isLit(n.step);
+          const op = nodeOpacity(n.step);
+          return (
+            <g key={id} style={{ opacity: op, transition:'opacity 0.5s' }}>
+              <circle cx={n.cx} cy={n.cy} r={n.r}
+                fill="rgba(255,255,255,0.05)" stroke={lit && !isDimmed(n.step) ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.10)'}
+                strokeWidth="1.5"/>
+              <text x={n.cx} y={n.cy - 10} textAnchor="middle"
+                style={{ fontSize:18, ...F }}>{n.icon}</text>
+              <text x={n.cx} y={n.cy + 7} textAnchor="middle"
+                style={{ fontSize:9, fontWeight:700, fill:'rgba(255,255,255,0.7)', letterSpacing:'0.3px', ...F }}>
+                {n.label[0]}
+              </text>
+              <text x={n.cx} y={n.cy + 18} textAnchor="middle"
+                style={{ fontSize:9, fontWeight:700, fill:'rgba(255,255,255,0.7)', ...F }}>
+                {n.label[1]}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* ── PRODUCT NODES ────────────────────────────────────── */}
+        {['receptionist','triageai','scheduling','debt','review'].map(id => {
+          const n = NODES[id];
+          const lit = isLit(n.step);
+          const dimmed = isDimmed(n.step);
+          const isHero = n.type === 'product-hero';
+          const op = nodeOpacity(n.step);
+          const x = n.cx - n.w/2, y = n.cy - n.h/2;
+
+          return (
+            <g key={id}
+              style={{
+                cursor: lit ? 'pointer' : 'default',
+                opacity: op,
+                transition: 'opacity 0.5s',
+                filter: lit && !dimmed && selectedId === id ? 'url(#glow-gold-jrn)' : (isHero && lit && !dimmed ? 'url(#glow-hero)' : 'none'),
+              }}
+              onClick={() => lit && handleNodeClick(id)}
+            >
+              {/* Hero ring */}
+              {isHero && lit && !dimmed && (
+                <rect x={x - 5} y={y - 5} width={n.w + 10} height={n.h + 10} rx={18}
+                  fill="none" stroke="rgba(245,158,11,0.25)" strokeWidth="1.5"
+                  style={{ animation:'pulseRingScale 3s ease-in-out infinite' }}/>
+              )}
+              {/* Card */}
+              <rect x={x} y={y} width={n.w} height={n.h} rx={13}
+                fill={productFill(id, n.step)}
+                stroke={productStroke(id, n.step)}
+                strokeWidth={isHero ? 2 : 1.5}
+                style={{ transition:'fill 0.4s, stroke 0.4s' }}
+              />
+              {/* Selected highlight */}
+              {selectedId === id && (
+                <rect x={x} y={y} width={n.w} height={n.h} rx={13}
+                  fill="none" stroke={GOLD} strokeWidth="2.5" opacity="0.9"/>
+              )}
+              {/* Live / In-dev badge */}
+              {n.live ? (
+                <><rect x={x + n.w - 42} y={y + 6} width={36} height={13} rx={6} fill="rgba(245,158,11,0.22)"/>
+                  <text x={x + n.w - 24} y={y + 15} textAnchor="middle"
+                    style={{ fontSize:7, fontWeight:800, fill:GOLD, letterSpacing:'0.5px', ...F }}>LIVE</text></>
+              ) : (
+                <><rect x={x + n.w - 54} y={y + 6} width={48} height={13} rx={6} fill="rgba(255,255,255,0.05)"/>
+                  <text x={x + n.w - 30} y={y + 15} textAnchor="middle"
+                    style={{ fontSize:7, fontWeight:700, fill:'rgba(255,255,255,0.25)', letterSpacing:'0.3px', ...F }}>IN DEV</text></>
+              )}
+              {/* Label */}
+              <text x={n.cx} y={n.cy - 5} textAnchor="middle"
+                style={{ fontSize: isHero ? 13 : 12, fontWeight:800,
+                  fill: lit && !dimmed ? '#fff' : 'rgba(255,255,255,0.22)', ...F }}>
+                {n.label}
+              </text>
+              {/* Sub-label */}
+              <text x={n.cx} y={n.cy + 11} textAnchor="middle"
+                style={{ fontSize:9, fontWeight:500,
+                  fill: lit && !dimmed ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.15)', ...F }}>
+                {n.sub}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* ── OUTCOME CIRCLES ──────────────────────────────────── */}
+        {['out_paid','out_review'].map(id => {
+          const n = NODES[id];
+          const lit = isLit(n.step);
+          const dimmed = isDimmed(n.step);
+          const op = nodeOpacity(n.step);
+          return (
+            <g key={id} style={{ opacity: op, transition:'opacity 0.5s' }}>
+              <circle cx={n.cx} cy={n.cy} r={n.r}
+                fill={lit && !dimmed ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.03)'}
+                stroke={lit && !dimmed ? 'rgba(245,158,11,0.5)' : 'rgba(255,255,255,0.08)'}
+                strokeWidth="1.5" style={{ transition:'fill 0.4s, stroke 0.4s' }}/>
+              <text x={n.cx} y={n.cy - 8} textAnchor="middle"
+                style={{ fontSize:17, ...F }}>{n.icon}</text>
+              <text x={n.cx} y={n.cy + 7} textAnchor="middle"
+                style={{ fontSize:8.5, fontWeight:700, fill: lit && !dimmed ? GOLD : 'rgba(255,255,255,0.2)', ...F }}>
+                {n.label[0]}
+              </text>
+              <text x={n.cx} y={n.cy + 18} textAnchor="middle"
+                style={{ fontSize:8.5, fontWeight:700, fill: lit && !dimmed ? GOLD : 'rgba(255,255,255,0.2)', ...F }}>
+                {n.label[1]}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* ── SECTION DIVIDERS (faint vertical lines) ──────────── */}
+        <line x1="130" y1="30" x2="130" y2="410" stroke="rgba(255,255,255,0.05)" strokeWidth="1" strokeDasharray="4 6"/>
+        <line x1="580" y1="30" x2="580" y2="410" stroke="rgba(255,255,255,0.05)" strokeWidth="1" strokeDasharray="4 6"/>
+
+        {/* ── HINT TEXT ─────────────────────────────────────────── */}
+        {animStep >= 6 && !selectedId && (
+          <text x={429} y={430} textAnchor="middle"
+            style={{ fontSize:9.5, fill:'rgba(255,255,255,0.25)', ...F, animation:'fadeNode 0.6s ease forwards' }}>
+            Click any product to see the journey so far
+          </text>
+        )}
+        {selectedId && (
+          <text x={429} y={430} textAnchor="middle"
+            style={{ fontSize:9.5, fill:'rgba(245,158,11,0.55)', ...F }}>
+            Click again to deselect · Click another product to compare
+          </text>
+        )}
+      </svg>
+    </div>
+  );
+}
 
 function AuditCTA({ light = false, label = 'Start your free audit' }) {
   return (
@@ -328,39 +628,47 @@ function App() {
         {/* ── HOW IT WORKS ────────────────────────────────── */}
         <section id="how-it-works" className="bg-navy-800 py-24 border-t border-white/5">
           <div className="mx-auto max-w-7xl px-6">
-            <div className="flex flex-col gap-14 lg:flex-row lg:items-start lg:gap-24">
-              <div className="max-w-md lg:sticky lg:top-28">
-                <p className="text-xs font-bold uppercase tracking-widest text-gold-500">How it works</p>
-                <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                  We build it. We manage it. You run your business.
-                </h2>
-                <p className="mt-4 text-base leading-7 text-white/55">
-                  OTW tools aren't software you configure yourself. We work with you to understand how your business operates, then we build and manage the system on your behalf.
-                </p>
-                <a href="otw_audit.html"
-                  className="mt-8 inline-block rounded-full bg-gold-500 px-6 py-3 text-sm font-semibold text-white hover:bg-gold-600 transition-colors">
-                  Start your free audit
-                </a>
-              </div>
+            {/* Header */}
+            <div className="max-w-2xl mb-12">
+              <p className="text-xs font-bold uppercase tracking-widest text-gold-500">How it works</p>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                Your customer contacts you. OTW handles everything after.
+              </h2>
+              <p className="mt-4 text-base leading-7 text-white/50">
+                From the first phone call or email, through to booking, invoicing, and reviews — the OTW ecosystem manages the full workflow so you never have to.
+              </p>
+            </div>
 
-              <div className="flex-1 space-y-8">
-                {[
-                  { n:'01', title:'You fill out the free audit', body:'Tell us about your business — your services, service area, call types, and where the bottlenecks are. Takes 5 minutes.' },
-                  { n:'02', title:'We configure the system for you', body:'OTW handles all the technical setup. You review the output, confirm it sounds right, and approve it before anything goes live.' },
-                  { n:'03', title:'Your workflow runs automatically', body:'Calls answered, leads captured, jobs routed, replies drafted — all without your team managing any of it.' },
-                  { n:'04', title:'We improve it over time', body:'Monthly reporting, proactive recommendations, and ongoing refinements mean the system gets better the longer you use it.' },
-                ].map(item => (
-                  <div key={item.n} className="flex gap-6 group">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-500/30 text-sm font-bold text-gold-500 group-hover:bg-gold-500/10 transition-colors">
-                      {item.n}
-                    </div>
-                    <div className="pt-1">
-                      <div className="text-base font-semibold text-white">{item.title}</div>
-                      <p className="mt-1.5 text-sm leading-6 text-white/50">{item.body}</p>
-                    </div>
+            {/* Full-width animated journey chart */}
+            <div className="w-full mb-14">
+              <WorkflowChart/>
+            </div>
+
+            {/* Steps grid below chart */}
+            <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
+              {[
+                { n:'01', title:'Customer gets in touch', body:'A call or email comes in — at any hour. OTW catches it instantly, no missed leads.' },
+                { n:'02', title:'AI handles it', body:'Receptionist answers the call. TriageAI reads the email. Both respond in your voice, in seconds.' },
+                { n:'03', title:'Scheduling takes over', body:'Qualified jobs get booked directly into your calendar. No back-and-forth. No admin.' },
+                { n:'04', title:'You get paid and reviewed', body:'Invoices are chased automatically. After the job, the review request goes out on its own.' },
+              ].map(item => (
+                <div key={item.n} className="flex gap-4 group">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gold-500/30 text-xs font-bold text-gold-500 group-hover:bg-gold-500/10 transition-colors mt-0.5">
+                    {item.n}
                   </div>
-                ))}
-              </div>
+                  <div>
+                    <div className="text-sm font-semibold text-white">{item.title}</div>
+                    <p className="mt-1 text-xs leading-5 text-white/45">{item.body}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-10 text-center">
+              <a href="otw_audit.html"
+                className="inline-block rounded-full bg-gold-500 px-7 py-3.5 text-sm font-semibold text-white hover:bg-gold-600 transition-colors">
+                See what this is costing you — free audit
+              </a>
             </div>
           </div>
         </section>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OTW ReviewGenius — Coming Soon</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,sans-serif;}
+    body{background:#04080F;color:#fff;min-height:100vh;}
+    .inp{background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px 18px;color:#fff;font-size:15px;width:100%;outline:none;transition:border-color 0.2s;}
+    .inp:focus{border-color:rgba(245,158,11,0.6);}
+    .inp::placeholder{color:rgba(255,255,255,0.25);}
+    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+    ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
+  </style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+const PRODUCT = {
+  name: 'OTW ReviewGenius',
+  tagline: 'Turn completed jobs into 5-star reviews.',
+  description: 'After every job, OTW ReviewGenius automatically sends a personalised review request to your customer. Happy customers are directed straight to Google. Unhappy ones are caught privately before they post. AI drafts a response to every review you receive — you approve, they go live.',
+  features: [
+    'Auto review requests sent after every completed job',
+    'Smart routing — 5-star customers go to Google, issues stay private',
+    'AI-drafted responses to every Google review',
+    'Connects to your existing job management system',
+    'Monthly review performance reporting included',
+  ],
+};
+
+function App() {
+  const [email, setEmail] = useState('');
+  const [name, setName]   = useState('');
+  const [done, setDone]   = useState(false);
+
+  return (
+    <div style={{minHeight:'100vh',background:'#04080F'}}>
+      <header style={{position:'fixed',top:0,left:0,right:0,zIndex:50,background:'rgba(4,8,15,0.92)',backdropFilter:'blur(12px)',borderBottom:'1px solid rgba(255,255,255,0.07)',padding:'14px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <a href="index.html" style={{textDecoration:'none'}}>
+          <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>OTW Studios</div>
+          <div style={{fontSize:9,fontWeight:700,color:'#F59E0B',textTransform:'uppercase',letterSpacing:'0.14em',marginTop:1}}>Optimise The Workflow</div>
+        </a>
+        <a href="otw_audit.html" style={{background:'#F59E0B',color:'#04080F',borderRadius:50,padding:'9px 20px',fontWeight:800,fontSize:13,textDecoration:'none'}}>Start free audit</a>
+      </header>
+
+      <div style={{maxWidth:680,margin:'0 auto',padding:'100px 24px 80px'}}>
+        <div style={{display:'inline-flex',alignItems:'center',gap:8,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:50,padding:'6px 16px',marginBottom:28}}>
+          <div style={{width:6,height:6,borderRadius:'50%',background:'rgba(255,255,255,0.3)',animation:'pulse 2s ease infinite'}}/>
+          <span style={{fontSize:10,fontWeight:800,color:'rgba(255,255,255,0.4)',textTransform:'uppercase',letterSpacing:'0.12em'}}>In development</span>
+        </div>
+
+        <h1 style={{fontSize:48,fontWeight:900,color:'#fff',letterSpacing:'-0.03em',lineHeight:1.05,marginBottom:12}}>{PRODUCT.name}</h1>
+        <p style={{fontSize:20,fontWeight:600,color:'#F59E0B',marginBottom:20,letterSpacing:'-0.01em'}}>{PRODUCT.tagline}</p>
+        <p style={{fontSize:15,color:'rgba(255,255,255,0.5)',lineHeight:1.75,marginBottom:36,maxWidth:520}}>{PRODUCT.description}</p>
+
+        <div style={{marginBottom:48}}>
+          {PRODUCT.features.map((f,i) => (
+            <div key={i} style={{display:'flex',alignItems:'center',gap:12,marginBottom:12,opacity:0.5}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+              <span style={{fontSize:14,color:'rgba(255,255,255,0.4)'}}>{f}</span>
+            </div>
+          ))}
+        </div>
+
+        <div style={{height:1,background:'rgba(255,255,255,0.07)',marginBottom:48}}/>
+
+        {done ? (
+          <div style={{background:'rgba(245,158,11,0.08)',border:'1px solid rgba(245,158,11,0.25)',borderRadius:20,padding:'36px',textAlign:'center'}}>
+            <div style={{fontSize:28,marginBottom:12}}>✓</div>
+            <div style={{fontSize:18,fontWeight:700,color:'#fff',marginBottom:8}}>You're on the list</div>
+            <p style={{fontSize:13,color:'rgba(255,255,255,0.4)'}}>We'll reach out the moment OTW ReviewGenius is ready for your business.</p>
+          </div>
+        ) : (
+          <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:20,padding:'36px'}}>
+            <div style={{fontSize:11,fontWeight:800,color:'rgba(255,255,255,0.3)',textTransform:'uppercase',letterSpacing:'0.14em',marginBottom:6}}>Be first to know</div>
+            <h3 style={{fontSize:22,fontWeight:800,color:'#fff',letterSpacing:'-0.02em',marginBottom:8}}>Register your interest</h3>
+            <p style={{fontSize:13,color:'rgba(255,255,255,0.38)',marginBottom:24,lineHeight:1.6}}>Leave your details and Andy will reach out personally when OTW ReviewGenius is ready. Founding Partner pricing available to early registrants.</p>
+            <div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:16}}>
+              <input className="inp" type="text" placeholder="Your name" value={name} onChange={e=>setName(e.target.value)}/>
+              <input className="inp" type="email" placeholder="Your email address" value={email} onChange={e=>setEmail(e.target.value)}/>
+            </div>
+            <button onClick={()=>{ if(email&&name) setDone(true); }} style={{width:'100%',background:'#F59E0B',color:'#04080F',border:'none',borderRadius:50,padding:'15px',fontWeight:800,fontSize:15,cursor:'pointer',fontFamily:'Inter'}}>
+              Register my interest →
+            </button>
+            <p style={{marginTop:12,fontSize:11,color:'rgba(255,255,255,0.2)',textAlign:'center'}}>No spam. One message when it's ready.</p>
+          </div>
+        )}
+
+        <div style={{marginTop:40,textAlign:'center'}}>
+          <a href="index.html" style={{fontSize:12,color:'rgba(255,255,255,0.2)',textDecoration:'none'}}>← Back to OTW Studios</a>
+        </div>
+      </div>
+      <div style={{textAlign:'center',padding:'16px 24px 36px',borderTop:'1px solid rgba(255,255,255,0.05)'}}>
+        <span style={{fontSize:10,fontWeight:500,color:'rgba(255,255,255,0.12)'}}>Powered by OTW Studios</span>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
