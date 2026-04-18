@@ -3,674 +3,600 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OTW Studios: Workflow automation for service businesses</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+  <title>OTW Studios — Workflow automation for service businesses</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            navy: {
-              950: '#04080F',
-              900: '#0A0F1E',
-              800: '#0F1629',
-              700: '#172035',
-              600: '#1E2D47',
-              500: '#2A3F5F',
-            },
-            gold: {
-              300: '#FDE68A',
-              400: '#FCD34D',
-              500: '#F59E0B',
-              600: '#D97706',
-              700: '#B45309',
-            }
+            navy: { 950:'#04080F', 900:'#0A0F1E', 800:'#0F1629', 700:'#172035' },
+            gold: { 300:'#FDE68A', 400:'#FCD34D', 500:'#F59E0B', 600:'#D97706', 700:'#B45309' }
           },
-          fontFamily: {
-            sans: ['-apple-system', 'BlinkMacSystemFont', 'Inter', 'Segoe UI', 'sans-serif'],
-          }
+          fontFamily: { sans: ['Inter','system-ui','sans-serif'] }
         }
       }
     }
   </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-    * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    * { font-family: 'Inter', system-ui, sans-serif; }
     html { scroll-behavior: smooth; }
-    .section-transition {
-      background: linear-gradient(180deg, #f8fafc 0%, #0A0F1E 100%);
-      height: 120px;
-      margin-top: -1px;
-    }
-    .gold-glow { box-shadow: 0 0 40px rgba(245, 158, 11, 0.15); }
-    .card-dark { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+    .gold-glow { box-shadow: 0 0 40px rgba(245,158,11,0.18); }
+    .card-dark { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s; }
     .card-dark:hover { background: rgba(255,255,255,0.07); border-color: rgba(245,158,11,0.3); }
-    .card-dark { transition: all 0.2s ease; }
+    .section-fade { background: linear-gradient(180deg, #f8fafc 0%, #0A0F1E 100%); height: 100px; margin-top: -1px; }
+    input:focus, textarea:focus { outline: none; }
   </style>
 </head>
 <body class="bg-white text-slate-900 antialiased">
-  <div id="root"></div>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
 
-  <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+const s = { fill:'none', stroke:'currentColor', strokeWidth:'1.5', strokeLinecap:'round', strokeLinejoin:'round' };
 
-    /* Industry SVG line-art icons */
-    function IndIcon({ type }) {
-      const s = { fill:"none", stroke:"currentColor", strokeWidth:"1.5", strokeLinecap:"round", strokeLinejoin:"round" };
-      const icons = {
-        plumbing: (
-          <svg width="22" height="22" viewBox="0 0 24 24" {...s}>
-            <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
-          </svg>
-        ),
-        electrical: (
-          <svg width="22" height="22" viewBox="0 0 24 24" {...s}>
-            <polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/>
-          </svg>
-        ),
-        hvac: (
-          <svg width="22" height="22" viewBox="0 0 24 24" {...s}>
-            <path d="M9.59 4.59A2 2 0 1111 8H2m10.59 11.41A2 2 0 1014 16H2m15.73-8.27A2.5 2.5 0 1119.5 12H2"/>
-          </svg>
-        ),
-        carpentry: (
-          <svg width="22" height="22" viewBox="0 0 24 24" {...s}>
-            <path d="M3 21l9-9m4.5-9.5l-2 2 5 5 2-2a3.536 3.536 0 00-5-5z"/>
-            <path d="M9.5 14.5L4 20"/>
-          </svg>
-        ),
-        landscaping: (
-          <svg width="22" height="22" viewBox="0 0 24 24" {...s}>
-            <path d="M12 22V12"/>
-            <path d="M12 12C12 7 7 4 2 4c0 5 3 8 10 8z"/>
-            <path d="M12 12c0-5 5-8 10-8 0 5-3 8-10 8z"/>
-          </svg>
-        ),
-        cleaning: (
-          <svg width="22" height="22" viewBox="0 0 24 24" {...s}>
-            <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/>
-            <path d="M5 19l2-2m7 3l-2-2M19 5l-2 2"/>
-          </svg>
-        ),
-        pest: (
-          <svg width="22" height="22" viewBox="0 0 24 24" {...s}>
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            <path d="M9 12l2 2 4-4"/>
-          </svg>
-        ),
-        auto: (
-          <svg width="22" height="22" viewBox="0 0 24 24" {...s}>
-            <path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v9a2 2 0 01-2 2h-2"/>
-            <circle cx="9" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>
-            <path d="M9 7h6l1 3H8l1-3z"/>
-          </svg>
-        ),
-      };
-      return icons[type] || null;
-    }
+function IndIcon({ type }) {
+  const icons = {
+    plumbing:    <svg width="22" height="22" viewBox="0 0 24 24" {...s}><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>,
+    electrical:  <svg width="22" height="22" viewBox="0 0 24 24" {...s}><polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/></svg>,
+    hvac:        <svg width="22" height="22" viewBox="0 0 24 24" {...s}><path d="M9.59 4.59A2 2 0 1011 8H2m10.59 11.41A2 2 0 1014 16H2m15.73-8.27A2.5 2.5 0 1119.5 12H2"/></svg>,
+    carpentry:   <svg width="22" height="22" viewBox="0 0 24 24" {...s}><path d="M3 21l9-9m4.5-9.5l-2 2 5 5 2-2a3.536 3.536 0 00-5-5z"/><path d="M9.5 14.5L4 20"/></svg>,
+    landscaping: <svg width="22" height="22" viewBox="0 0 24 24" {...s}><path d="M12 22V12"/><path d="M12 12C12 7 7 4 2 4c0 5 3 8 10 8z"/><path d="M12 12c0-5 5-8 10-8 0 5-3 8-10 8z"/></svg>,
+    cleaning:    <svg width="22" height="22" viewBox="0 0 24 24" {...s}><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/><path d="M5 19l2-2m7 3l-2-2M19 5l-2 2"/></svg>,
+    pest:        <svg width="22" height="22" viewBox="0 0 24 24" {...s}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>,
+    auto:        <svg width="22" height="22" viewBox="0 0 24 24" {...s}><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v9a2 2 0 01-2 2h-2"/><circle cx="9" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M9 7h6l1 3H8l1-3z"/></svg>,
+  };
+  return icons[type] || null;
+}
 
-    const products = [
-      {
-        status: "live", badge: "Available now",
-        name: "OTW Receptionist",
-        tagline: "Answer every call. Capture every lead.",
-        description: "A fully managed AI phone receptionist configured around your business: your services, your service area, your urgency rules. Answers calls, qualifies leads, handles FAQs, and routes the right next step while your team keeps working.",
-        industries: ["Plumbing", "Electrical", "HVAC", "Trade services"],
-        cta: "See OTW Receptionist", href: "otw_ai_receptionist.html", highlight: true,
-      },
-      {
-        status: "live", badge: "Available now",
-        name: "OTW TriageAI",
-        tagline: "Sort every email. Draft replies in your voice.",
-        description: "A fully managed email triage system that reads, categorises, and drafts replies to every inbound message. Urgent jobs get flagged. Quotes get tracked. Admin gets handled. All without you touching the inbox.",
-        industries: ["Plumbing", "Electrical", "Trade services"],
-        cta: "See OTW TriageAI", href: "otw_triageai.html", highlight: false,
-      },
-      {
-        status: "coming", badge: "Coming soon",
-        name: "OTW Scheduling",
-        tagline: "Book jobs without the back-and-forth.",
-        description: "Automated scheduling that works around your team's availability, job types, and service area. Reduce manual booking admin and keep your calendar full without constant interruptions.",
-        industries: ["Trade services", "Service businesses"],
-        cta: "Notify me when ready", href: "mailto:andy@otwstudios.com.au?subject=Interest: OTW Scheduling - OTW Studios", highlight: false,
-      },
-      {
-        status: "coming", badge: "Coming soon",
-        name: "OTW ReviewGenius",
-        tagline: "Turn completed jobs into 5-star reviews.",
-        description: "After every job, automatically sends a personalised review request. Happy customers go straight to Google. Unhappy ones are caught privately before they post. AI drafts responses to every review you receive.",
-        industries: ["All trade services", "Service businesses"],
-        cta: "Notify me when ready", href: "mailto:andy@otwstudios.com.au?subject=Interest: OTW ReviewGenius - OTW Studios", highlight: false,
-      },
-      {
-        status: "coming", badge: "Coming soon",
-        name: "OTW DebtCollector",
-        tagline: "Stop chasing. Start getting paid.",
-        description: "Connects to Xero or MYOB and runs a structured follow-up sequence on every overdue invoice — from friendly reminder to final notice — in your voice. Stops automatically the moment you're paid.",
-        industries: ["Plumbing", "Electrical", "All trade services"],
-        cta: "Notify me when ready", href: "mailto:andy@otwstudios.com.au?subject=Interest: OTW DebtCollector - OTW Studios", highlight: false,
-      },
-    ];
+const products = [
+  {
+    status:'live', badge:'Available now',
+    name:'OTW Receptionist',
+    tagline:'Answer every call. Capture every lead.',
+    description:'A fully managed AI phone receptionist configured around your business — your services, service area, and urgency rules. Answers calls, qualifies leads, handles FAQs, and routes every next step while your team stays on the job.',
+    highlight: true,
+  },
+  {
+    status:'live', badge:'Available now',
+    name:'OTW TriageAI',
+    tagline:'Sort every email. Draft replies in your voice.',
+    description:'A fully managed email triage system that reads, categorises, and drafts replies to every inbound message. Urgent jobs get flagged. Quotes get tracked. Admin gets handled — without you touching the inbox.',
+    highlight: false,
+  },
+  {
+    status:'coming', badge:'Coming soon',
+    name:'OTW Scheduling',
+    tagline:'Book jobs without the back-and-forth.',
+    description:'Automated scheduling that works around your team\'s availability, job types, and service area. Keep your calendar full without constant interruptions.',
+    highlight: false,
+  },
+  {
+    status:'coming', badge:'Coming soon',
+    name:'OTW ReviewGenius',
+    tagline:'Turn completed jobs into 5-star reviews.',
+    description:'After every job, automatically sends a personalised review request. Happy customers go to Google. Unhappy ones are caught privately. AI drafts responses to every review.',
+    highlight: false,
+  },
+  {
+    status:'coming', badge:'Coming soon',
+    name:'OTW DebtCollector',
+    tagline:'Stop chasing. Start getting paid.',
+    description:'Connects to Xero or MYOB and runs a structured follow-up sequence on every overdue invoice — from friendly reminder to final notice — in your voice.',
+    highlight: false,
+  },
+];
 
-    const industries = [
-      { name: "Plumbing",    iconType: "plumbing",    live: true  },
-      { name: "Electrical",  iconType: "electrical",  live: true  },
-      { name: "HVAC",        iconType: "hvac",        live: true  },
-      { name: "Carpentry",   iconType: "carpentry",   live: true  },
-      { name: "Landscaping", iconType: "landscaping", live: false },
-      { name: "Cleaning",    iconType: "cleaning",    live: false },
-      { name: "Pest Control",iconType: "pest",        live: false },
-      { name: "Auto Services",iconType:"auto",        live: false },
-    ];
+const industries = [
+  { name:'Plumbing',     iconType:'plumbing',    live:true  },
+  { name:'Electrical',   iconType:'electrical',  live:true  },
+  { name:'HVAC',         iconType:'hvac',        live:true  },
+  { name:'Carpentry',    iconType:'carpentry',   live:true  },
+  { name:'Landscaping',  iconType:'landscaping', live:false },
+  { name:'Cleaning',     iconType:'cleaning',    live:false },
+  { name:'Pest Control', iconType:'pest',        live:false },
+  { name:'Auto Services',iconType:'auto',        live:false },
+];
 
-    const principles = [
-      { title: "Set up for you, not by you", body: "We configure the system around your business. You don't touch dashboards, write prompts, or manage integrations. That's our job." },
-      { title: "Practical outcomes, not AI theatre", body: "Every tool we build has to make your business more responsive, capture more revenue, or reduce admin. If it doesn't do any of those things, it's not in the product." },
-      { title: "Built to improve over time", body: "We actively monitor and refine how the system behaves. It gets better as your business grows and as real-world call patterns give us more to work with." },
-    ];
+const stats = [
+  { value:'24/7',   label:'Inbound call coverage' },
+  { value:'48 hrs', label:'From sale to live' },
+  { value:'< 90s',  label:'Emergency escalation' },
+  { value:'0',      label:'Tech skills required' },
+];
 
-    const stats = [
-      { value: "24/7", label: "Coverage for inbound calls" },
-      { value: "48 hrs", label: "From sale to live" },
-      { value: "< 90s", label: "Emergency escalation" },
-      { value: "0", label: "Tech skills required" },
-    ];
+function AuditCTA({ light = false, label = 'Start your free audit' }) {
+  return (
+    <a href="otw_audit.html"
+      className={`inline-block rounded-full px-7 py-3.5 text-sm font-semibold transition-colors ${
+        light
+          ? 'bg-gold-500 text-white hover:bg-gold-600 gold-glow'
+          : 'bg-slate-950 text-white hover:bg-slate-800'
+      }`}>
+      {label}
+    </a>
+  );
+}
 
-    function App() {
-      const [scrolled, setScrolled] = useState(false);
-      const [mobileOpen, setMobileOpen] = useState(false);
-      const [waitlistEmail, setWaitlistEmail] = useState("");
-      const [waitlistDone, setWaitlistDone] = useState(false);
-      const heroRef = useRef(null);
+function App() {
+  const [scrolled, setScrolled]   = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [form, setForm]           = useState({ name:'', email:'', message:'' });
+  const [sent, setSent]           = useState(false);
+  const heroRef = useRef(null);
 
-      useEffect(() => {
-        const onScroll = () => {
-          const heroBottom = heroRef.current ? heroRef.current.getBoundingClientRect().bottom : 300;
-          setScrolled(heroBottom < 60);
-        };
-        window.addEventListener("scroll", onScroll, { passive: true });
-        return () => window.removeEventListener("scroll", onScroll);
-      }, []);
+  useEffect(() => {
+    const onScroll = () => {
+      const b = heroRef.current ? heroRef.current.getBoundingClientRect().bottom : 300;
+      setScrolled(b < 60);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
-      const navBg = scrolled
-        ? "bg-navy-900/95 backdrop-blur border-white/10 shadow-lg shadow-black/20"
-        : "bg-white/95 backdrop-blur border-slate-200";
+  const navBg   = scrolled ? 'bg-navy-900/95 backdrop-blur border-white/10 shadow-lg shadow-black/20' : 'bg-white/95 backdrop-blur border-slate-200';
+  const navLogo = scrolled ? 'text-white' : 'text-slate-900';
+  const navSub  = scrolled ? 'text-white/40' : 'text-slate-400';
+  const navLink = scrolled ? 'text-white/60 hover:text-white' : 'text-slate-600 hover:text-slate-900';
 
-      const navLogo    = scrolled ? "text-white"                  : "text-slate-900";
-      const navLogoSub = scrolled ? "text-white/40"               : "text-slate-400";
-      const navLink    = scrolled ? "text-white/60 hover:text-white" : "text-slate-600 hover:text-slate-900";
+  function handleContact(e) {
+    e.preventDefault();
+    if (form.name && form.email && form.message) setSent(true);
+  }
 
-      return (
-        <div className="min-h-screen bg-white">
+  return (
+    <div className="min-h-screen bg-white">
 
-          {/* NAV */}
-          <header className={`fixed top-0 left-0 right-0 z-50 border-b transition-all duration-300 ${navBg}`}>
-            <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-              <a href="/" className="flex flex-col leading-tight">
-                <span className={`text-base font-semibold tracking-tight transition-colors duration-300 ${navLogo}`}>OTW Studios</span>
-                <span className={`text-[11px] transition-colors duration-300 ${navLogoSub}`}>Optimise The Workflow</span>
-              </a>
+      {/* ── NAV ─────────────────────────────────────────── */}
+      <header className={`fixed top-0 left-0 right-0 z-50 border-b transition-all duration-300 ${navBg}`}>
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          <a href="/" className="flex flex-col leading-tight">
+            <span className={`text-base font-bold tracking-tight transition-colors duration-300 ${navLogo}`}>OTW Studios</span>
+            <span className={`text-[10px] uppercase tracking-widest transition-colors duration-300 ${navSub}`}>Optimise The Workflow</span>
+          </a>
 
-              <nav className="hidden gap-7 text-sm md:flex">
-                {[["#products","Products"],["#how-it-works","How it works"],["#industries","Industries"],["#about","About"]].map(([href, label]) => (
-                  <a key={href} href={href} className={`transition-colors duration-300 ${navLink}`}>{label}</a>
-                ))}
-              </nav>
+          <nav className="hidden gap-7 text-sm md:flex">
+            {[['#products','Products'],['#how-it-works','How it works'],['#about','About'],['#contact','Contact']].map(([href,label]) => (
+              <a key={href} href={href} className={`transition-colors duration-300 ${navLink}`}>{label}</a>
+            ))}
+          </nav>
 
-              <div className="hidden gap-3 md:flex">
-                <a href="otw_ai_receptionist.html#demo"
-                  className={`rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300 ${scrolled ? "border-white/20 text-white/80 hover:border-white/40 hover:text-white" : "border-slate-300 text-slate-700 hover:bg-slate-50"}`}>
-                  Try the demo
-                </a>
-                <a href="otw_audit.html"
-                  className="rounded-full bg-gold-500 px-4 py-2 text-sm font-semibold text-white hover:bg-gold-600 transition-colors shadow-sm">
-                  Get a free audit now
-                </a>
-              </div>
+          <div className="hidden gap-3 md:flex">
+            <a href="otw_audit.html"
+              className="rounded-full bg-gold-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gold-600 transition-colors shadow-sm">
+              Start free audit
+            </a>
+          </div>
 
-              <button onClick={() => setMobileOpen(!mobileOpen)}
-                className={`rounded-xl border p-2 md:hidden transition-colors duration-300 ${scrolled ? "border-white/20 text-white" : "border-slate-200 text-slate-700"}`}>
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  {mobileOpen
-                    ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />}
-                </svg>
-              </button>
-            </div>
-
-            {mobileOpen && (
-              <div className={`border-t px-6 py-5 md:hidden ${scrolled ? "bg-navy-900 border-white/10" : "bg-white border-slate-100"}`}>
-                <nav className="flex flex-col gap-4 text-sm">
-                  {[["#products","Products"],["#how-it-works","How it works"],["#industries","Industries"],["#about","About"]].map(([href, label]) => (
-                    <a key={href} href={href} onClick={() => setMobileOpen(false)}
-                      className={scrolled ? "text-white/70" : "text-slate-600"}>{label}</a>
-                  ))}
-                  <div className="flex flex-col gap-2 border-t pt-4 mt-2 border-slate-100">
-                    <a href="otw_ai_receptionist.html#demo" className="rounded-full border border-slate-300 px-4 py-2.5 text-center text-sm font-medium text-slate-700">Try the demo</a>
-                    <a href="otw_audit.html" className="rounded-full bg-gold-500 px-4 py-2.5 text-center text-sm font-semibold text-white">Get a free audit now</a>
-                  </div>
-                </nav>
-              </div>
-            )}
-          </header>
-
-          <main>
-            {/* HERO (LIGHT) */}
-            <section ref={heroRef} className="bg-white pt-28 pb-20 lg:pt-36 lg:pb-24">
-              <div className="mx-auto max-w-7xl px-6">
-                <div className="max-w-4xl">
-                  <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-medium text-slate-500">
-                    <span className="h-1.5 w-1.5 rounded-full bg-gold-500"></span>
-                    Workflow automation for service businesses · Australia
-                  </div>
-                  <h1 className="text-5xl font-bold tracking-tight text-slate-950 leading-[1.07] sm:text-6xl lg:text-7xl">
-                    Your business runs better<br/>when the workflow<br/>
-                    <span className="text-gold-600">runs itself.</span>
-                  </h1>
-                  <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-500">
-                    OTW Studios builds AI-powered workflow tools for service businesses, starting with the phone and inbox. We configure, manage, and improve the system so you don't have to.
-                  </p>
-                  <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <a href="otw_ai_receptionist.html"
-                      className="rounded-full bg-slate-950 px-7 py-3.5 text-sm font-semibold text-white hover:bg-slate-800 transition-colors shadow-sm">
-                      Start with OTW Receptionist
-                    </a>
-                    <a href="otw_ai_receptionist.html#demo"
-                      className="rounded-full border border-slate-300 px-7 py-3.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2">
-                      <svg className="h-4 w-4 text-gold-500" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-                      Hear it live
-                    </a>
-                  </div>
-                  <p className="mt-4 text-xs text-slate-400">Set up in 48 hours · No tech skills required · Fully managed for you</p>
-                </div>
-
-                {/* Stats */}
-                <div className="mt-16 grid gap-px bg-slate-200 sm:grid-cols-2 lg:grid-cols-4 rounded-2xl overflow-hidden border border-slate-200">
-                  {stats.map((s) => (
-                    <div key={s.label} className="bg-white px-6 py-6">
-                      <div className="text-3xl font-bold tracking-tight text-slate-950">{s.value}</div>
-                      <div className="mt-1.5 text-sm text-slate-400">{s.label}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* PROBLEM (LIGHT) */}
-            <section className="bg-slate-50 border-t border-slate-200 py-20">
-              <div className="mx-auto max-w-7xl px-6">
-                <div className="max-w-3xl">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">Why this matters</p>
-                  <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-                    Small service businesses lose revenue to admin, not competition.
-                  </h2>
-                  <p className="mt-4 text-lg text-slate-500">
-                    Missed calls, slow follow-up, quote chaos, and booking admin aren't business problems. They're workflow problems. OTW builds the tools that fix them, without adding to your workload.
-                  </p>
-                </div>
-                <div className="mt-10 grid gap-4 md:grid-cols-3">
-                  {[
-                    { title: "The call you didn't answer", body: "Called a competitor while you were onsite. That's not a lost call. That's a lost job worth $400 to $1,200." },
-                    { title: "The quote you didn't follow up", body: "Sent and forgotten. The customer went with whoever got back to them first. Every unanswered follow-up is revenue walking out." },
-                    { title: "The booking that took four calls", body: "Back-and-forth that should have been automated. Every minute of that is time you don't have." },
-                  ].map((c) => (
-                    <div key={c.title} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                      <div className="text-base font-semibold text-slate-900">{c.title}</div>
-                      <p className="mt-3 text-sm leading-6 text-slate-500">{c.body}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* GRADIENT TRANSITION */}
-            <div className="section-transition"></div>
-
-            {/* PRODUCTS (DARK) */}
-            <section id="products" className="bg-navy-900 py-24">
-              <div className="mx-auto max-w-7xl px-6">
-                <div className="max-w-2xl">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">Products</p>
-                  <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                    Workflow tools built for the way service businesses actually operate.
-                  </h2>
-                </div>
-
-                <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {products.map((p) => (
-                    <div key={p.name}
-                      className={`flex flex-col rounded-3xl p-7 transition-all duration-200 ${
-                        p.highlight ? "bg-gold-500 text-white gold-glow" : "card-dark"
-                      }`}>
-                      <span className={`self-start rounded-full px-3 py-1 text-xs font-semibold ${
-                        p.highlight
-                          ? "bg-white/20 text-white"
-                          : p.status === "live"
-                          ? "bg-gold-500/20 text-gold-400 border border-gold-500/30"
-                          : "bg-white/5 text-white/40 border border-white/10"
-                      }`}>{p.badge}</span>
-
-                      <div className="mt-6 flex-1">
-                        <div className="text-xl font-bold text-white">{p.name}</div>
-                        <div className={`mt-1 text-sm font-medium ${p.highlight ? "text-white/80" : "text-white/50"}`}>{p.tagline}</div>
-                        <p className={`mt-4 text-sm leading-6 ${p.highlight ? "text-white/85" : "text-white/55"}`}>{p.description}</p>
-                        <div className="mt-5 flex flex-wrap gap-2">
-                          {p.industries.map((ind) => (
-                            <span key={ind} className={`rounded-full px-3 py-1 text-xs ${p.highlight ? "bg-white/20 text-white" : "bg-white/5 text-white/40"}`}>{ind}</span>
-                          ))}
-                        </div>
-                      </div>
-
-                      <a href={p.href}
-                        className={`mt-7 inline-block rounded-full px-5 py-3 text-center text-sm font-semibold transition-all ${
-                          p.highlight
-                            ? "bg-white text-navy-900 hover:bg-slate-100"
-                            : p.status === "live"
-                            ? "bg-gold-500 text-white hover:bg-gold-600"
-                            : "border border-white/15 text-white/50 hover:border-white/35 hover:text-white/75 transition-all"
-                        }`}>{p.cta}</a>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* HOW IT WORKS (DARK) */}
-            <section id="how-it-works" className="bg-navy-800 py-24 border-t border-white/5">
-              <div className="mx-auto max-w-7xl px-6">
-                <div className="flex flex-col gap-14 lg:flex-row lg:items-start lg:gap-24">
-                  <div className="max-w-md lg:sticky lg:top-28">
-                    <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">How it works</p>
-                    <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                      We build it. We manage it. You run your business.
-                    </h2>
-                    <p className="mt-4 text-base leading-7 text-white/55">
-                      OTW tools aren't software you configure yourself. We work with you to understand how your business operates, then we build and manage the system on your behalf.
-                    </p>
-                    <a href="otw_ai_receptionist.html"
-                      className="mt-8 inline-block rounded-full bg-gold-500 px-6 py-3 text-sm font-semibold text-white hover:bg-gold-600 transition-colors">
-                      See OTW Receptionist
-                    </a>
-                  </div>
-
-                  <div className="flex-1 space-y-8">
-                    {[
-                      { n: "01", title: "Discovery and setup", body: "We map your business rules: your services, service area, call types, escalation contacts, FAQs, and exactly how you want things handled." },
-                      { n: "02", title: "We configure the system for you", body: "OTW handles all the technical setup. You review the output, confirm it's right, and approve it before anything goes live." },
-                      { n: "03", title: "Your workflow runs automatically", body: "Calls answered, leads captured, jobs routed, confirmations sent, all without your team needing to manage any of it." },
-                      { n: "04", title: "We optimise over time", body: "Monthly reporting, proactive recommendations, and ongoing refinements mean the system gets better the longer you use it." },
-                    ].map((item) => (
-                      <div key={item.n} className="flex gap-6 group">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-500/30 text-sm font-bold text-gold-500 group-hover:bg-gold-500/10 transition-colors">
-                          {item.n}
-                        </div>
-                        <div className="pt-1">
-                          <div className="text-base font-semibold text-white">{item.title}</div>
-                          <p className="mt-1.5 text-sm leading-6 text-white/50">{item.body}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* AI RECEPTIONIST SPOTLIGHT (DARK) */}
-            <section className="bg-navy-900 py-24 border-t border-white/5">
-              <div className="mx-auto max-w-7xl px-6">
-                <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 lg:p-12">
-                  <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:gap-16">
-                    <div className="flex-1">
-                      <span className="inline-flex rounded-full bg-gold-500 px-3.5 py-1 text-xs font-semibold text-white">
-                        Flagship product · Available now
-                      </span>
-                      <h2 className="mt-5 text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                        OTW Receptionist, live within 48 hours for trade businesses.
-                      </h2>
-                      <p className="mt-4 text-base leading-7 text-white/55">
-                        Configured around your workflow, fully managed by OTW. Answers calls, captures leads, handles urgency, and routes every next step while your team stays focused on the job.
-                      </p>
-                      <ul className="mt-7 space-y-2.5">
-                        {[
-                          "Answers inbound calls 24/7",
-                          "Captures and qualifies leads",
-                          "Triages urgent and emergency calls",
-                          "Answers approved FAQs instantly",
-                          "Books appointments on Full Service plan",
-                          "Monthly performance reporting included",
-                        ].map((item) => (
-                          <li key={item} className="flex items-center gap-3 text-sm text-white/70">
-                            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-gold-500" />
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                      <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-                        <a href="otw_ai_receptionist.html"
-                          className="rounded-full bg-gold-500 px-6 py-3 text-center text-sm font-semibold text-white hover:bg-gold-600 transition-colors">
-                          See OTW Receptionist
-                        </a>
-                        <a href="otw_ai_receptionist.html#demo"
-                          className="rounded-full border border-white/15 px-6 py-3 text-center text-sm font-medium text-white/70 hover:border-white/30 hover:text-white transition-all">
-                          Try the live demo
-                        </a>
-                      </div>
-                    </div>
-
-                    {/* Lead summary preview card */}
-                    <div className="lg:w-80 shrink-0">
-                      <div className="rounded-3xl border border-white/10 bg-navy-800 p-5">
-                        <div className="mb-4 flex items-center justify-between">
-                          <span className="text-xs font-semibold uppercase tracking-wider text-white/30">Lead captured</span>
-                          <span className="rounded-full bg-gold-500/15 px-2.5 py-1 text-xs font-medium text-gold-400">11:43 PM</span>
-                        </div>
-                        {[
-                          { label: "Caller",   value: "Sarah Thompson" },
-                          { label: "Issue",    value: "Burst pipe / active leak" },
-                          { label: "Urgency",  value: "HIGH", gold: true },
-                          { label: "Suburb",   value: "Mount Lawley" },
-                          { label: "Status",   value: "Escalated to team" },
-                          { label: "Notified", value: "SMS + email sent" },
-                        ].map((row) => (
-                          <div key={row.label} className="mt-2 flex items-center justify-between rounded-xl bg-white/[0.04] px-3.5 py-2.5 text-sm">
-                            <span className="text-white/40">{row.label}</span>
-                            <span className={`font-semibold ${row.gold ? "text-gold-400" : "text-white/85"}`}>{row.value}</span>
-                          </div>
-                        ))}
-                        <div className="mt-4 rounded-xl bg-gold-500 px-4 py-3 text-center text-sm font-semibold text-white">
-                          Call handled while you slept
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* INDUSTRIES (DARK) */}
-            <section id="industries" className="bg-navy-800 py-24 border-t border-white/5">
-              <div className="mx-auto max-w-7xl px-6">
-                <div className="max-w-3xl">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">Industries</p>
-                  <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                    Built for service businesses where workflow is the bottleneck.
-                  </h2>
-                  <p className="mt-4 text-base leading-7 text-white/50">
-                    OTW tools are configured for specific industries, not generic platforms. We start with trade services and expand from there.
-                  </p>
-                </div>
-                <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  {industries.map((ind) => (
-                    <div key={ind.name}
-                      className={`flex items-center justify-between rounded-2xl border px-4 py-4 transition-all ${
-                        ind.live
-                          ? "border-gold-500/30 bg-gold-500/5 hover:bg-gold-500/10"
-                          : "border-white/5 bg-white/[0.02]"
-                      }`}>
-                      <div className="flex items-center gap-3">
-                        <span className={ind.live ? "text-gold-400" : "text-white/20"}>
-                          <IndIcon type={ind.iconType} />
-                        </span>
-                        <span className={`text-sm font-medium ${ind.live ? "text-white" : "text-white/40"}`}>{ind.name}</span>
-                      </div>
-                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        ind.live ? "bg-gold-500 text-white" : "border border-white/10 text-white/25"
-                      }`}>{ind.live ? "Live" : "Soon"}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* ABOUT (DARK) */}
-            <section id="about" className="bg-navy-900 py-24 border-t border-white/5">
-              <div className="mx-auto max-w-7xl px-6">
-                <div className="flex flex-col gap-12 lg:flex-row lg:gap-20">
-                  <div className="max-w-md">
-                    <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">About OTW Studios</p>
-                    <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                      We build the workflow layer that sits between your business and lost revenue.
-                    </h2>
-                    <p className="mt-4 text-base leading-7 text-white/50">
-                      OTW Studios (Optimise The Workflow) is a managed-service business building practical AI workflow tools for service industries. We're not a software platform. We're a team that configures, deploys, and manages these systems on your behalf.
-                    </p>
-                    <p className="mt-4 text-base leading-7 text-white/50">
-                      Our focus is on businesses where missed calls, slow follow-up, and booking admin are costing real money, and where the owner doesn't have time to become a technology expert.
-                    </p>
-                  </div>
-                  <div className="flex-1 space-y-4">
-                    {principles.map((p) => (
-                      <div key={p.title} className="card-dark rounded-2xl p-6 cursor-default">
-                        <div className="text-base font-semibold text-white">{p.title}</div>
-                        <p className="mt-2 text-sm leading-6 text-white/50">{p.body}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* WAITLIST (DARK) */}
-            <section id="waitlist" className="bg-navy-800 py-24 border-t border-white/5">
-              <div className="mx-auto max-w-7xl px-6">
-                <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:gap-20">
-                  <div className="max-w-xl">
-                    <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">Coming next</p>
-                    <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                      OTW Scheduling and more are in development.
-                    </h2>
-                    <p className="mt-4 text-base leading-7 text-white/50">
-                      Join the waitlist and we'll reach out when the next product is ready. No spam, just a message when it's live.
-                    </p>
-                  </div>
-                  <div className="flex-1">
-                    {waitlistDone ? (
-                      <div className="rounded-3xl border border-gold-500/30 bg-gold-500/5 p-10 text-center">
-                        <div className="text-3xl">
-                          <svg className="mx-auto h-8 w-8 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <polyline strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" points="20,6 9,17 4,12"/>
-                          </svg>
-                        </div>
-                        <div className="mt-3 text-base font-semibold text-white">You're on the list</div>
-                        <p className="mt-2 text-sm text-white/40">We'll be in touch when the next product is ready.</p>
-                      </div>
-                    ) : (
-                      <form onSubmit={(e) => { e.preventDefault(); if (waitlistEmail) setWaitlistDone(true); }}
-                        className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
-                        <label className="block text-sm font-medium text-white/60" htmlFor="email">Your email address</label>
-                        <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                          <input id="email" type="email" required value={waitlistEmail}
-                            onChange={(e) => setWaitlistEmail(e.target.value)}
-                            placeholder="you@yourbusiness.com"
-                            className="flex-1 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-white placeholder-white/25 outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/30 transition-all" />
-                          <button type="submit"
-                            className="rounded-full bg-gold-500 px-6 py-3 text-sm font-semibold text-white hover:bg-gold-600 transition-colors shrink-0">
-                            Join waitlist
-                          </button>
-                        </div>
-                        <p className="mt-3 text-xs text-white/25">No spam. One email when the product launches.</p>
-                      </form>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* FINAL CTA (DARKEST) */}
-            <section className="bg-navy-950 py-24 border-t border-white/5">
-              <div className="mx-auto max-w-7xl px-6">
-                <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="max-w-2xl">
-                    <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">Start here</p>
-                    <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                      The first products are live. Setup takes 48 hours.
-                    </h2>
-                    <p className="mt-4 text-base leading-7 text-white/50">
-                      See exactly where you're losing money. Fill in the calculator and get your personalised report instantly. No obligation, no tech knowledge required.
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 flex-col gap-3">
-                    <a href="otw_audit.html"
-                      className="rounded-full bg-gold-500 px-8 py-3.5 text-center text-sm font-semibold text-white hover:bg-gold-600 transition-colors gold-glow">
-                      Get a free audit now
-                    </a>
-                    <a href="otw_ai_receptionist.html#demo"
-                      className="rounded-full border border-white/15 px-8 py-3.5 text-center text-sm font-medium text-white/60 hover:border-white/30 hover:text-white transition-all">
-                      Try the demo first
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </section>
-          </main>
-
-          {/* FOOTER */}
-          <footer className="bg-navy-950 border-t border-white/5 py-12">
-            <div className="mx-auto max-w-7xl px-6">
-              <div className="flex flex-col gap-10 md:flex-row md:justify-between">
-                <div>
-                  <div className="text-base font-semibold text-white">OTW Studios</div>
-                  <div className="mt-0.5 text-sm text-white/30">Optimise The Workflow</div>
-                  <p className="mt-4 max-w-xs text-sm leading-6 text-white/30">
-                    Managed AI workflow tools for service businesses. Set up for you, not by you.
-                  </p>
-                </div>
-
-                <div className="grid gap-8 text-sm sm:grid-cols-3">
-                  {[
-                    { heading: "Products", links: [["otw_ai_receptionist.html","OTW Receptionist"],["otw_triageai.html","OTW TriageAI"],["#products","OTW Scheduling"],["#products","OTW ReviewGenius"],["#products","OTW DebtCollector"]] },
-                    { heading: "Company",  links: [["#about","About OTW"],["#how-it-works","How it works"],["#industries","Industries"]] },
-                    { heading: "Get started", links: [["otw_audit.html","Book an audit"],["otw_ai_receptionist.html#demo","Try the demo"],["#waitlist","Join waitlist"]] },
-                  ].map((col) => (
-                    <div key={col.heading}>
-                      <div className="font-semibold text-white/60">{col.heading}</div>
-                      <ul className="mt-3 space-y-2">
-                        {col.links.map(([href, label]) => (
-                          <li key={label}><a href={href} className="text-white/30 hover:text-white/70 transition-colors">{label}</a></li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-10 flex flex-col gap-2 border-t border-white/5 pt-6 text-xs text-white/20 sm:flex-row sm:justify-between">
-                <span>© {new Date().getFullYear()} Andy Ngo t/as OTW Studios. All rights reserved.</span>
-                <div className="flex gap-5">
-                  <a href="otw_privacy.html" className="hover:text-white/40 transition-colors underline underline-offset-2">Privacy Policy</a>
-                  <span>Optimise The Workflow</span>
-                </div>
-              </div>
-            </div>
-          </footer>
+          <button onClick={() => setMobileOpen(!mobileOpen)}
+            className={`rounded-xl border p-2 md:hidden transition-colors duration-300 ${scrolled ? 'border-white/20 text-white' : 'border-slate-200 text-slate-700'}`}>
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {mobileOpen
+                ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+                : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16"/>}
+            </svg>
+          </button>
         </div>
-      );
-    }
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-  </script>
+        {mobileOpen && (
+          <div className={`border-t px-6 py-5 md:hidden ${scrolled ? 'bg-navy-900 border-white/10' : 'bg-white border-slate-100'}`}>
+            <nav className="flex flex-col gap-4 text-sm">
+              {[['#products','Products'],['#how-it-works','How it works'],['#about','About'],['#contact','Contact']].map(([href,label]) => (
+                <a key={href} href={href} onClick={() => setMobileOpen(false)}
+                  className={scrolled ? 'text-white/70' : 'text-slate-600'}>{label}</a>
+              ))}
+              <div className="border-t pt-4 mt-2 border-slate-100">
+                <a href="otw_audit.html" className="block rounded-full bg-gold-500 px-4 py-2.5 text-center text-sm font-semibold text-white">
+                  Start free audit
+                </a>
+              </div>
+            </nav>
+          </div>
+        )}
+      </header>
+
+      <main>
+        {/* ── HERO ────────────────────────────────────────── */}
+        <section ref={heroRef} className="bg-white pt-28 pb-20 lg:pt-36 lg:pb-24">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="max-w-4xl">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-medium text-slate-500">
+                <span className="h-1.5 w-1.5 rounded-full bg-gold-500"></span>
+                Workflow automation for Australian service businesses
+              </div>
+              <h1 className="text-5xl font-extrabold tracking-tight text-slate-950 leading-[1.07] sm:text-6xl lg:text-7xl">
+                Your business runs better<br/>when the admin<br/>
+                <span className="text-gold-600">runs itself.</span>
+              </h1>
+              <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-500">
+                OTW Studios builds AI-powered workflow tools for service businesses — starting with your phone and inbox. We configure, manage, and improve everything. You just run your business.
+              </p>
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <a href="otw_audit.html"
+                  className="rounded-full bg-gold-500 px-7 py-3.5 text-sm font-semibold text-white hover:bg-gold-600 transition-colors shadow-sm gold-glow">
+                  Start your free audit
+                </a>
+                <a href="otw_ai_receptionist.html#demo"
+                  className="rounded-full border border-slate-300 px-7 py-3.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2">
+                  <svg className="h-4 w-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="5,3 19,12 5,21"/>
+                  </svg>
+                  Hear the AI receptionist live
+                </a>
+              </div>
+              <p className="mt-4 text-xs text-slate-400">Free audit · No obligation · Setup in 48 hours · No tech skills needed</p>
+            </div>
+
+            {/* Stats */}
+            <div className="mt-16 grid gap-px bg-slate-200 sm:grid-cols-2 lg:grid-cols-4 rounded-2xl overflow-hidden border border-slate-200">
+              {stats.map(s => (
+                <div key={s.label} className="bg-white px-6 py-6">
+                  <div className="text-3xl font-bold tracking-tight text-slate-950">{s.value}</div>
+                  <div className="mt-1.5 text-sm text-slate-400">{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── PROBLEM ─────────────────────────────────────── */}
+        <section className="bg-slate-50 border-t border-slate-200 py-20">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="max-w-3xl">
+              <p className="text-xs font-bold uppercase tracking-widest text-gold-600">Why this matters</p>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+                You're not losing jobs to better competitors.<br/>You're losing them to slow response.
+              </h2>
+              <p className="mt-4 text-lg text-slate-500">
+                Missed calls, slow replies, and booking admin cost Australian tradies thousands every month. These aren't business problems — they're workflow problems. OTW fixes them without adding to your workload.
+              </p>
+            </div>
+            <div className="mt-10 grid gap-4 md:grid-cols-3">
+              {[
+                { title:'The call you didn\'t answer', body:'They called a competitor while you were onsite. That\'s not a missed call — that\'s a lost job worth $400–$1,200.' },
+                { title:'The quote that went quiet', body:'Sent and forgotten. The customer went with whoever followed up first. Every unanswered quote is money walking out the door.' },
+                { title:'The booking that took four calls', body:'Back-and-forth that should be automated. Every minute on admin is a minute you\'re not billing.' },
+              ].map(c => (
+                <div key={c.title} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <div className="text-base font-semibold text-slate-900">{c.title}</div>
+                  <p className="mt-3 text-sm leading-6 text-slate-500">{c.body}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-10 text-center">
+              <a href="otw_audit.html"
+                className="inline-block rounded-full bg-slate-950 px-8 py-3.5 text-sm font-semibold text-white hover:bg-slate-800 transition-colors">
+                See how much you're losing — free audit
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* ── GRADIENT TRANSITION ─────────────────────────── */}
+        <div className="section-fade"></div>
+
+        {/* ── PRODUCTS ────────────────────────────────────── */}
+        <section id="products" className="bg-navy-900 py-24">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="max-w-2xl">
+              <p className="text-xs font-bold uppercase tracking-widest text-gold-500">Products</p>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                Workflow tools built for service businesses that are serious about growth.
+              </h2>
+            </div>
+
+            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {products.map(p => (
+                <div key={p.name}
+                  className={`flex flex-col rounded-3xl p-7 transition-all duration-200 ${
+                    p.highlight ? 'bg-gold-500 text-white gold-glow' : 'card-dark'
+                  }`}>
+                  <span className={`self-start rounded-full px-3 py-1 text-xs font-semibold ${
+                    p.highlight
+                      ? 'bg-white/20 text-white'
+                      : p.status === 'live'
+                      ? 'bg-gold-500/20 text-gold-400 border border-gold-500/30'
+                      : 'bg-white/5 text-white/40 border border-white/10'
+                  }`}>{p.badge}</span>
+
+                  <div className="mt-6 flex-1">
+                    <div className={`text-xl font-bold ${p.highlight ? 'text-white' : 'text-white'}`}>{p.name}</div>
+                    <div className={`mt-1 text-sm font-medium ${p.highlight ? 'text-white/80' : 'text-white/50'}`}>{p.tagline}</div>
+                    <p className={`mt-4 text-sm leading-6 ${p.highlight ? 'text-white/85' : 'text-white/55'}`}>{p.description}</p>
+                  </div>
+
+                  <a href="otw_audit.html"
+                    className={`mt-7 inline-block rounded-full px-5 py-3 text-center text-sm font-semibold transition-all ${
+                      p.highlight
+                        ? 'bg-white text-navy-900 hover:bg-slate-100'
+                        : p.status === 'live'
+                        ? 'bg-gold-500 text-white hover:bg-gold-600'
+                        : 'border border-white/15 text-white/50 hover:border-white/35 hover:text-white/75'
+                    }`}>
+                    {p.status === 'live' ? 'Start your free audit' : 'Join the waitlist'}
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── HOW IT WORKS ────────────────────────────────── */}
+        <section id="how-it-works" className="bg-navy-800 py-24 border-t border-white/5">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="flex flex-col gap-14 lg:flex-row lg:items-start lg:gap-24">
+              <div className="max-w-md lg:sticky lg:top-28">
+                <p className="text-xs font-bold uppercase tracking-widest text-gold-500">How it works</p>
+                <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                  We build it. We manage it. You run your business.
+                </h2>
+                <p className="mt-4 text-base leading-7 text-white/55">
+                  OTW tools aren't software you configure yourself. We work with you to understand how your business operates, then we build and manage the system on your behalf.
+                </p>
+                <a href="otw_audit.html"
+                  className="mt-8 inline-block rounded-full bg-gold-500 px-6 py-3 text-sm font-semibold text-white hover:bg-gold-600 transition-colors">
+                  Start your free audit
+                </a>
+              </div>
+
+              <div className="flex-1 space-y-8">
+                {[
+                  { n:'01', title:'You fill out the free audit', body:'Tell us about your business — your services, service area, call types, and where the bottlenecks are. Takes 5 minutes.' },
+                  { n:'02', title:'We configure the system for you', body:'OTW handles all the technical setup. You review the output, confirm it sounds right, and approve it before anything goes live.' },
+                  { n:'03', title:'Your workflow runs automatically', body:'Calls answered, leads captured, jobs routed, replies drafted — all without your team managing any of it.' },
+                  { n:'04', title:'We improve it over time', body:'Monthly reporting, proactive recommendations, and ongoing refinements mean the system gets better the longer you use it.' },
+                ].map(item => (
+                  <div key={item.n} className="flex gap-6 group">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-500/30 text-sm font-bold text-gold-500 group-hover:bg-gold-500/10 transition-colors">
+                      {item.n}
+                    </div>
+                    <div className="pt-1">
+                      <div className="text-base font-semibold text-white">{item.title}</div>
+                      <p className="mt-1.5 text-sm leading-6 text-white/50">{item.body}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── INDUSTRIES ──────────────────────────────────── */}
+        <section id="industries" className="bg-navy-900 py-24 border-t border-white/5">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="max-w-3xl">
+              <p className="text-xs font-bold uppercase tracking-widest text-gold-500">Industries</p>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                Built for service businesses where workflow is the bottleneck.
+              </h2>
+              <p className="mt-4 text-base leading-7 text-white/50">
+                We start with trade services and expand from there. Every configuration is built around your specific industry — not a generic template.
+              </p>
+            </div>
+            <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {industries.map(ind => (
+                <div key={ind.name}
+                  className={`flex items-center justify-between rounded-2xl border px-4 py-4 transition-all ${
+                    ind.live
+                      ? 'border-gold-500/30 bg-gold-500/5 hover:bg-gold-500/10'
+                      : 'border-white/5 bg-white/[0.02]'
+                  }`}>
+                  <div className="flex items-center gap-3">
+                    <span className={ind.live ? 'text-gold-400' : 'text-white/20'}>
+                      <IndIcon type={ind.iconType}/>
+                    </span>
+                    <span className={`text-sm font-medium ${ind.live ? 'text-white' : 'text-white/40'}`}>{ind.name}</span>
+                  </div>
+                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                    ind.live ? 'bg-gold-500 text-white' : 'border border-white/10 text-white/25'
+                  }`}>{ind.live ? 'Live' : 'Soon'}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── ABOUT THE FOUNDER ───────────────────────────── */}
+        <section id="about" className="bg-navy-800 py-24 border-t border-white/5">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:gap-20">
+
+              {/* Photo */}
+              <div className="shrink-0 lg:w-72">
+                <div className="relative mx-auto w-56 h-56 lg:w-72 lg:h-72 rounded-3xl overflow-hidden border border-white/10 bg-navy-700 flex items-center justify-center">
+                  {/* Placeholder — replace src with real headshot */}
+                  <div className="flex flex-col items-center gap-3 text-white/20">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <span className="text-xs text-white/20">Photo coming soon</span>
+                  </div>
+                  <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-3xl"></div>
+                </div>
+                <div className="mt-4 text-center">
+                  <div className="text-sm font-semibold text-white">Andy Ngo</div>
+                  <div className="text-xs text-gold-500 uppercase tracking-widest mt-0.5">Founder, OTW Studios</div>
+                </div>
+              </div>
+
+              {/* Copy */}
+              <div className="flex-1">
+                <p className="text-xs font-bold uppercase tracking-widest text-gold-500">About the founder</p>
+                <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                  Built by someone who actually understands trade businesses.
+                </h2>
+                <p className="mt-5 text-base leading-7 text-white/60">
+                  OTW Studios was built because too many good trade businesses were losing revenue not to bad work — but to things that should be automatic. Missed calls. Slow follow-up. Admin that eats hours you don't have.
+                </p>
+                <p className="mt-4 text-base leading-7 text-white/60">
+                  We're not a software platform. We're a managed service — we configure, deploy, and improve the system on your behalf. You don't need a tech person. You don't need to change how you work. You just need the right tools, set up properly.
+                </p>
+                <div className="mt-6 space-y-3">
+                  {[
+                    'Configured around your business — not a generic template',
+                    'Managed and improved by OTW on an ongoing basis',
+                    'Built for tradies who are serious about growth',
+                  ].map(item => (
+                    <div key={item} className="flex items-start gap-3">
+                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gold-500"/>
+                      <span className="text-sm text-white/60">{item}</span>
+                    </div>
+                  ))}
+                </div>
+                <a href="otw_audit.html"
+                  className="mt-8 inline-block rounded-full bg-gold-500 px-6 py-3 text-sm font-semibold text-white hover:bg-gold-600 transition-colors">
+                  Start your free audit
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── CONTACT ─────────────────────────────────────── */}
+        <section id="contact" className="bg-navy-900 py-24 border-t border-white/5">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="flex flex-col gap-12 lg:flex-row lg:items-start lg:gap-20">
+              <div className="max-w-md">
+                <p className="text-xs font-bold uppercase tracking-widest text-gold-500">Get in touch</p>
+                <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                  Want to talk to a person first?
+                </h2>
+                <p className="mt-4 text-base leading-7 text-white/55">
+                  Send us a message and Andy will get back to you directly. Most questions get answered within a few hours.
+                </p>
+                <div className="mt-8 space-y-4">
+                  <div className="flex items-center gap-3 text-sm text-white/50">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                      <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                    andyngo.consulting@gmail.com
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-white/50">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                      <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    Melbourne, VIC · Serving Australia-wide
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex-1 max-w-xl">
+                {sent ? (
+                  <div className="rounded-3xl border border-gold-500/30 bg-gold-500/5 p-10 text-center">
+                    <svg className="mx-auto h-8 w-8 text-gold-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20,6 9,17 4,12"/>
+                    </svg>
+                    <div className="mt-3 text-base font-semibold text-white">Message sent</div>
+                    <p className="mt-2 text-sm text-white/40">Andy will get back to you shortly.</p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleContact} className="rounded-3xl border border-white/10 bg-white/[0.03] p-7 space-y-4">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-white/40 mb-2">Your name</label>
+                      <input type="text" required value={form.name}
+                        onChange={e => setForm({...form, name: e.target.value})}
+                        placeholder="Dave Morrison"
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-white/25 focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/30 transition-all"/>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-white/40 mb-2">Email address</label>
+                      <input type="email" required value={form.email}
+                        onChange={e => setForm({...form, email: e.target.value})}
+                        placeholder="dave@morrisonplumbing.com.au"
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-white/25 focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/30 transition-all"/>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-white/40 mb-2">Message</label>
+                      <textarea required rows={4} value={form.message}
+                        onChange={e => setForm({...form, message: e.target.value})}
+                        placeholder="Tell us a bit about your business and what you're looking for..."
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-white/25 focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/30 transition-all resize-none"/>
+                    </div>
+                    <button type="submit"
+                      className="w-full rounded-full bg-gold-500 py-3 text-sm font-semibold text-white hover:bg-gold-600 transition-colors">
+                      Send message
+                    </button>
+                    <p className="text-center text-xs text-white/25">Or skip straight to the <a href="otw_audit.html" className="text-gold-500 hover:text-gold-400 underline underline-offset-2">free audit</a></p>
+                  </form>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── FINAL CTA ───────────────────────────────────── */}
+        <section className="bg-navy-950 py-24 border-t border-white/5">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-2xl">
+                <p className="text-xs font-bold uppercase tracking-widest text-gold-500">Start here</p>
+                <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                  The audit is free. Setup takes 48 hours.
+                </h2>
+                <p className="mt-4 text-base leading-7 text-white/50">
+                  Fill in the audit and find out exactly where your business is losing money to workflow problems. No obligation. No tech knowledge required.
+                </p>
+              </div>
+              <div className="shrink-0">
+                <a href="otw_audit.html"
+                  className="inline-block rounded-full bg-gold-500 px-10 py-4 text-center text-base font-semibold text-white hover:bg-gold-600 transition-colors gold-glow">
+                  Start your free audit
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* ── FOOTER ──────────────────────────────────────── */}
+      <footer className="bg-navy-950 border-t border-white/5 py-12">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="flex flex-col gap-10 md:flex-row md:justify-between">
+            <div>
+              <div className="text-base font-bold text-white">OTW Studios</div>
+              <div className="mt-0.5 text-xs uppercase tracking-widest text-white/30">Optimise The Workflow</div>
+              <p className="mt-4 max-w-xs text-sm leading-6 text-white/30">
+                Managed AI workflow tools for service businesses. Set up for you, not by you.
+              </p>
+            </div>
+            <div className="grid gap-8 text-sm sm:grid-cols-3">
+              {[
+                { heading:'Products', links:[['otw_ai_receptionist.html','OTW Receptionist'],['otw_triageai.html','OTW TriageAI'],['#products','OTW Scheduling'],['#products','OTW ReviewGenius'],['#products','OTW DebtCollector']] },
+                { heading:'Company',  links:[['#about','About'],['#how-it-works','How it works'],['#industries','Industries'],['#contact','Contact']] },
+                { heading:'Get started', links:[['otw_audit.html','Start free audit'],['otw_ai_receptionist.html#demo','Try the demo']] },
+              ].map(col => (
+                <div key={col.heading}>
+                  <div className="font-semibold text-white/60">{col.heading}</div>
+                  <ul className="mt-3 space-y-2">
+                    {col.links.map(([href,label]) => (
+                      <li key={label}><a href={href} className="text-white/30 hover:text-white/70 transition-colors">{label}</a></li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="mt-10 flex flex-col gap-2 border-t border-white/5 pt-6 text-xs text-white/20 sm:flex-row sm:justify-between">
+            <span>© {new Date().getFullYear()} Andy Ngo t/as OTW Studios. All rights reserved.</span>
+            <div className="flex gap-5">
+              <a href="otw_privacy.html" className="hover:text-white/40 transition-colors underline underline-offset-2">Privacy Policy</a>
+              <span>ABN registered · Melbourne, VIC</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
 </body>
 </html>
