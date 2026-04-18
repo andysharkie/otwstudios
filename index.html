@@ -174,10 +174,10 @@ function WorkflowChart() {
   const PATHS = [
     { id:'p1', step:2, fromStep:1, d:`M 107 130 L ${rLeft(R.receptionist)} 130`,           dotBegin:'1.0s', dotDur:'0.55s' },
     { id:'p2', step:3, fromStep:1, d:`M 107 305 L ${rLeft(R.triageai)} 305`,               dotBegin:'2.2s', dotDur:'0.55s' },
-    { id:'p3', step:4, fromStep:2, d:`M ${rRight(R.receptionist)} 130 C 390 130 374 185 ${rLeft(R.scheduling)} 218`,  dotBegin:'3.4s', dotDur:'0.75s' },
-    { id:'p4', step:4, fromStep:3, d:`M ${rRight(R.triageai)} 305 C 390 305 374 255 ${rLeft(R.scheduling)} 218`,     dotBegin:'3.4s', dotDur:'0.75s' },
-    { id:'p5', step:5, fromStep:4, d:`M ${rRight(R.scheduling)} 218 C 565 218 580 178 ${rLeft(R.debt)} 130`,         dotBegin:'4.6s', dotDur:'0.65s' },
-    { id:'p6', step:5, fromStep:4, d:`M ${rRight(R.scheduling)} 218 C 565 218 580 258 ${rLeft(R.review)} 305`,       dotBegin:'4.6s', dotDur:'0.65s' },
+    { id:'p3', step:4, fromStep:2, d:`M ${rRight(R.receptionist)} 130 C 420 130 460 152 460 181`,                    dotBegin:'3.4s', dotDur:'0.75s' },
+    { id:'p4', step:4, fromStep:3, d:`M ${rRight(R.triageai)} 305 C 415 305 460 280 460 255`,                        dotBegin:'3.4s', dotDur:'0.75s' },
+    { id:'p5', step:5, fromStep:4, d:`M ${rRight(R.scheduling)} 218 C 628 218 ${rLeft(R.debt)} 172 ${rLeft(R.debt)} 130`,   dotBegin:'4.6s', dotDur:'0.75s' },
+    { id:'p6', step:5, fromStep:4, d:`M ${rRight(R.scheduling)} 218 C 628 218 ${rLeft(R.debt)} 258 ${rLeft(R.review)} 305`, dotBegin:'4.6s', dotDur:'0.75s' },
     { id:'p7', step:6, fromStep:5, d:`M ${rRight(R.debt)} 130 L 772 130`,                  dotBegin:'5.7s', dotDur:'0.4s' },
     { id:'p8', step:6, fromStep:5, d:`M ${rRight(R.review)} 305 L 772 305`,                dotBegin:'5.7s', dotDur:'0.4s' },
   ];
