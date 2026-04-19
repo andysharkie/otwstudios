@@ -3,931 +3,784 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>OTW Studios — Free Business Audit</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+  <title>Free Workflow Audit — OTW Studios</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- EmailJS — client-side email sending (free 200/mo). Setup: https://emailjs.com
-       1. Create account → Add Email Service (Gmail) → get Service ID
-       2. Create two templates: admin-notification + client-report → get Template IDs
-       3. Get your Public Key from Account > API Keys
-       Replace the 3 placeholders in sendEmails() below. -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            gold: { 300:'#FDE68A', 400:'#FCD34D', 500:'#F59E0B', 600:'#D97706', 700:'#B45309' },
-          },
-          fontFamily:{ sans:['-apple-system','BlinkMacSystemFont','Inter','Segoe UI','sans-serif'] }
-        }
-      }
-    }
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-    *{ font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; }
-    html{ scroll-behavior:smooth; }
-    ::-webkit-scrollbar{ width:6px; } ::-webkit-scrollbar-track{ background:transparent; } ::-webkit-scrollbar-thumb{ background:rgba(0,0,0,0.12); border-radius:3px; }
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,sans-serif;}
+    html{scroll-behavior:smooth;}
+    body{background:#f8fafc;color:#0f172a;min-height:100vh;}
 
-    .btn-gold{ transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s ease,background-color .15s ease; }
-    .btn-gold:hover{ transform:translateY(-2px); box-shadow:0 10px 28px rgba(245,158,11,.4); }
-    .btn-gold:active{ transform:translateY(0); transition-duration:.08s; }
-    .btn-dark{ transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s ease; }
-    .btn-dark:hover{ transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.2); }
-    .btn-ghost{ position:relative;overflow:hidden;transition:color .22s ease,border-color .22s ease,transform .22s ease; }
-    .btn-ghost::after{ content:'';position:absolute;inset:0;background:rgba(0,0,0,.04);transform:translateY(101%);transition:transform .28s cubic-bezier(.4,0,.2,1);border-radius:inherit;z-index:0; }
-    .btn-ghost>*{ position:relative;z-index:1; }
-    .btn-ghost:hover::after{ transform:translateY(0); }
-    .btn-ghost:hover{ border-color:rgba(0,0,0,.25)!important;color:rgba(0,0,0,.65)!important;transform:translateY(-1px); }
+    input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:#e2e8f0;outline:none;cursor:pointer;}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#F59E0B;cursor:pointer;box-shadow:0 0 0 4px rgba(245,158,11,0.18);}
+    input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#F59E0B;cursor:pointer;border:none;}
 
-    .card{ background:#fff;border:1px solid #E5E7EB;transition:all .2s ease; }
-    .card:hover{ border-color:rgba(245,158,11,.4);box-shadow:0 4px 20px rgba(0,0,0,.06); }
-    .gold-glow{ box-shadow:0 0 40px rgba(245,158,11,.2); }
+    .inp{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px 18px;color:#0f172a;font-size:15px;width:100%;outline:none;transition:border-color 0.2s;}
+    .inp:focus{border-color:rgba(245,158,11,0.55);}
+    .inp::placeholder{color:#94a3b8;}
+    select.inp option{background:#fff;color:#0f172a;}
 
-    /* Workflow canvas */
-    .canvas-grid{ background-color:#FAFAFA;background-image:radial-gradient(circle,rgba(0,0,0,.07) 1px,transparent 1px);background-size:20px 20px; }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+    @keyframes countUp{from{opacity:0;transform:scale(0.85);}to{opacity:1;transform:scale(1);}}
+    @keyframes slideIn{from{opacity:0;transform:translateX(-16px);}to{opacity:1;transform:translateX(0);}}
+    @keyframes redGlow{0%,100%{box-shadow:0 0 24px rgba(239,68,68,0.12);}50%{box-shadow:0 0 48px rgba(239,68,68,0.22);}}
 
-    /* Node hover */
-    .node-wrapper{ position:relative; }
-    .node-detail-card{
-      opacity:0; transform:translateX(-50%) translateY(6px) scale(.96); pointer-events:none;
-      transition:opacity .22s ease,transform .22s cubic-bezier(.34,1.56,.64,1);
-      background:rgba(255,255,255,.98); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-    }
-    .node-wrapper:hover .node-detail-card{ opacity:1; transform:translateX(-50%) translateY(0) scale(1); pointer-events:auto; }
-    .node-circle{ transition:box-shadow .25s ease,border-color .25s ease,transform .2s ease; }
-    .node-wrapper:hover .node-circle{ transform:scale(1.12); }
-    .node-wrapper:hover .node-circle.circle-pain{ box-shadow:0 0 20px rgba(239,68,68,.25); }
-    .node-wrapper:hover .node-circle.circle-otw{ box-shadow:0 0 20px rgba(245,158,11,.3); }
-    .node-wrapper:hover .node-circle.circle-outcome{ box-shadow:0 0 20px rgba(16,185,129,.2); }
-    .node-wrapper:hover .node-circle.circle-trigger{ box-shadow:0 0 16px rgba(99,102,241,.2); }
-    .node-label{ transition:color .2s ease; }
-    .node-wrapper:hover .node-label{ color:#111827; }
+    .fade-up{animation:fadeUp 0.4s ease forwards;}
+    .count-up{animation:countUp 0.6s ease forwards;}
+    .slide-in{animation:slideIn 0.3s ease forwards;}
+    .red-glow{animation:redGlow 2.5s ease-in-out infinite;}
 
-    /* Progress bar */
-    .progress-fill{ transition:width .4s cubic-bezier(.34,1.56,.64,1); }
+    .progress-track{background:#e2e8f0;border-radius:4px;height:4px;overflow:hidden;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#F59E0B,#FCD34D);border-radius:4px;transition:width 0.5s ease;}
 
-    /* Input styling */
-    input:focus, textarea:focus, select:focus{ outline:none!important; box-shadow:0 0 0 3px rgba(245,158,11,.15); }
+    .flow-node{border-radius:10px;padding:10px 14px;text-align:center;font-size:11px;font-weight:600;line-height:1.4;}
+    .flow-node.neutral{background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;}
+    .flow-node.bad{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.22);color:#ef4444;}
+    .flow-node.good{background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.28);color:#b45309;}
+    .flow-node.lost{background:rgba(239,68,68,0.10);border:1px solid rgba(239,68,68,0.35);color:#ef4444;font-weight:700;}
+    .flow-node.captured{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.35);color:#16a34a;font-weight:700;}
+    .flow-arrow{text-align:center;font-size:16px;color:#cbd5e1;padding:2px 0;}
+    .flow-arrow.gold{color:rgba(245,158,11,0.45);}
 
-    @keyframes fadeUp{ from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-    .fade-up{ animation:fadeUp .35s ease forwards; }
-    @keyframes generating{ 0%,100%{opacity:.4} 50%{opacity:1} }
-    .generating{ animation:generating 1.2s ease infinite; }
+    .pain-pill{display:flex;align-items:flex-start;gap:12px;background:rgba(239,68,68,0.04);border:1px solid rgba(239,68,68,0.15);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+    .fix-pill{display:flex;align-items:flex-start;gap:12px;background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.18);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
 
-    /* Chips */
-    .chip{ cursor:pointer; transition:all .15s ease; user-select:none; }
-    .chip:hover{ border-color:rgba(245,158,11,.5)!important;background:rgba(245,158,11,.05)!important; }
-    .chip.selected{ background:rgba(245,158,11,.1)!important; border-color:rgba(245,158,11,.55)!important; color:#D97706!important; }
+    ::-webkit-scrollbar{width:4px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:2px;}
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900 antialiased">
+<body>
 <div id="root"></div>
 <script type="text/babel">
-  const { useState, useMemo, useEffect } = React;
+const { useState, useEffect, useRef } = React;
 
-  /* ── ICONS ── */
-  const Ic = ({ch,cls="",w=18}) => <svg className={cls} width={w} height={w} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">{ch}</svg>;
-  const IPhone  = p => <Ic {...p} ch={<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.81.36 1.61.68 2.36a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.75.32 1.55.55 2.36.68A2 2 0 0122 16.92z"/>}/>;
-  const IMail   = p => <Ic {...p} ch={<><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,7 12,13 2,7"/></>}/>;
-  const ICal    = p => <Ic {...p} ch={<><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></>}/>;
-  const IUser   = p => <Ic {...p} ch={<><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></>}/>;
-  const IAlert  = p => <Ic {...p} ch={<><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></>}/>;
-  const IClock  = p => <Ic {...p} ch={<><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></>}/>;
-  const IMap    = p => <Ic {...p} ch={<><polygon points="1,6 1,22 8,18 16,22 23,18 23,2 16,6 8,2"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></>}/>;
-  const ICheck  = p => <Ic {...p} ch={<polyline points="20,6 9,17 4,12"/>}/>;
-  const ISend   = p => <Ic {...p} ch={<><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/></>}/>;
-  const IBot    = p => <Ic {...p} ch={<><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M12 2v6"/><circle cx="9" cy="14" r="1.5" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1.5" fill="currentColor" stroke="none"/><path d="M9 18h6"/><path d="M2 12h1m18 0h1"/></>}/>;
-  const IFilter = p => <Ic {...p} ch={<polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"/>}/>;
-  const ITriage = p => <Ic {...p} ch={<><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,8 12,14 22,8"/><path d="M8 12l-2 2 2 2"/><path d="M14 14h4"/></>}/>;
-  const IArrow  = p => <Ic {...p} ch={<><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></>}/>;
-  const IChevR  = p => <Ic {...p} ch={<polyline points="9,18 15,12 9,6"/>}/>;
-  const IBld    = p => <Ic {...p} ch={<><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></>}/>;
-  const ITeam   = p => <Ic {...p} ch={<><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></>}/>;
-  const ITool   = p => <Ic {...p} ch={<><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></>}/>;
-  const ITarget = p => <Ic {...p} ch={<><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></>}/>;
-  const IStar   = p => <Ic {...p} ch={<path d="M12 2l2.09 6.26L20 10l-5.91 1.74L12 18l-2.09-6.26L4 10l5.91-1.74L12 2z"/>}/>;
+const CALENDLY_URL        = "https://calendly.com/YOUR_LINK_HERE";
+const EMAILJS_PUBLIC_KEY  = "YOUR_PUBLIC_KEY";
+const EMAILJS_SERVICE_ID  = "YOUR_SERVICE_ID";
+const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
 
-  const ICONS = { phone:IPhone, mail:IMail, calendar:ICal, user:IUser, alert:IAlert, clock:IClock, map:IMap, check:ICheck, send:ISend, bot:IBot, filter:IFilter, triage:ITriage };
+function fmt(n) { return '$' + Math.round(n).toLocaleString('en-AU'); }
 
-  /* ── NODE STYLES (light theme) ── */
-  const NSTYLE = {
-    trigger:    { border:"border-indigo-300",  bg:"bg-white", iconColor:"text-indigo-500", circleClass:"circle-trigger", detailBorder:"border-indigo-200" },
-    process:    { border:"border-gray-200",    bg:"bg-white", iconColor:"text-gray-400",   circleClass:"circle-process", detailBorder:"border-gray-200" },
-    pain_point: { border:"border-red-300",     bg:"bg-white", iconColor:"text-red-500",    circleClass:"circle-pain",    detailBorder:"border-red-200" },
-    otw:        { border:"border-amber-300",   bg:"bg-white", iconColor:"text-amber-500",  circleClass:"circle-otw",     detailBorder:"border-amber-200" },
-    outcome:    { border:"border-emerald-300", bg:"bg-white", iconColor:"text-emerald-500",circleClass:"circle-outcome", detailBorder:"border-emerald-200" },
+function calcLoss(d) {
+  const missedRev = (d.missedCalls||0) * 4.3 * (d.avgJobValue||0) * 0.38;
+  const quoteRev  = (d.deadQuotes||0)  * 4.3 * (d.avgJobValue||0) * 0.55;
+  const adminCost = (d.adminHours||0)  * 4.3 * 75;
+  const total     = Math.round(missedRev + quoteRev + adminCost);
+  return {
+    missedRev: Math.round(missedRev),
+    quoteRev:  Math.round(quoteRev),
+    adminCost: Math.round(adminCost),
+    total,
+    annual:    total * 12,
+    missedCallsPerMonth: Math.round((d.missedCalls||0) * 4.3),
+    coldQuotesPerMonth:  Math.round((d.deadQuotes||0)  * 4.3),
+    adminHrsPerMonth:    Math.round((d.adminHours||0)  * 4.3),
+  };
+}
+
+// ── ANIMATED COUNTER ─────────────────────────────────
+function AnimCounter({ value, color='#EF4444', size=22 }) {
+  const [display, setDisplay] = useState(0);
+  const prev = useRef(0);
+  useEffect(() => {
+    const start = prev.current, end = value, dur = 700, t0 = Date.now();
+    const step = () => {
+      const p = Math.min((Date.now()-t0)/dur, 1);
+      const e = 1 - Math.pow(1-p, 3);
+      setDisplay(Math.round(start + (end-start)*e));
+      if (p < 1) requestAnimationFrame(step); else prev.current = end;
+    };
+    requestAnimationFrame(step);
+  }, [value]);
+  return <span style={{fontSize:size, fontWeight:900, color, letterSpacing:'-0.02em'}}>{fmt(display)}</span>;
+}
+
+// ── FLOATING TICKER ──────────────────────────────────
+function Ticker({ amount }) {
+  const [disp, setDisp] = useState(0);
+  const prev = useRef(0);
+  useEffect(() => {
+    const start=prev.current, end=amount, dur=600, t0=Date.now();
+    const step=()=>{
+      const p=Math.min((Date.now()-t0)/dur,1), e=1-Math.pow(1-p,3);
+      setDisp(Math.round(start+(end-start)*e));
+      if(p<1) requestAnimationFrame(step); else prev.current=end;
+    };
+    requestAnimationFrame(step);
+  }, [amount]);
+  if (!amount) return null;
+  return (
+    <div style={{
+      position:'fixed',top:72,right:16,zIndex:300,
+      background:'#fff',backdropFilter:'blur(12px)',
+      border:'1.5px solid rgba(239,68,68,0.3)',borderRadius:14,
+      padding:'10px 16px',boxShadow:'0 4px 24px rgba(0,0,0,0.08)',
+    }}>
+      <div style={{fontSize:9,fontWeight:800,color:'rgba(239,68,68,0.6)',textTransform:'uppercase',letterSpacing:'0.12em',marginBottom:2}}>Monthly leak</div>
+      <div style={{fontSize:20,fontWeight:900,color:'#EF4444',letterSpacing:'-0.02em'}}>{fmt(disp)}</div>
+    </div>
+  );
+}
+
+// ── SLIDER ───────────────────────────────────────────
+function Slider({ label, hint, value, min, max, step=1, onChange, display }) {
+  return (
+    <div style={{marginBottom:32}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:12}}>
+        <div>
+          <div style={{fontSize:14,fontWeight:600,color:'#475569'}}>{label}</div>
+          {hint && <div style={{fontSize:11,color:'#94a3b8',marginTop:2}}>{hint}</div>}
+        </div>
+        <div style={{fontSize:26,fontWeight:900,color:'#F59E0B',letterSpacing:'-0.02em',flexShrink:0,marginLeft:16}}>
+          {display !== undefined ? display : value}
+        </div>
+      </div>
+      <input type="range" min={min} max={max} step={step} value={value}
+        onChange={e => onChange(Number(e.target.value))}/>
+      <div style={{display:'flex',justifyContent:'space-between',marginTop:6,fontSize:10,color:'#cbd5e1'}}>
+        <span>{min}</span><span>{max}</span>
+      </div>
+    </div>
+  );
+}
+
+// ── NAV ──────────────────────────────────────────────
+function Nav({ step, total }) {
+  return (
+    <header style={{
+      position:'fixed',top:0,left:0,right:0,zIndex:200,
+      background:'rgba(255,255,255,0.96)',backdropFilter:'blur(14px)',
+      borderBottom:'1px solid #e2e8f0',
+      padding:'14px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',
+      boxShadow:'0 1px 8px rgba(0,0,0,0.06)',
+    }}>
+      <a href="index.html" style={{textDecoration:'none'}}>
+        <div style={{fontSize:14,fontWeight:800,color:'#0f172a'}}>OTW Studios</div>
+        <div style={{fontSize:9,fontWeight:700,color:'#F59E0B',textTransform:'uppercase',letterSpacing:'0.14em',marginTop:1}}>Free Audit</div>
+      </a>
+      {step > 0 && step <= total && (
+        <div style={{fontSize:12,fontWeight:600,color:'#94a3b8'}}>Step {step} of {total}</div>
+      )}
+    </header>
+  );
+}
+
+// ── BTN ──────────────────────────────────────────────
+function Btn({ onClick, children, disabled=false, ghost=false }) {
+  return (
+    <button onClick={onClick} disabled={disabled} style={{
+      flex: ghost ? 1 : 2,
+      background: ghost ? '#fff' : disabled ? 'rgba(245,158,11,0.25)' : '#F59E0B',
+      border: ghost ? '1.5px solid #e2e8f0' : 'none',
+      borderRadius: 50, padding: '15px',
+      fontWeight: 800, fontSize: 14,
+      color: ghost ? '#64748b' : disabled ? '#fff' : '#fff',
+      cursor: disabled ? 'not-allowed' : 'pointer', transition: 'all 0.2s',
+      fontFamily: 'Inter',
+    }}>{children}</button>
+  );
+}
+
+// ── INLINE LOSS CALLOUT ───────────────────────────────
+function LossCallout({ amount, label }) {
+  if (!amount) return null;
+  return (
+    <div className="slide-in" style={{
+      background:'#fff',border:'1.5px solid rgba(239,68,68,0.2)',
+      borderRadius:14,padding:'16px 20px',marginBottom:28,
+      boxShadow:'0 2px 12px rgba(239,68,68,0.07)',
+    }}>
+      <div style={{fontSize:11,fontWeight:700,color:'rgba(239,68,68,0.55)',marginBottom:4}}>{label}</div>
+      <div style={{fontSize:24,fontWeight:900,color:'#EF4444',letterSpacing:'-0.02em'}}>{fmt(amount)}<span style={{fontSize:13,fontWeight:500,color:'rgba(239,68,68,0.4)'}}>/month</span></div>
+    </div>
+  );
+}
+
+// ── WORKFLOW DIAGRAM ─────────────────────────────────
+function WorkflowDiagram({ loss, data }) {
+  const GOLD='#F59E0B', RED='#EF4444', TEAL='#0d9488';
+  const C = { tri:100, cur:310, sch:520, otw:770, orc:980, out:1180 };
+  const RW = { top:155, mid:320, bot:485 };
+  const NR = 48;
+  const F = {fontFamily:'Inter,sans-serif'};
+
+  // SVG icon helper — renders a Feather-style icon centered at (cx,cy)
+  // paths are written in 24×24 space; we translate+scale to fit inside the node
+  const sc = 1.6, off = (24*sc)/2;
+  function icon(cx, cy, children) {
+    return (
+      <g transform={`translate(${cx-off},${cy-off}) scale(${sc})`}
+         fill="none" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        {children}
+      </g>
+    );
+  }
+
+  return (
+    <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:20,padding:'24px 16px 20px',marginBottom:32,overflow:'hidden',boxShadow:'0 2px 20px rgba(0,0,0,0.06)'}}>
+      <div style={{fontSize:10,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.14em',marginBottom:16,paddingLeft:4}}>Your workflow — before vs after OTW</div>
+      <div style={{overflowX:'auto',WebkitOverflowScrolling:'touch'}}>
+        <svg viewBox="0 0 1290 610" style={{width:'100%',minWidth:720,height:'auto',display:'block'}}>
+          <defs>
+            <pattern id="wf-dots" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="1.2" fill="#e2e8f0"/>
+            </pattern>
+            <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#EF4444" opacity="0.55"/>
+            </marker>
+            <marker id="arr-gold" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#F59E0B"/>
+            </marker>
+            <marker id="arr-slate" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="rgba(148,163,184,0.6)"/>
+            </marker>
+          </defs>
+
+          {/* Background */}
+          <rect width="1290" height="610" fill="url(#wf-dots)" rx="12"/>
+
+          {/* Column dividers */}
+          {[205,415,645,875,1080].map((x,i)=>(
+            <line key={i} x1={x} y1={52} x2={x} y2={545} stroke="#e2e8f0" strokeWidth="1" strokeDasharray="3,6"/>
+          ))}
+
+          {/* Column headers */}
+          {[
+            {label:'TRIGGERS',      x:C.tri},
+            {label:'CURRENT STATE', x:C.cur},
+            {label:'SCHEDULING',    x:C.sch},
+            {label:'OTW PRODUCTS',  x:C.otw},
+            {label:'ORCHESTRATION', x:C.orc},
+            {label:'OUTCOMES',      x:C.out},
+          ].map(h=>(
+            <text key={h.label} x={h.x} y="38" textAnchor="middle"
+              style={{fontSize:9.5,fontWeight:800,fill:'#94a3b8',letterSpacing:'1.6px',...F}}>
+              {h.label}
+            </text>
+          ))}
+
+          {/* ── PROBLEM PATHS (red dashed) ── */}
+          <path d={`M ${C.tri+NR} ${RW.top} L ${C.cur-NR-6} ${RW.top}`} fill="none" stroke={RED} strokeWidth="1.8" strokeDasharray="6,4" opacity="0.5" markerEnd="url(#arr-red)"/>
+          <path d={`M ${C.cur} ${RW.top+NR} L ${C.cur} ${RW.mid-NR-6}`} fill="none" stroke={RED} strokeWidth="1.8" strokeDasharray="6,4" opacity="0.5" markerEnd="url(#arr-red)"/>
+          <path d={`M ${C.cur+NR} ${RW.mid} L ${C.sch-NR-6} ${RW.mid}`} fill="none" stroke={RED} strokeWidth="1.8" strokeDasharray="6,4" opacity="0.5" markerEnd="url(#arr-red)"/>
+          <path d={`M ${C.sch} ${RW.mid+NR} L ${C.sch} ${RW.bot-NR-6}`} fill="none" stroke={RED} strokeWidth="1.8" strokeDasharray="6,4" opacity="0.5" markerEnd="url(#arr-red)"/>
+          {/* emails → email on track */}
+          <path d={`M ${C.tri+NR} ${RW.bot} L ${C.cur-NR-6} ${RW.bot}`} fill="none" stroke="rgba(148,163,184,0.45)" strokeWidth="1.8" markerEnd="url(#arr-slate)"/>
+
+          {/* ── OTW SOLUTION PATHS (gold solid) ── */}
+          <path d={`M ${C.tri+NR} ${RW.top} C 310 68 560 68 ${C.otw-NR-6} ${RW.top}`} fill="none" stroke={GOLD} strokeWidth="2.5" opacity="0.85" markerEnd="url(#arr-gold)"/>
+          <path d={`M ${C.otw+NR} ${RW.top} L ${C.orc-NR-6} ${RW.top}`} fill="none" stroke={GOLD} strokeWidth="2.5" opacity="0.85" markerEnd="url(#arr-gold)"/>
+          <path d={`M ${C.orc+NR} ${RW.top} L ${C.out-NR-6} ${RW.top}`} fill="none" stroke={GOLD} strokeWidth="2.5" opacity="0.85" markerEnd="url(#arr-gold)"/>
+          <path d={`M ${C.orc} ${RW.top+NR} C ${C.orc} 440 ${C.out} 440 ${C.out} ${RW.bot-NR-6}`} fill="none" stroke={GOLD} strokeWidth="2.5" opacity="0.85" markerEnd="url(#arr-gold)"/>
+
+          {/* ── NODES ── */}
+
+          {/* Calls In */}
+          <circle cx={C.tri} cy={RW.top} r={NR} fill="rgba(99,102,241,0.07)" stroke="rgba(99,102,241,0.4)" strokeWidth="2"/>
+          {icon(C.tri, RW.top,
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.4 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.37a16 16 0 0 0 6.72 6.72l1.73-1.74a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" stroke="rgba(99,102,241,0.8)"/>
+          )}
+          <text x={C.tri} y={RW.top+NR+17} textAnchor="middle" style={{fontSize:11,fontWeight:700,fill:'#475569',...F}}>Calls In</text>
+
+          {/* I Answer */}
+          <circle cx={C.cur} cy={RW.top} r={NR} fill="rgba(239,68,68,0.07)" stroke="rgba(239,68,68,0.4)" strokeWidth="2"/>
+          {icon(C.cur, RW.top, <>
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="rgba(239,68,68,0.8)"/>
+            <circle cx="12" cy="7" r="4" stroke="rgba(239,68,68,0.8)"/>
+          </>)}
+          <text x={C.cur} y={RW.top+NR+17} textAnchor="middle" style={{fontSize:11,fontWeight:700,fill:'#475569',...F}}>I Answer</text>
+          <text x={C.cur} y={RW.top+NR+31} textAnchor="middle" style={{fontSize:10,fontWeight:700,fill:RED,...F}}>Productivity loss</text>
+
+          {/* Missed Calls */}
+          <circle cx={C.cur} cy={RW.mid} r={NR} fill="rgba(239,68,68,0.09)" stroke="rgba(239,68,68,0.55)" strokeWidth="2"/>
+          {icon(C.cur, RW.mid, <>
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="rgba(239,68,68,0.8)"/>
+            <line x1="12" y1="9" x2="12" y2="13" stroke="rgba(239,68,68,0.8)"/>
+            <line x1="12" y1="17" x2="12.01" y2="17" stroke="rgba(239,68,68,0.8)"/>
+          </>)}
+          <text x={C.cur} y={RW.mid+NR+17} textAnchor="middle" style={{fontSize:11,fontWeight:700,fill:'#475569',...F}}>Missed Calls</text>
+          {loss.missedRev>0 && <text x={C.cur} y={RW.mid+NR+31} textAnchor="middle" style={{fontSize:11,fontWeight:800,fill:RED,...F}}>{fmt(loss.missedRev)}/mo lost</text>}
+
+          {/* Manual Calendar */}
+          <circle cx={C.sch} cy={RW.mid} r={NR} fill="rgba(148,163,184,0.07)" stroke="rgba(148,163,184,0.35)" strokeWidth="2"/>
+          {icon(C.sch, RW.mid, <>
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="rgba(148,163,184,0.7)"/>
+            <line x1="16" y1="2" x2="16" y2="6" stroke="rgba(148,163,184,0.7)"/>
+            <line x1="8" y1="2" x2="8" y2="6" stroke="rgba(148,163,184,0.7)"/>
+            <line x1="3" y1="10" x2="21" y2="10" stroke="rgba(148,163,184,0.7)"/>
+          </>)}
+          <text x={C.sch} y={RW.mid+NR+17} textAnchor="middle" style={{fontSize:11,fontWeight:600,fill:'#94a3b8',...F}}>Manual Calendar</text>
+
+          {/* No Route Plan */}
+          <circle cx={C.sch} cy={RW.bot} r={NR} fill="rgba(239,68,68,0.09)" stroke="rgba(239,68,68,0.55)" strokeWidth="2"/>
+          {icon(C.sch, RW.bot, <>
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" stroke="rgba(239,68,68,0.8)"/>
+            <line x1="8" y1="2" x2="8" y2="18" stroke="rgba(239,68,68,0.8)"/>
+            <line x1="16" y1="6" x2="16" y2="22" stroke="rgba(239,68,68,0.8)"/>
+          </>)}
+          <text x={C.sch} y={RW.bot+NR+17} textAnchor="middle" style={{fontSize:11,fontWeight:700,fill:'#475569',...F}}>No Route Plan</text>
+          {loss.adminCost>0 && <text x={C.sch} y={RW.bot+NR+31} textAnchor="middle" style={{fontSize:11,fontWeight:800,fill:RED,...F}}>{fmt(loss.adminCost)}/mo wasted</text>}
+
+          {/* OTW Receptionist */}
+          <circle cx={C.otw} cy={RW.top} r={NR} fill="rgba(245,158,11,0.10)" stroke="rgba(245,158,11,0.7)" strokeWidth="2"/>
+          {icon(C.otw, RW.top, <>
+            <path d="M3 18v-6a9 9 0 0 1 18 0v6" stroke="rgba(245,158,11,0.9)"/>
+            <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z" stroke="rgba(245,158,11,0.9)"/>
+            <path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" stroke="rgba(245,158,11,0.9)"/>
+          </>)}
+          <text x={C.otw} y={RW.top+NR+17} textAnchor="middle" style={{fontSize:11,fontWeight:700,fill:'#475569',...F}}>OTW Receptionist</text>
+          <text x={C.otw} y={RW.top+NR+31} textAnchor="middle" style={{fontSize:11,fontWeight:800,fill:GOLD,...F}}>$497/mo</text>
+
+          {/* Workflow Engine */}
+          <circle cx={C.orc} cy={RW.top} r={NR} fill="rgba(245,158,11,0.10)" stroke="rgba(245,158,11,0.7)" strokeWidth="2"/>
+          {icon(C.orc, RW.top, <>
+            <circle cx="12" cy="12" r="3" stroke="rgba(245,158,11,0.9)"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="rgba(245,158,11,0.9)"/>
+          </>)}
+          <text x={C.orc} y={RW.top+NR+17} textAnchor="middle" style={{fontSize:11,fontWeight:700,fill:'#475569',...F}}>Workflow Engine</text>
+          <text x={C.orc} y={RW.top+NR+31} textAnchor="middle" style={{fontSize:11,fontWeight:700,fill:GOLD,...F}}>Included</text>
+
+          {/* Every Call Caught */}
+          <circle cx={C.out} cy={RW.top} r={NR} fill="rgba(13,148,136,0.08)" stroke="rgba(13,148,136,0.55)" strokeWidth="2"/>
+          {icon(C.out, RW.top, <>
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="rgba(13,148,136,0.85)"/>
+            <polyline points="22 4 12 14.01 9 11.01" stroke="rgba(13,148,136,0.85)"/>
+          </>)}
+          <text x={C.out} y={RW.top+NR+17} textAnchor="middle" style={{fontSize:11,fontWeight:700,fill:TEAL,...F}}>Every Call Caught</text>
+
+          {/* Emails In */}
+          <circle cx={C.tri} cy={RW.bot} r={NR} fill="rgba(99,102,241,0.07)" stroke="rgba(99,102,241,0.4)" strokeWidth="2"/>
+          {icon(C.tri, RW.bot, <>
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6c0-1.1.9-2 2-2z" stroke="rgba(99,102,241,0.8)"/>
+            <polyline points="22,6 12,13 2,6" stroke="rgba(99,102,241,0.8)"/>
+          </>)}
+          <text x={C.tri} y={RW.bot+NR+17} textAnchor="middle" style={{fontSize:11,fontWeight:700,fill:'#475569',...F}}>Emails In</text>
+
+          {/* Email On Track */}
+          <circle cx={C.cur} cy={RW.bot} r={NR} fill="rgba(148,163,184,0.07)" stroke="rgba(148,163,184,0.35)" strokeWidth="2"/>
+          {icon(C.cur, RW.bot,
+            <polyline points="20 6 9 17 4 12" stroke="rgba(13,148,136,0.7)"/>
+          )}
+          <text x={C.cur} y={RW.bot+NR+17} textAnchor="middle" style={{fontSize:11,fontWeight:600,fill:'#94a3b8',...F}}>Email On Track</text>
+
+          {/* Smart Schedule */}
+          <circle cx={C.out} cy={RW.bot} r={NR} fill="rgba(13,148,136,0.08)" stroke="rgba(13,148,136,0.55)" strokeWidth="2"/>
+          {icon(C.out, RW.bot, <>
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="rgba(13,148,136,0.85)"/>
+            <line x1="16" y1="2" x2="16" y2="6" stroke="rgba(13,148,136,0.85)"/>
+            <line x1="8" y1="2" x2="8" y2="6" stroke="rgba(13,148,136,0.85)"/>
+            <line x1="3" y1="10" x2="21" y2="10" stroke="rgba(13,148,136,0.85)"/>
+            <polyline points="9 16 11 18 15 14" stroke="rgba(13,148,136,0.85)"/>
+          </>)}
+          <text x={C.out} y={RW.bot+NR+17} textAnchor="middle" style={{fontSize:11,fontWeight:700,fill:TEAL,...F}}>Smart Schedule</text>
+
+          {/* Legend */}
+          <line x1="24" y1="582" x2="52" y2="582" stroke={RED} strokeWidth="1.8" strokeDasharray="5,4"/>
+          <text x="60" y="587" style={{fontSize:10,fill:'#94a3b8',...F}}>Without OTW (current state)</text>
+          <line x1="236" y1="582" x2="264" y2="582" stroke={GOLD} strokeWidth="2.5"/>
+          <text x="272" y="587" style={{fontSize:10,fill:'#94a3b8',...F}}>With OTW (automated flow)</text>
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+// ── RESULTS ──────────────────────────────────────────
+function Results({ data, loss }) {
+  const pains = [
+    loss.missedRev > 0 && {
+      icon:'📞', label:'Missed calls costing you',
+      detail:`${loss.missedCallsPerMonth} missed calls/month × ${fmt(data.avgJobValue)} avg job value × 38% conversion = ${fmt(loss.missedRev)}/mo revenue never entering your business`,
+    },
+    loss.quoteRev > 0 && {
+      icon:'📋', label:'Dead quotes costing you',
+      detail:`${loss.coldQuotesPerMonth} quotes/month going quiet × 55% that could've converted = ${fmt(loss.quoteRev)}/mo in slow follow-up losses`,
+    },
+    loss.adminCost > 0 && {
+      icon:'⏱', label:'Admin overhead costing you',
+      detail:`${loss.adminHrsPerMonth} hrs/month on admin × $75/hr opportunity cost = ${fmt(loss.adminCost)}/mo in unbillable time`,
+    },
+  ].filter(Boolean);
+
+  return (
+    <div className="fade-up">
+
+      {/* BIG LOSS */}
+      <div className="red-glow" style={{
+        background:'#fff',border:'2px solid rgba(239,68,68,0.22)',
+        borderRadius:24,padding:'36px 28px',textAlign:'center',marginBottom:28,
+        boxShadow:'0 4px 32px rgba(239,68,68,0.08)',
+      }}>
+        <div style={{fontSize:10,fontWeight:800,color:'rgba(239,68,68,0.55)',textTransform:'uppercase',letterSpacing:'0.16em',marginBottom:14}}>
+          {data.businessName ? `${data.businessName}'s estimated revenue leak` : 'Your estimated revenue leak'}
+        </div>
+        <div className="count-up" style={{fontSize:64,fontWeight:900,color:'#EF4444',letterSpacing:'-0.04em',lineHeight:1}}>
+          {fmt(loss.annual)}
+        </div>
+        <div style={{fontSize:15,color:'rgba(239,68,68,0.45)',fontWeight:600,marginTop:6}}>per year</div>
+        <div style={{marginTop:18,display:'inline-block',background:'rgba(239,68,68,0.07)',borderRadius:50,padding:'10px 22px',fontSize:13,color:'#EF4444',fontWeight:700}}>
+          That's {fmt(loss.total)} leaving your business every single month
+        </div>
+      </div>
+
+      {/* BREAKDOWN BARS */}
+      <div style={{marginBottom:28}}>
+        <div style={{fontSize:10,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.14em',marginBottom:14}}>Where you're bleeding</div>
+        {[
+          { label:'Missed calls',  value:loss.missedRev, color:'#EF4444' },
+          { label:'Dead quotes',   value:loss.quoteRev,  color:'#F97316' },
+          { label:'Admin time',    value:loss.adminCost, color:'#F59E0B' },
+        ].map(row => {
+          const pct = loss.total > 0 ? Math.round(row.value / loss.total * 100) : 0;
+          return (
+            <div key={row.label} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,padding:'14px 16px',marginBottom:8}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:9}}>
+                <span style={{fontSize:13,fontWeight:600,color:'#475569'}}>{row.label}</span>
+                <span style={{fontSize:19,fontWeight:900,color:row.color}}>{fmt(row.value)}<span style={{fontSize:11,fontWeight:500,color:'#94a3b8'}}>/mo</span></span>
+              </div>
+              <div style={{background:'#f1f5f9',borderRadius:4,height:5,overflow:'hidden'}}>
+                <div style={{height:'100%',width:pct+'%',background:row.color,borderRadius:4}}/>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* PAIN POINT REPORT */}
+      <div style={{marginBottom:28}}>
+        <div style={{fontSize:10,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.14em',marginBottom:14}}>Your pain point report</div>
+        {pains.map((p,i) => (
+          <div key={i} className="pain-pill">
+            <div style={{fontSize:18,flexShrink:0,marginTop:1}}>{p.icon}</div>
+            <div>
+              <div style={{fontSize:13,fontWeight:700,color:'#EF4444',marginBottom:3}}>{p.label}</div>
+              <div style={{fontSize:12,color:'#64748b',lineHeight:1.6}}>{p.detail}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* WORKFLOW DIAGRAM */}
+      <WorkflowDiagram loss={loss} data={data}/>
+
+      {/* WHAT OTW FIXES */}
+      <div style={{marginBottom:32}}>
+        <div style={{fontSize:10,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.14em',marginBottom:14}}>What OTW recovers for you</div>
+        {[
+          { fix:'Every call answered 24/7',  amount: fmt(loss.missedRev)+'/mo' },
+          { fix:'Every quote followed up',   amount: fmt(loss.quoteRev)+'/mo' },
+          { fix:'Admin time eliminated',     amount: fmt(loss.adminCost)+'/mo' },
+        ].map((item,i) => (
+          <div key={i} className="fix-pill">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,marginTop:1}}>
+              <polyline points="20,6 9,17 4,12"/>
+            </svg>
+            <div style={{flex:1,display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,flexWrap:'wrap'}}>
+              <span style={{fontSize:13,fontWeight:600,color:'#475569'}}>{item.fix}</span>
+              <span style={{fontSize:13,fontWeight:800,color:'#F59E0B'}}>{item.amount}</span>
+            </div>
+          </div>
+        ))}
+        <div style={{
+          marginTop:14,background:'#fff',border:'1.5px solid rgba(245,158,11,0.25)',
+          borderRadius:14,padding:'16px 20px',
+          boxShadow:'0 2px 12px rgba(245,158,11,0.08)',
+        }}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
+            <span style={{fontSize:13,fontWeight:600,color:'#64748b'}}>Total recoverable per year</span>
+            <span style={{fontSize:28,fontWeight:900,color:'#F59E0B',letterSpacing:'-0.02em'}}>{fmt(loss.annual)}</span>
+          </div>
+          <div style={{marginTop:8,fontSize:11,color:'#94a3b8'}}>OTW Founding Partner plan starts at $497/mo — pays for itself in week one.</div>
+        </div>
+      </div>
+
+      {/* BOOK A CALL */}
+      <div style={{
+        background:'linear-gradient(135deg,rgba(245,158,11,0.08),rgba(245,158,11,0.02))',
+        border:'1.5px solid rgba(245,158,11,0.25)',borderRadius:24,
+        padding:'36px 28px',textAlign:'center',
+        boxShadow:'0 4px 32px rgba(245,158,11,0.08)',
+      }}>
+        <div style={{fontSize:10,fontWeight:800,color:'rgba(180,83,9,0.7)',textTransform:'uppercase',letterSpacing:'0.16em',marginBottom:14}}>Next step</div>
+        <h3 style={{fontSize:28,fontWeight:900,color:'#0f172a',letterSpacing:'-0.025em',lineHeight:1.15,marginBottom:12}}>
+          Let's fix this for your business.
+        </h3>
+        <p style={{fontSize:14,color:'#64748b',lineHeight:1.7,maxWidth:400,margin:'0 auto 28px'}}>
+          Book a free 15-minute call with Andy. He'll walk you through exactly how OTW would work for your business — no jargon, no pressure.
+        </p>
+        <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{
+          display:'inline-block',
+          background:'#F59E0B',color:'#fff',
+          borderRadius:50,padding:'18px 44px',
+          fontWeight:900,fontSize:16,textDecoration:'none',
+          boxShadow:'0 0 48px rgba(245,158,11,0.3)',
+          letterSpacing:'-0.01em',
+        }}>
+          Book my free call with Andy →
+        </a>
+        <p style={{marginTop:14,fontSize:11,color:'#94a3b8'}}>
+          15 min · Free · No obligation · Andy will have your full audit before the call
+        </p>
+      </div>
+
+      <div style={{textAlign:'center',marginTop:32}}>
+        <a href="index.html" style={{fontSize:12,color:'#94a3b8',textDecoration:'none'}}>← Back to OTW Studios</a>
+      </div>
+    </div>
+  );
+}
+
+// ── APP ───────────────────────────────────────────────
+function App() {
+  const TOTAL = 4;
+  const [step, setStep] = useState(0);
+  const [data, setData] = useState({
+    name:'', businessName:'', industry:'', suburb:'',
+    callsPerWeek:20, missedCalls:6, avgJobValue:800,
+    quotesPerWeek:8, deadQuotes:3,
+    adminHours:8,
+    email:'', phone:'',
+  });
+
+  const loss = calcLoss(data);
+
+  function next() { setStep(s=>s+1); window.scrollTo({top:0,behavior:'smooth'}); }
+  function back() { setStep(s=>s-1); window.scrollTo({top:0,behavior:'smooth'}); }
+  function set(k,v) { setData(d=>({...d,[k]:v})); }
+
+  function submit() {
+    // Wire up EmailJS here when keys are ready
+    setStep(6);
+  }
+
+  const cardStyle = {
+    background:'#fff',border:'1px solid #e2e8f0',
+    borderRadius:20,padding:'28px 24px',
+    boxShadow:'0 2px 16px rgba(0,0,0,0.05)',
   };
 
-  /* ── FIELD COMPONENTS ── */
-  const inputCls = "w-full rounded-xl px-4 py-3.5 text-base text-gray-900 border border-gray-200 focus:border-gold-500 transition-colors bg-white";
+  return (
+    <div style={{minHeight:'100vh',background:'#f8fafc'}}>
+      <Nav step={step} total={TOTAL}/>
+      {step >= 2 && step < 6 && <Ticker amount={loss.total}/>}
 
-  function TF({ label, name, value, onChange, placeholder, required }) {
-    return (
-      <div>
-        <label className="block text-sm font-semibold text-gray-600 mb-2">{label}{required&&<span className="text-gold-500 ml-0.5">*</span>}</label>
-        <input className={inputCls} name={name} value={value||""} onChange={e=>onChange(name,e.target.value)} placeholder={placeholder||""}/>
-      </div>
-    );
-  }
-  function TA({ label, name, value, onChange, placeholder, rows=3 }) {
-    return (
-      <div>
-        <label className="block text-sm font-semibold text-gray-600 mb-2">{label}</label>
-        <textarea className={inputCls} name={name} value={value||""} onChange={e=>onChange(name,e.target.value)} placeholder={placeholder||""} rows={rows}/>
-      </div>
-    );
-  }
-  function SF({ label, name, value, onChange, options }) {
-    return (
-      <div>
-        <label className="block text-sm font-semibold text-gray-600 mb-2">{label}</label>
-        <select className={inputCls} style={{color: value?"#111827":"#9CA3AF"}}
-          value={value||""} onChange={e=>onChange(name,e.target.value)}>
-          <option value="">Select…</option>
-          {options.map(o=><option key={o.value||o} value={o.value||o}>{o.label||o}</option>)}
-        </select>
-      </div>
-    );
-  }
-  function Chips({ label, name, value=[], onChange, options, multi=true }) {
-    const toggle = v => {
-      if (!multi) { onChange(name, v); return; }
-      const cur = Array.isArray(value) ? value : [];
-      onChange(name, cur.includes(v) ? cur.filter(x=>x!==v) : [...cur,v]);
-    };
-    const isSelected = v => multi ? (Array.isArray(value)&&value.includes(v)) : value===v;
-    return (
-      <div>
-        <label className="block text-sm font-semibold text-gray-600 mb-2">{label}</label>
-        <div className="flex flex-wrap gap-2">
-          {options.map(o=>(
-            <button key={o.value||o} type="button" onClick={()=>toggle(o.value||o)}
-              className={`chip rounded-full px-4 py-2 text-sm font-medium border ${isSelected(o.value||o)?"selected":"border-gray-200 text-gray-500 bg-white"}`}>
-              {o.label||o}
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  }
+      <div style={{maxWidth:600,margin:'0 auto',padding:'90px 22px 80px'}}>
 
-  /* ── STEPS DEFINITION ── */
-  const STEPS = [
-    { id:"business", label:"Your Business",    icon:<IBld cls="w-4 h-4"/> },
-    { id:"team",     label:"Team & Operations",icon:<ITeam cls="w-4 h-4"/> },
-    { id:"phone",    label:"Phone & Calls",     icon:<IPhone cls="w-4 h-4"/> },
-    { id:"email",    label:"Email & Admin",     icon:<IMail cls="w-4 h-4"/> },
-    { id:"schedule", label:"Scheduling",        icon:<ICal cls="w-4 h-4"/> },
-    { id:"tools",    label:"Current Tools",     icon:<ITool cls="w-4 h-4"/> },
-    { id:"goals",    label:"Goals",             icon:<ITarget cls="w-4 h-4"/> },
-  ];
-
-  /* ── AUDIT CALCULATOR ── */
-  function calculateAudit(d) {
-    const tradeJobs = {plumbing:380,electrical:350,hvac:420,carpentry:310,cleaning:180,landscaping:250,pest:220,auto:280};
-    const trade = (d.trade||"").toLowerCase();
-    const parseJobValue = (str) => {
-      if (!str) return null;
-      const nums = str.replace(/,/g,'').match(/\d+/g);
-      if (!nums) return null;
-      return nums.length >= 2 ? Math.round((parseInt(nums[0])+parseInt(nums[1]))/2) : parseInt(nums[0]);
-    };
-    const avgJob = parseJobValue(d.avgJobValue) || tradeJobs[Object.keys(tradeJobs).find(k=>trade.includes(k))] || 350;
-    const name = d.businessName || "Your Business";
-    const owner = d.ownerName || "You";
-    const location = d.location || "Australia";
-    const tradeLabel = d.trade || "Trade";
-
-    const missedMap = {"none":95,"1-2":78,"3-5":52,"6-10":28,"10+":10};
-    const phoneScore = missedMap[d.missedCallsPerWeek] || 50;
-    const emailMap = {"immediately":90,"within-1hr":75,"same-day":55,"next-day":30,"2+days":12};
-    const emailScore = emailMap[d.emailResponseTime] || 45;
-    const schedMap = {"software":72,"google-calendar":52,"paper-whiteboard":28,"in-head":15};
-    const schedScore = schedMap[d.schedulingMethod] || 42;
-    const tools = Array.isArray(d.currentTools) ? d.currentTools : [];
-    const adminScore = tools.length > 2 ? 65 : tools.length > 0 ? 42 : 28;
-    const overall = Math.round((phoneScore*1.4 + emailScore + schedScore + adminScore*0.6) / 4);
-
-    const missedPerWeek = {"none":0,"1-2":1.5,"3-5":4,"6-10":8,"10+":13}[d.missedCallsPerWeek] || 0;
-    const phoneCost = Math.round(missedPerWeek * 4.3 * avgJob * 0.6);
-    const emailCostMap = {"immediately":0,"within-1hr":0,"same-day":300,"next-day":900,"2+days":1800};
-    const emailCost = emailCostMap[d.emailResponseTime] || 0;
-    const routingCost = schedScore < 50 ? 600 : 150;
-    const adminCost   = adminScore < 40 ? 800 : 300;
-    const totalCost = phoneCost + emailCost + routingCost + adminCost;
-
-    const nodes = [
-      { id:"call_in",  col:0, row:0, label:"Calls In",  icon:"phone", type:"trigger", detail:`Inbound enquiries from customers looking to book ${tradeLabel.toLowerCase()} jobs.` },
-      { id:"email_in", col:0, row:2, label:"Emails In", icon:"mail",  type:"trigger", detail:`Inbound email enquiries, quote requests, and customer follow-ups.` },
-    ];
-    const edges = [];
-
-    if (phoneScore < 80) {
-      if (d.callAnswerMethod === "owner") {
-        nodes.push({ id:"owner_ans", col:1, row:0, label:`${owner} Answers`, icon:"user", type:"pain_point", detail:`Owner takes all calls while on jobs. Constant interruptions reduce productivity.`, cost:"Productivity loss" });
-        edges.push({ from:"call_in", to:"owner_ans", type:"normal" });
-      }
-      if (missedPerWeek > 0) {
-        nodes.push({ id:"missed", col:1, row:1, label:"Missed Calls", icon:"alert", type:"pain_point", detail:`${missedPerWeek < 4 ? "A few" : "Many"} calls missed weekly. Customers ring a competitor instead.`, cost:`$${phoneCost.toLocaleString()}/mo lost` });
-        edges.push({ from:"call_in", to:"missed", type:"problem" });
-      }
-    } else {
-      nodes.push({ id:"calls_ok", col:1, row:0, label:"Calls Handled", icon:"check", type:"process", detail:"Most calls are being answered well." });
-      edges.push({ from:"call_in", to:"calls_ok", type:"normal" });
-    }
-
-    if (emailScore < 70) {
-      nodes.push({ id:"inbox_chaos", col:1, row:2, label:"Unsorted Inbox", icon:"mail",  type:"process",    detail:"Emails arrive unfiltered. No triage, no prioritisation." });
-      nodes.push({ id:"slow_reply",  col:1, row:3, label:"Slow Replies",   icon:"clock", type:"pain_point", detail:`Average reply time: ${d.emailResponseTime||"unknown"}. Hot leads go cold while waiting.`, cost:`$${emailCost.toLocaleString()}/mo lost` });
-      edges.push({ from:"email_in", to:"inbox_chaos", type:"normal" });
-      edges.push({ from:"inbox_chaos", to:"slow_reply", type:"problem" });
-    } else {
-      nodes.push({ id:"email_ok", col:1, row:2, label:"Email On Track", icon:"check", type:"process", detail:"Email response times are solid." });
-      edges.push({ from:"email_in", to:"email_ok", type:"normal" });
-    }
-
-    if (schedScore < 55) {
-      nodes.push({ id:"manual_cal", col:2, row:1, label:"Manual Calendar", icon:"calendar", type:"process",    detail:`Jobs booked manually via ${d.schedulingMethod||"calendar"}. Time-consuming and error-prone.` });
-      nodes.push({ id:"no_routing", col:2, row:2, label:"No Route Plan",   icon:"map",      type:"pain_point", detail:"Jobs scattered across the service area. Extra driving time every day.", cost:`$${routingCost}/mo wasted` });
-      edges.push({ from:"call_in",    to:"manual_cal", type:"normal" });
-      edges.push({ from:"manual_cal", to:"no_routing", type:"problem" });
-    }
-
-    const showRecep  = phoneScore < 78;
-    const showTriage = emailScore < 70;
-
-    if (showRecep) {
-      nodes.push({ id:"ai_recep", col:3, row:0, label:"OTW Receptionist", icon:"bot", type:"otw",
-        detail:`24/7 call answering for ${name}. Captures every lead, qualifies callers, escalates emergencies, books jobs.`,
-        cost:"$497/mo", features:["24/7 answering","Lead capture","Emergency transfer","Calendar booking","SMS confirmations"] });
-      edges.push({ from:"call_in", to:"ai_recep", type:"solution" });
-    }
-    if (showTriage) {
-      nodes.push({ id:"ai_triage", col:3, row:2, label:"OTW TriageAI", icon:"triage", type:"otw",
-        detail:`Auto-categorise every email, draft replies in ${owner}'s voice, send instantly with approval.`,
-        cost:"$347/mo", features:["Auto-categorisation","Smart drafts","Auto-send","Invoice handling","Learning loop"] });
-      edges.push({ from:"email_in", to:"ai_triage", type:"solution" });
-    }
-    if (showRecep || showTriage) {
-      const engRow = showRecep && showTriage ? 1 : showRecep ? 0 : 2;
-      nodes.push({ id:"workflow_eng", col:4, row:engRow, label:"Workflow Engine", icon:"filter", type:"otw",
-        detail:"Unified orchestration — deduplication, geographic scheduling, booking confirmations.",
-        cost:"Included", features:["Deduplication","Geo scheduling","Confirmations","Single calendar"] });
-      if (showRecep)  edges.push({ from:"ai_recep",  to:"workflow_eng", type:"solution" });
-      if (showTriage) edges.push({ from:"ai_triage", to:"workflow_eng", type:"solution" });
-    }
-
-    const outCol = (showRecep || showTriage) ? 5 : 3;
-    if (showRecep) {
-      nodes.push({ id:"every_call", col:outCol, row:0, label:"Every Call Caught", icon:"check", type:"outcome", detail:"Zero missed calls. Every lead captured with name, suburb, job type." });
-      edges.push({ from:(showRecep||showTriage)?"workflow_eng":"ai_recep", to:"every_call", type:"solution" });
-    }
-    if (showTriage) {
-      nodes.push({ id:"fast_email", col:outCol, row:2, label:"Instant Replies", icon:"send", type:"outcome", detail:"Every email triaged and replied within minutes, not days." });
-      edges.push({ from:(showRecep||showTriage)?"workflow_eng":"ai_triage", to:"fast_email", type:"solution" });
-    }
-    if (showRecep || showTriage) {
-      nodes.push({ id:"smart_sched", col:outCol, row:1, label:"Smart Schedule", icon:"calendar", type:"outcome", detail:"Jobs clustered by suburb. Less driving, more billable hours." });
-      edges.push({ from:"workflow_eng", to:"smart_sched", type:"solution" });
-    }
-
-    const recs = [];
-    if (showRecep) recs.push({
-      priority:1, product:"OTW Receptionist", tier:"Full",
-      reason:`You're missing ${d.missedCallsPerWeek||"multiple"} calls per week. At $${avgJob.toLocaleString()} per job, that's $${phoneCost.toLocaleString()}/month walking out the door.`,
-      roi:{ cost:497, saving:phoneCost, payback:"Pays for itself within weeks" }
-    });
-    if (showTriage) recs.push({
-      priority: recs.length+1, product:"OTW TriageAI", tier:"Full",
-      reason:`${d.emailResponseTime==="next-day"||d.emailResponseTime==="2+days" ? "Next-day replies" : "Slow email responses"} are costing you quotes. Customers go with whoever replies first.`,
-      roi:{ cost:347, saving:emailCost||600, payback:"ROI within 2 weeks" }
-    });
-    if (recs.length===0) recs.push({
-      priority:1, product:"OTW Receptionist", tier:"Core",
-      reason:"Even efficient businesses benefit from 24/7 after-hours answering — jobs come in at all hours.",
-      roi:{ cost:297, saving:800, payback:"Pays for itself in week 1" }
-    });
-
-    const tierCore = 494, tierFull = 844;
-    return { name, owner, location, tradeLabel, avgJob,
-      scores:{ overall, phones:phoneScore, email:emailScore, scheduling:schedScore, admin:adminScore },
-      totalCost, phoneCost, emailCost, routingCost, adminCost, nodes, edges, recs,
-      tiers:{
-        core:{ total:tierCore, includes:["OTW Receptionist Core ($297)","OTW TriageAI Core ($197)"], solves:["Missed calls","Email triage","Auto-drafts"], missing:["Calendar booking","Geographic scheduling","Confirmations","Unified workflow"] },
-        full:{ total:tierFull, includes:["OTW Receptionist Full ($497)","OTW TriageAI Full ($347)","Workflow Engine (included)"], solves:["Every call answered 24/7","Email triage & auto-drafts","Calendar booking","Geographic scheduling","Unified workflow","Custom voice","SMS notifications"], roi:`$${Math.round(totalCost*0.7).toLocaleString()}/month recovered` }
-      }
-    };
-  }
-
-  /* ── SCORE RING ── */
-  function ScoreRing({ score, size=64 }) {
-    const r=(size-10)/2, circ=2*Math.PI*r, offset=circ-(score/100)*circ;
-    const color=score<40?"#EF4444":score<65?"#F59E0B":"#10B981";
-    return (
-      <div className="relative" style={{width:size,height:size}}>
-        <svg width={size} height={size} className="-rotate-90">
-          <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#F3F4F6" strokeWidth="5"/>
-          <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth="5"
-            strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
-            style={{transition:"stroke-dashoffset 1.2s cubic-bezier(.34,1.56,.64,1)"}}/>
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-base font-bold" style={{color}}>{score}</span>
-        </div>
-      </div>
-    );
-  }
-
-  /* ── COMPACT NODE ── */
-  function CompactNode({ node }) {
-    const s = NSTYLE[node.type]||NSTYLE.process;
-    const IconC = ICONS[node.icon]||IStar;
-    const isOTW = node.type==="otw", isPain = node.type==="pain_point";
-    return (
-      <div className="node-wrapper relative flex flex-col items-center" style={{width:120}}>
-        <div className={`node-circle h-12 w-12 rounded-full border-2 ${s.border} ${s.bg} flex items-center justify-center ${s.circleClass}`}>
-          <IconC cls={s.iconColor} w={18}/>
-        </div>
-        <div className="node-label text-[11px] font-medium text-gray-400 mt-2 text-center leading-tight max-w-[100px]">{node.label}</div>
-        {node.cost && (
-          <div className={`mt-1 rounded-full px-2 py-0.5 text-[9px] font-semibold ${isPain?"bg-red-50 text-red-400":isOTW?"bg-amber-50 text-amber-500":"bg-gray-100 text-gray-400"}`}>
-            {node.cost}
+        {/* Progress */}
+        {step > 0 && step <= TOTAL+1 && (
+          <div style={{marginBottom:36}}>
+            <div className="progress-track">
+              <div className="progress-fill" style={{width:Math.round((Math.min(step,TOTAL+1)/(TOTAL+1))*100)+'%'}}/>
+            </div>
           </div>
         )}
-        <div className={`node-detail-card absolute top-full mt-3 w-56 rounded-2xl border ${s.detailBorder} p-4`}
-          style={{left:"50%", boxShadow:"0 16px 48px rgba(0,0,0,.12), 0 0 0 1px rgba(0,0,0,.06)"}}>
-          <div className="flex items-center gap-2 mb-2">
-            <div className={`h-7 w-7 rounded-lg border ${s.detailBorder} flex items-center justify-center bg-gray-50`}>
-              <IconC cls={s.iconColor} w={14}/>
+
+        {/* ── INTRO ── */}
+        {step === 0 && (
+          <div className="fade-up" style={{textAlign:'center',maxWidth:520,margin:'60px auto 0'}}>
+            <div style={{display:'inline-flex',alignItems:'center',gap:8,background:'rgba(239,68,68,0.07)',border:'1px solid rgba(239,68,68,0.18)',borderRadius:50,padding:'7px 18px',marginBottom:28}}>
+              <div style={{width:6,height:6,borderRadius:'50%',background:'#EF4444',animation:'pulse 1.5s ease infinite'}}/>
+              <span style={{fontSize:10,fontWeight:800,color:'rgba(239,68,68,0.7)',textTransform:'uppercase',letterSpacing:'0.12em'}}>Free revenue audit</span>
             </div>
-            <span className="text-xs font-bold text-gray-900">{node.label}</span>
-          </div>
-          <p className="text-[11px] text-gray-500 leading-relaxed mb-2">{node.detail}</p>
-          {node.features && (
-            <div className="space-y-1 border-t border-gray-100 pt-2">
-              {node.features.map(f=>(
-                <div key={f} className="flex items-center gap-1.5 text-[10px] text-gray-400">
-                  <span className={isOTW?"text-amber-500":"text-emerald-500"}>✓</span>{f}
-                </div>
-              ))}
-            </div>
-          )}
-          {isPain && node.cost && <div className="mt-2 pt-2 border-t border-red-100 text-[10px] font-semibold text-red-500">{node.cost}</div>}
-        </div>
-      </div>
-    );
-  }
-
-  /* ── WORKFLOW CANVAS ── */
-  function WorkflowCanvas({ data }) {
-    const { nodes, edges } = data;
-    const [hoveredId, setHoveredId] = useState(null);
-    const COL_W=175, ROW_H=125, PAD_X=60, PAD_Y=50, CR=24;
-
-    const pos = useMemo(() => {
-      const p={};
-      nodes.forEach(n=>{ p[n.id]={ x:PAD_X+n.col*COL_W, y:PAD_Y+n.row*ROW_H, cx:PAD_X+n.col*COL_W+60, cy:PAD_Y+n.row*ROW_H+CR }; });
-      return p;
-    }, [nodes]);
-
-    const W = Math.max(...nodes.map(n=>n.col))*COL_W+190+PAD_X;
-    const H = Math.max(...nodes.map(n=>n.row))*ROW_H+130+PAD_Y;
-    const edgeC = { normal:"rgba(0,0,0,0.07)", problem:"rgba(239,68,68,0.4)", solution:"rgba(245,158,11,0.55)" };
-
-    const mkPath = (fid,tid) => {
-      const f=pos[fid],t=pos[tid]; if(!f||!t) return "";
-      const sx=f.cx+CR+2,sy=f.cy,ex=t.cx-CR-2,ey=t.cy,dx=Math.abs(ex-sx)*0.5;
-      return `M${sx},${sy} C${sx+dx},${sy} ${ex-dx},${ey} ${ex},${ey}`;
-    };
-
-    const maxCol = Math.max(...nodes.map(n=>n.col));
-    const colLabels = ["Triggers","Current State","Scheduling","OTW Products","Orchestration","Outcomes"].slice(0,maxCol+1);
-
-    return (
-      <div className="rounded-3xl border border-gray-200 canvas-grid overflow-auto" style={{maxHeight:560}}>
-        <div style={{width:W,height:H,position:"relative",minWidth:"100%"}}>
-          {colLabels.map((l,i)=>(
-            <div key={i} className="absolute text-[9px] font-semibold uppercase tracking-[0.15em] text-gray-300"
-              style={{left:PAD_X+i*COL_W+20,top:16}}>{l}</div>
-          ))}
-          <svg style={{position:"absolute",top:0,left:0,width:W,height:H,pointerEvents:"none",zIndex:1}}>
-            <defs>
-              {Object.entries(edgeC).map(([k,c])=>(
-                <marker key={k} id={`dm-${k}`} viewBox="0 0 8 8" refX="4" refY="4" markerWidth="5" markerHeight="5">
-                  <circle cx="4" cy="4" r="3" fill={c}/>
-                </marker>
-              ))}
-            </defs>
-            {edges.map((e,i)=>(
-              <path key={i} d={mkPath(e.from,e.to)} fill="none" stroke={edgeC[e.type]} strokeWidth={e.type==="normal"?1:1.5}
-                strokeDasharray={e.type==="problem"?"5,3":""} markerStart={`url(#dm-${e.type})`} markerEnd={`url(#dm-${e.type})`}/>
-            ))}
-          </svg>
-          {nodes.map(n=>{
-            const p=pos[n.id];
-            return (
-              <div key={n.id}
-                onMouseEnter={()=>setHoveredId(n.id)}
-                onMouseLeave={()=>setHoveredId(null)}
-                style={{position:"absolute",left:p.x,top:p.y,zIndex:hoveredId===n.id?100:3}}>
-                <CompactNode node={n}/>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
-
-  /* ── REPORT ── */
-  function Report({ audit, formData, onBack }) {
-    const [tab, setTab] = useState("workflow");
-    const [emailStatus, setEmailStatus] = useState("sending");
-    const d = audit;
-    const tabs = [{k:"workflow",l:"Workflow Map"},{k:"painpoints",l:"Pain Points"},{k:"recommendations",l:"Recommendations"},{k:"options",l:"Your Options"}];
-
-    useEffect(() => {
-      sendEmails(audit, formData)
-        .then(() => setEmailStatus("sent"))
-        .catch(err => { console.warn("Email send failed:", err); setEmailStatus("error"); });
-    }, []);
-
-    const pains = d.nodes.filter(n=>n.type==="pain_point");
-    const ICON_MAP = { phone:IPhone, mail:IMail, calendar:ICal, user:IUser, alert:IAlert, clock:IClock, map:IMap };
-
-    return (
-      <div className="min-h-screen bg-gray-50 fade-up">
-        {/* Nav */}
-        <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
-          <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
-            <a href="otw_homepage.html" className="flex flex-col leading-tight">
-              <span className="text-sm font-semibold text-gray-900">OTW Studios</span>
-              <span className="text-[10px] text-gray-400">Business Audit</span>
-            </a>
-            <div className="flex items-center gap-4">
-              <div className="text-right hidden sm:block">
-                <div className="text-sm font-semibold text-gray-900">{d.name}</div>
-                <div className="text-[10px] text-gray-400">{d.tradeLabel} · {d.location}</div>
-              </div>
-              <button onClick={onBack} className="btn-ghost rounded-full border border-gray-200 px-3 py-1.5 text-xs text-gray-400">
-                <span>← Edit</span>
-              </button>
-            </div>
-          </div>
-        </nav>
-
-        <div className="max-w-7xl mx-auto px-6 pb-20" style={{paddingTop:"88px"}}>
-
-          {/* Audit generated banner */}
-          <div className="mb-3 rounded-2xl bg-amber-50 border border-amber-200 px-5 py-3.5 flex items-center gap-3">
-            <div className="h-2 w-2 rounded-full bg-amber-400 generating"/>
-            <p className="text-sm text-amber-700">Audit generated for <span className="font-semibold text-amber-800">{d.owner}</span> at {d.name} — {d.location}</p>
-          </div>
-
-          {/* Email confirmation */}
-          {emailStatus === "sent" && formData.email && (
-            <div className="mb-8 rounded-2xl bg-emerald-50 border border-emerald-200 px-5 py-3.5 flex items-center gap-3 fade-up">
-              <ICheck cls="text-emerald-500 shrink-0" w={16}/>
-              <p className="text-sm text-emerald-700">Report emailed to <span className="font-semibold">{formData.email}</span></p>
-            </div>
-          )}
-          {emailStatus === "sending" && (
-            <div className="mb-8 rounded-2xl bg-gray-100 border border-gray-200 px-5 py-3.5 flex items-center gap-3">
-              <div className="h-2 w-2 rounded-full bg-gray-400 generating"/>
-              <p className="text-sm text-gray-400">Sending your report to {formData.email || "your inbox"}…</p>
-            </div>
-          )}
-          {emailStatus === "error" && <div className="mb-8"/>}
-
-          {/* Header */}
-          <div className="mb-8">
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-gold-600 mb-3">Workflow Analysis</div>
-            <h1 className="text-2xl lg:text-3xl font-bold tracking-tight text-gray-900 mb-2">
-              Efficiency score: <span className="text-gold-500">{d.scores.overall}/100</span>
+            <h1 style={{fontSize:38,fontWeight:900,color:'#0f172a',letterSpacing:'-0.03em',lineHeight:1.1,marginBottom:16}}>
+              How much is your workflow costing you?
             </h1>
-            <p className="text-sm text-gray-500 max-w-xl leading-6">
-              We found {pains.length} pain point{pains.length!==1?"s":""} costing an estimated{" "}
-              <span className="text-red-500 font-semibold">${d.totalCost.toLocaleString()}/month</span>.
-              Hover any node to see details.
+            <p style={{fontSize:15,color:'#64748b',lineHeight:1.7,marginBottom:36}}>
+              4 quick questions. We calculate exactly how much revenue your business is losing to missed calls, dead quotes, and admin — and show you how to recover it.
             </p>
+            <div style={{display:'flex',flexDirection:'column',gap:10,alignItems:'center',marginBottom:36}}>
+              {['Takes less than 2 minutes','Real dollar figures based on your numbers','Free — no obligation'].map(t => (
+                <div key={t} style={{display:'flex',alignItems:'center',gap:8,fontSize:13,color:'#64748b'}}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+                  {t}
+                </div>
+              ))}
+            </div>
+            <button onClick={next} style={{
+              background:'#F59E0B',color:'#fff',border:'none',
+              borderRadius:50,padding:'18px 48px',
+              fontWeight:900,fontSize:17,cursor:'pointer',
+              boxShadow:'0 0 52px rgba(245,158,11,0.28)',
+              letterSpacing:'-0.01em',fontFamily:'Inter',
+            }}>Show me what I'm losing →</button>
+            <div style={{marginTop:12,fontSize:11,color:'#94a3b8'}}>Free · No credit card · 2 minutes</div>
           </div>
+        )}
 
-          {/* Score grid */}
-          <div className="grid grid-cols-5 gap-px rounded-2xl overflow-hidden border border-gray-100 bg-gray-100 mb-8">
-            {[{l:"Overall",s:d.scores.overall},{l:"Phone",s:d.scores.phones},{l:"Email",s:d.scores.email},{l:"Scheduling",s:d.scores.scheduling},{l:"Admin",s:d.scores.admin}].map(x=>(
-              <div key={x.l} className="bg-white flex flex-col items-center py-4 px-2">
-                <ScoreRing score={x.s} size={64}/>
-                <span className="text-[10px] text-gray-400 mt-1.5 font-medium">{x.l}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Cost summary */}
-          {d.totalCost > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+        {/* ── STEP 1: BUSINESS ── */}
+        {step === 1 && (
+          <div className="fade-up" style={cardStyle}>
+            <h2 style={{fontSize:24,fontWeight:800,color:'#0f172a',letterSpacing:'-0.02em',marginBottom:6}}>Tell us about your business</h2>
+            <p style={{fontSize:14,color:'#94a3b8',marginBottom:28,lineHeight:1.6}}>We'll tailor your results to your industry.</p>
+            <div style={{display:'flex',flexDirection:'column',gap:14,marginBottom:28}}>
               {[
-                {l:"Missed Calls",v:d.phoneCost,tc:"text-red-500"},
-                {l:"Slow Email",v:d.emailCost,tc:"text-orange-500"},
-                {l:"Routing Waste",v:d.routingCost,tc:"text-gold-600"},
-                {l:"Admin Overhead",v:d.adminCost,tc:"text-gray-600"},
-              ].filter(x=>x.v>0).map(x=>(
-                <div key={x.l} className="card rounded-2xl p-4 text-center">
-                  <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">{x.l}</div>
-                  <div className={`text-xl font-bold ${x.tc}`}>${x.v.toLocaleString()}</div>
-                  <div className="text-[9px] text-gray-300 mt-0.5">/month</div>
+                {label:'Your name',      key:'name',         placeholder:'Dave Morrison',    type:'text'},
+                {label:'Business name',  key:'businessName', placeholder:'Morrison Plumbing', type:'text'},
+                {label:'City / Suburb',  key:'suburb',       placeholder:'Perth WA',          type:'text'},
+              ].map(f => (
+                <div key={f.key}>
+                  <label style={{display:'block',fontSize:11,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:7}}>{f.label}</label>
+                  <input className="inp" type={f.type} placeholder={f.placeholder} value={data[f.key]}
+                    onChange={e=>set(f.key,e.target.value)}/>
                 </div>
               ))}
-            </div>
-          )}
-
-          {/* Tabs */}
-          <div className="flex flex-wrap gap-1.5 mb-6">
-            {tabs.map(t=>(
-              <button key={t.k} onClick={()=>setTab(t.k)}
-                className={`rounded-full px-4 py-2 text-xs font-medium transition-all ${tab===t.k?"bg-gold-500 text-white":"border border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300"}`}>
-                {t.l}
-              </button>
-            ))}
-          </div>
-
-          {/* Tab content */}
-          {tab==="workflow" && <WorkflowCanvas data={{nodes:d.nodes,edges:d.edges}}/>}
-
-          {tab==="painpoints" && (
-            <div className="space-y-3 max-w-3xl">
-              {pains.length === 0 ? (
-                <div className="card rounded-2xl p-6 text-center">
-                  <ICheck cls="text-emerald-500 mx-auto mb-2" w={28}/>
-                  <p className="text-gray-500 text-sm">No major pain points detected. Your operations are running well.</p>
-                </div>
-              ) : pains.map(n => {
-                const IC = ICON_MAP[n.icon]||IAlert;
-                return (
-                  <div key={n.id} className="card rounded-2xl p-4 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center shrink-0">
-                        <IC cls="text-red-500" w={16}/>
-                      </div>
-                      <div>
-                        <div className="text-sm font-semibold text-gray-900">{n.label}</div>
-                        <div className="text-[11px] text-gray-400 leading-relaxed mt-0.5">{n.detail}</div>
-                      </div>
-                    </div>
-                    {n.cost && <span className="text-sm font-bold text-red-500 whitespace-nowrap shrink-0">{n.cost}</span>}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {tab==="recommendations" && (
-            <div className="space-y-4 max-w-3xl">
-              {d.recs.map((rec,i)=>{
-                const m=(rec.roi.saving/rec.roi.cost).toFixed(1);
-                return (
-                  <div key={i} className="card rounded-2xl p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="h-9 w-9 rounded-xl bg-gold-500 flex items-center justify-center text-white font-bold text-sm">#{rec.priority}</div>
-                      <div>
-                        <div className="text-sm font-bold text-gray-900">{rec.product}</div>
-                        <span className="text-[10px] font-semibold uppercase tracking-widest text-gold-600">{rec.tier} tier</span>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-500 leading-6 mb-5">{rec.reason}</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {[
-                        {l:"Monthly Cost",v:`$${rec.roi.cost}`,bg:"bg-gray-50",bc:"border-gray-100",tc:"text-gray-900"},
-                        {l:"Est. Saving",v:`$${rec.roi.saving.toLocaleString()}`,bg:"bg-emerald-50",bc:"border-emerald-200",tc:"text-emerald-600"},
-                        {l:"ROI",v:`${m}x`,bg:"bg-amber-50",bc:"border-amber-200",tc:"text-amber-600"},
-                      ].map(c=>(
-                        <div key={c.l} className={`rounded-xl ${c.bg} border ${c.bc} p-3 text-center`}>
-                          <div className="text-[9px] text-gray-400 uppercase tracking-wider mb-1">{c.l}</div>
-                          <div className={`text-base font-bold ${c.tc}`}>{c.v}</div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-2 text-[10px] text-gray-300 text-center">{rec.roi.payback}</div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {tab==="options" && (
-            <div>
-              <div className="text-center mb-8">
-                <div className="text-[10px] font-semibold uppercase tracking-widest text-gold-600 mb-2">Your options</div>
-                <h2 className="text-xl font-bold tracking-tight text-gray-900">Choose your plan</h2>
-              </div>
-              <div className="grid lg:grid-cols-2 gap-5 max-w-3xl mx-auto">
-                <div className="card rounded-3xl p-8">
-                  <div className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2">Core</div>
-                  <div className="text-3xl font-bold text-gray-900 mb-1">${d.tiers.core.total}<span className="text-base font-normal text-gray-400">/mo</span></div>
-                  <div className="text-xs text-gray-400 mb-5">Both products, core features</div>
-                  <div className="space-y-2 mb-4">
-                    {d.tiers.core.solves.map(s=><div key={s} className="flex items-center gap-2 text-sm text-gray-600"><span className="h-1.5 w-1.5 rounded-full bg-gray-300 shrink-0"/>{s}</div>)}
-                  </div>
-                  <div className="border-t border-gray-100 pt-3 space-y-2">
-                    {d.tiers.core.missing.map(s=><div key={s} className="flex items-center gap-2 text-sm text-gray-300"><span className="h-1.5 w-1.5 rounded-full bg-gray-100 shrink-0"/>{s}</div>)}
-                  </div>
-                  <a href="mailto:andy@otwstudios.com.au?subject=OTW Core Plan Enquiry" className="btn-ghost mt-5 w-full rounded-full border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-500 flex items-center justify-center"><span>Get started — Core</span></a>
-                </div>
-                <div className="rounded-3xl bg-gold-500 p-8 relative gold-glow">
-                  <div className="absolute top-4 right-4 rounded-full bg-white/20 px-3 py-1 text-[9px] font-semibold text-white">Recommended</div>
-                  <div className="text-[10px] font-semibold uppercase tracking-widest text-white/60 mb-2">Full Service</div>
-                  <div className="text-3xl font-bold text-white mb-1">${d.tiers.full.total}<span className="text-base font-normal text-white/50">/mo</span></div>
-                  <div className="text-xs text-white/70 font-semibold mb-5">Est. recovery: {d.tiers.full.roi}</div>
-                  <div className="space-y-2">
-                    {d.tiers.full.solves.map(s=><div key={s} className="flex items-center gap-2 text-sm text-white/90"><span className="h-1.5 w-1.5 rounded-full bg-white/50 shrink-0"/>{s}</div>)}
-                  </div>
-                  <a href="mailto:andy@otwstudios.com.au?subject=OTW Full Service Enquiry" className="btn-dark mt-5 w-full rounded-full bg-white px-5 py-2.5 text-sm font-bold text-gold-600 flex items-center justify-center">Get started — 48hr Setup</a>
-                </div>
+              <div>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:7}}>Trade / Industry</label>
+                <select className="inp" value={data.industry} onChange={e=>set('industry',e.target.value)}>
+                  <option value="">Select your trade...</option>
+                  {['Plumbing','Electrical','HVAC / Air conditioning','Carpentry / Cabinet making','Landscaping','Cleaning','Pest control','Auto services','Other trade'].map(t=>(
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
               </div>
             </div>
-          )}
-
-          {/* CTA — dark section for contrast */}
-          <div className="mt-14 rounded-3xl bg-gray-900 p-8 lg:p-12 text-center">
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-gold-500 mb-3">Next step</div>
-            <h2 className="text-xl lg:text-2xl font-bold text-white mb-2">Stop losing ${d.totalCost.toLocaleString()}/month</h2>
-            <p className="text-white/50 text-sm max-w-md mx-auto mb-6 leading-6">We set up in 48 hours. No tech skills needed. Let's walk through this together.</p>
-            <div className="flex flex-col sm:flex-row justify-center gap-3">
-              <a href={`mailto:andy@otwstudios.com.au?subject=Book a Call — OTW Audit&body=Hi Andy,%0A%0AI just completed the OTW Business Audit for ${encodeURIComponent(d.name)}.%0A%0AI'd love to chat.%0A%0AThanks`}
-                className="btn-gold inline-flex items-center justify-center gap-2 rounded-full bg-gold-500 px-7 py-3 text-sm font-bold text-white">
-                <IArrow cls="h-4 w-4"/> Book a 15-min call
-              </a>
-              <button onClick={onBack} className="btn-ghost inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-7 py-3 text-sm font-medium text-white/60">
-                <span>Edit my answers</span>
-              </button>
+            <div style={{display:'flex',gap:10}}>
+              <Btn onClick={back} ghost>← Back</Btn>
+              <Btn onClick={next} disabled={!data.name || !data.businessName}>Next →</Btn>
             </div>
           </div>
+        )}
 
-          <div className="mt-10 text-center text-[10px] text-gray-300 leading-5">
-            <p>Audit generated by OTW Studios. Estimates based on industry averages for {d.tradeLabel.toLowerCase()} businesses in {d.location}.</p>
-            <p className="mt-1">© 2026 Andy Ngo t/as OTW Studios · <a href="otw_homepage.html" className="underline underline-offset-2 hover:text-gray-500">Home</a> · <a href="otw_privacy.html" className="underline underline-offset-2 hover:text-gray-500">Privacy Policy</a></p>
+        {/* ── STEP 2: CALLS ── */}
+        {step === 2 && (
+          <div className="fade-up" style={cardStyle}>
+            <h2 style={{fontSize:24,fontWeight:800,color:'#0f172a',letterSpacing:'-0.02em',marginBottom:6}}>Your phone & calls</h2>
+            <p style={{fontSize:14,color:'#94a3b8',marginBottom:28,lineHeight:1.6}}>Most trade businesses miss 4–8 calls a week. Every one is a job you didn't get.</p>
+
+            <Slider
+              label="How many calls do you get per week?"
+              hint="From new and existing customers"
+              value={data.callsPerWeek} min={1} max={100}
+              onChange={v=>set('callsPerWeek',v)}
+              display={data.callsPerWeek + ' calls'}
+            />
+            <Slider
+              label="How many do you miss or can't answer?"
+              hint="When you're onsite, with a customer, or after hours"
+              value={data.missedCalls} min={0} max={Math.min(data.callsPerWeek, 50)}
+              onChange={v=>set('missedCalls',Math.min(v, data.callsPerWeek))}
+              display={data.missedCalls + (data.missedCalls === 1 ? ' call' : ' calls')}
+            />
+            <Slider
+              label="Average job value"
+              value={data.avgJobValue} min={100} max={5000} step={50}
+              onChange={v=>set('avgJobValue',v)}
+              display={'$'+data.avgJobValue.toLocaleString('en-AU')}
+            />
+            <LossCallout amount={loss.missedRev} label="Missed call revenue leaking every month:"/>
+            <div style={{display:'flex',gap:10}}>
+              <Btn onClick={back} ghost>← Back</Btn>
+              <Btn onClick={next}>Next →</Btn>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* ── STEP 3: QUOTES ── */}
+        {step === 3 && (
+          <div className="fade-up" style={cardStyle}>
+            <h2 style={{fontSize:24,fontWeight:800,color:'#0f172a',letterSpacing:'-0.02em',marginBottom:6}}>Your quotes & follow-up</h2>
+            <p style={{fontSize:14,color:'#94a3b8',marginBottom:28,lineHeight:1.6}}>Quotes that go quiet are one of the biggest silent revenue leaks in trade businesses.</p>
+
+            <Slider
+              label="How many quotes do you send per week?"
+              value={data.quotesPerWeek} min={1} max={30}
+              onChange={v=>set('quotesPerWeek',v)}
+              display={data.quotesPerWeek + ' quotes'}
+            />
+            <Slider
+              label="How many go quiet without follow-up?"
+              hint="Customer never hears back — and goes with someone else"
+              value={data.deadQuotes} min={0} max={Math.min(data.quotesPerWeek, 20)}
+              onChange={v=>set('deadQuotes',Math.min(v, data.quotesPerWeek))}
+              display={data.deadQuotes + (data.deadQuotes === 1 ? ' quote' : ' quotes')}
+            />
+            <LossCallout amount={loss.quoteRev} label="Dead quote revenue leaking every month:"/>
+            <div style={{display:'flex',gap:10}}>
+              <Btn onClick={back} ghost>← Back</Btn>
+              <Btn onClick={next}>Next →</Btn>
+            </div>
+          </div>
+        )}
+
+        {/* ── STEP 4: ADMIN ── */}
+        {step === 4 && (
+          <div className="fade-up" style={cardStyle}>
+            <h2 style={{fontSize:24,fontWeight:800,color:'#0f172a',letterSpacing:'-0.02em',marginBottom:6}}>Admin & inbox time</h2>
+            <p style={{fontSize:14,color:'#94a3b8',marginBottom:28,lineHeight:1.6}}>Every hour on admin is an hour you could be billing.</p>
+
+            <Slider
+              label="Hours per week on admin tasks"
+              hint="Emails, booking calls, chasing invoices, scheduling"
+              value={data.adminHours} min={1} max={30}
+              onChange={v=>set('adminHours',v)}
+              display={data.adminHours + ' hrs/week'}
+            />
+            <LossCallout amount={loss.adminCost} label="Admin time cost every month (at $75/hr):"/>
+
+            <div style={{
+              background:'rgba(245,158,11,0.06)',border:'1.5px solid rgba(245,158,11,0.2)',
+              borderRadius:14,padding:'16px 20px',marginBottom:28,
+            }}>
+              <div style={{fontSize:11,fontWeight:700,color:'rgba(180,83,9,0.7)',marginBottom:6}}>Total monthly revenue leak across all three areas:</div>
+              <div style={{fontSize:34,fontWeight:900,color:'#F59E0B',letterSpacing:'-0.025em'}}>{fmt(loss.total)}<span style={{fontSize:14,fontWeight:500,color:'rgba(245,158,11,0.5)'}}>/month</span></div>
+              <div style={{fontSize:12,color:'#94a3b8',marginTop:4}}>{fmt(loss.annual)} per year in recoverable revenue</div>
+            </div>
+            <div style={{display:'flex',gap:10}}>
+              <Btn onClick={back} ghost>← Back</Btn>
+              <Btn onClick={next}>See my full report →</Btn>
+            </div>
+          </div>
+        )}
+
+        {/* ── STEP 5: CONTACT ── */}
+        {step === 5 && (
+          <div className="fade-up" style={cardStyle}>
+            <h2 style={{fontSize:24,fontWeight:800,color:'#0f172a',letterSpacing:'-0.02em',marginBottom:6}}>Where should we send your report?</h2>
+            <p style={{fontSize:14,color:'#94a3b8',marginBottom:24,lineHeight:1.6}}>Andy will review your audit personally before any call — so you get specific recommendations, not a generic pitch.</p>
+            <div style={{
+              background:'rgba(239,68,68,0.05)',border:'1.5px solid rgba(239,68,68,0.15)',
+              borderRadius:16,padding:'18px',textAlign:'center',marginBottom:24,
+            }}>
+              <div style={{fontSize:10,fontWeight:800,color:'rgba(239,68,68,0.5)',textTransform:'uppercase',letterSpacing:'0.14em',marginBottom:6}}>Your annual revenue leak</div>
+              <div style={{fontSize:44,fontWeight:900,color:'#EF4444',letterSpacing:'-0.035em'}}>{fmt(loss.annual)}</div>
+            </div>
+            <div style={{display:'flex',flexDirection:'column',gap:14,marginBottom:24}}>
+              <div>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:7}}>Email address</label>
+                <input className="inp" type="email" placeholder="dave@morrisonplumbing.com.au" value={data.email}
+                  onChange={e=>set('email',e.target.value)}/>
+              </div>
+              <div>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:7}}>Phone number</label>
+                <input className="inp" type="tel" placeholder="0412 345 678" value={data.phone}
+                  onChange={e=>set('phone',e.target.value)}/>
+              </div>
+            </div>
+            <p style={{fontSize:11,color:'#94a3b8',marginBottom:20,textAlign:'center'}}>No spam. Andy uses this to send your report and reach out after you book a call.</p>
+            <div style={{display:'flex',gap:10}}>
+              <Btn onClick={back} ghost>← Back</Btn>
+              <Btn onClick={submit} disabled={!data.email}>Show me my full report →</Btn>
+            </div>
+          </div>
+        )}
+
+        {/* ── RESULTS ── */}
+        {step === 6 && <Results data={data} loss={loss}/>}
+
       </div>
-    );
-  }
 
-  /* ── FORM ── */
-  const EMPTY = {};
-  function AuditForm({ onComplete }) {
-    const [step, setStep] = useState(0);
-    const [data, setData] = useState(EMPTY);
-    const set = (k,v) => setData(p=>({...p,[k]:v}));
-
-    const canNext = () => {
-      if (step===0) return data.businessName && data.ownerName && data.trade && data.email;
-      return true;
-    };
-
-    const stepViews = [
-      /* 0 – Business */
-      <div key="s0" className="space-y-4 fade-up">
-        <TF label="Business name" name="businessName" value={data.businessName} onChange={set} placeholder="e.g. Northside Plumbing" required/>
-        <TF label="Your name" name="ownerName" value={data.ownerName} onChange={set} placeholder="e.g. Pete Nguyen" required/>
-        <SF label="Trade / Industry" name="trade" value={data.trade} onChange={set} required options={[
-          "Plumbing","Electrical","HVAC / Air Conditioning","Carpentry / Cabinet Making",
-          "Landscaping","Cleaning","Pest Control","Auto / Mechanical","Building / Construction","Other"
-        ]}/>
-        <TF label="City / Location" name="location" value={data.location} onChange={set} placeholder="e.g. Brisbane, QLD"/>
-        <TF label="Average job value" name="avgJobValue" value={data.avgJobValue} onChange={set} placeholder="e.g. $800 or $500–$1,500"/>
-        <TF label="Email address" name="email" value={data.email} onChange={set} placeholder="e.g. pete@northsideplumbing.com.au" required/>
-        <TF label="Phone number" name="phone" value={data.phone} onChange={set} placeholder="e.g. 0412 345 678"/>
-        <p className="text-[10px] text-gray-400 leading-5">Your personalised report will be emailed to you instantly. No spam, unsubscribe any time. By continuing you agree to our <a href="otw_privacy.html" className="underline underline-offset-2 hover:text-gray-600">Privacy Policy</a>.</p>
-      </div>,
-
-      /* 1 – Team */
-      <div key="s1" className="space-y-4 fade-up">
-        <Chips label="Team size (including you)" name="teamSize" value={data.teamSize} onChange={set} multi={false} options={["Just me","2–3 people","4–6 people","7–10 people","10+ people"]}/>
-        <Chips label="Hours you work per day" name="hoursPerDay" value={data.hoursPerDay} onChange={set} multi={false} options={["Less than 6hrs","6–8hrs","8–10hrs","10+ hrs"]}/>
-        <Chips label="Jobs completed per week" name="weeklyJobs" value={data.weeklyJobs} onChange={set} multi={false} options={["1–5","6–10","11–20","20+"]}/>
-        <Chips label="Do you do after-hours jobs?" name="afterHours" value={data.afterHours} onChange={set} multi={false} options={["Yes, regularly","Sometimes","Rarely","Never"]}/>
-      </div>,
-
-      /* 2 – Phone */
-      <div key="s2" className="space-y-4 fade-up">
-        <Chips label="Inbound calls per day" name="callsPerDay" value={data.callsPerDay} onChange={set} multi={false} options={["0–5","6–10","11–20","20+"]}/>
-        <Chips label="Missed calls per week" name="missedCallsPerWeek" value={data.missedCallsPerWeek} onChange={set} multi={false} options={[{value:"none",label:"None"},{value:"1-2",label:"1–2"},{value:"3-5",label:"3–5"},{value:"6-10",label:"6–10"},{value:"10+",label:"10+"}]}/>
-        <Chips label="Who currently answers calls?" name="callAnswerMethod" value={data.callAnswerMethod} onChange={set} multi={false} options={[{value:"owner",label:"Me (the owner)"},{value:"staff",label:"A staff member"},{value:"voicemail",label:"Goes to voicemail"},{value:"missed",label:"Often just missed"}]}/>
-        <Chips label="Biggest phone pain points" name="phonePains" value={data.phonePains} onChange={set} multi={true} options={["Interrupted while on jobs","After-hours calls missed","No-one available to answer","Wasting time on tyre-kickers","No system to capture leads"]}/>
-      </div>,
-
-      /* 3 – Email */
-      <div key="s3" className="space-y-4 fade-up">
-        <Chips label="Emails per day" name="emailsPerDay" value={data.emailsPerDay} onChange={set} multi={false} options={["0–5","6–15","16–30","30+"]}/>
-        <Chips label="Typical email response time" name="emailResponseTime" value={data.emailResponseTime} onChange={set} multi={false} options={[{value:"immediately",label:"Within minutes"},{value:"within-1hr",label:"Within 1 hour"},{value:"same-day",label:"Same day"},{value:"next-day",label:"Next day"},{value:"2+days",label:"2+ days"}]}/>
-        <Chips label="Types of email you get most" name="emailTypes" value={data.emailTypes} onChange={set} multi={true} options={["New job enquiries","Quote requests","Invoicing","Customer complaints","Supplier / admin"]}/>
-      </div>,
-
-      /* 4 – Scheduling */
-      <div key="s4" className="space-y-4 fade-up">
-        <Chips label="How do you schedule jobs?" name="schedulingMethod" value={data.schedulingMethod} onChange={set} multi={false} options={[{value:"software",label:"Job management software (ServiceM8 etc)"},{value:"google-calendar",label:"Google Calendar / iCal"},{value:"paper-whiteboard",label:"Paper or whiteboard"},{value:"in-head",label:"In my head"}]}/>
-        <Chips label="How often do double-bookings happen?" name="doubleBookings" value={data.doubleBookings} onChange={set} multi={false} options={["Never","Rarely","A few times a month","Weekly"]}/>
-        <Chips label="Do you optimise travel routes?" name="routeOptimise" value={data.routeOptimise} onChange={set} multi={false} options={["Yes, always","Sometimes","Rarely","No — jobs booked wherever there's a gap"]}/>
-      </div>,
-
-      /* 5 – Tools */
-      <div key="s5" className="space-y-4 fade-up">
-        <Chips label="Tools you currently use" name="currentTools" value={data.currentTools} onChange={set} multi={true} options={["ServiceM8","Tradify","Xero","MYOB","QuickBooks","Google Workspace","Slack","None of the above"]}/>
-        <Chips label="Comfort with new tech tools" name="techComfort" value={data.techComfort} onChange={set} multi={false} options={["Very comfortable","Comfortable","Bit hesitant","Not comfortable"]}/>
-      </div>,
-
-      /* 6 – Goals */
-      <div key="s6" className="space-y-4 fade-up">
-        <Chips label="Biggest challenge right now" name="biggestChallenge" value={data.biggestChallenge} onChange={set} multi={false} options={["Missing too many calls","Inbox overload","Can't scale without more staff","Admin taking too much time","Losing leads to competitors","Cash flow / late payments"]}/>
-        <Chips label="Monthly budget for tools" name="budget" value={data.budget} onChange={set} multi={false} options={[{value:"under-200",label:"Under $200/mo"},{value:"200-400",label:"$200–$400/mo"},{value:"400-800",label:"$400–$800/mo"},{value:"800+",label:"$800+/mo"}]}/>
-        <Chips label="When do you want to start?" name="timeline" value={data.timeline} onChange={set} multi={false} options={["Immediately","Within a month","Just exploring","When budget allows"]}/>
-        <TA label="Anything else you'd like us to know?" name="notes" value={data.notes} onChange={set} placeholder="Optional — any specific goals, concerns, or context…"/>
-      </div>,
-    ];
-
-    const progress = Math.round(((step+1)/STEPS.length)*100);
-
-    return (
-      <div className="min-h-screen bg-gray-50">
-        {/* Nav */}
-        <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
-          <div className="max-w-2xl mx-auto px-6 py-3.5 flex items-center justify-between">
-            <a href="otw_homepage.html" className="flex flex-col leading-tight">
-              <span className="text-sm font-semibold text-gray-900">OTW Studios</span>
-              <span className="text-[10px] text-gray-400">Free Business Audit</span>
-            </a>
-            <span className="text-xs text-gray-400">Step {step+1} of {STEPS.length}</span>
-          </div>
-        </nav>
-
-        <div className="max-w-2xl mx-auto px-6 pb-20" style={{paddingTop:"88px"}}>
-          {/* Progress */}
-          <div className="mb-8">
-            <div className="h-1 bg-gray-100 rounded-full overflow-hidden mb-4">
-              <div className="h-full bg-gold-500 rounded-full progress-fill" style={{width:`${progress}%`}}/>
-            </div>
-            <div className="flex gap-1.5 flex-wrap">
-              {STEPS.map((s,i)=>(
-                <button key={i} onClick={()=>i<step&&setStep(i)} disabled={i>=step}
-                  className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all ${i===step?"bg-amber-50 border border-amber-400 text-amber-600":i<step?"border border-gray-200 text-gray-400 hover:text-gray-600 cursor-pointer":"border border-gray-100 text-gray-300 cursor-default"}`}>
-                  {s.icon}{s.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Step header */}
-          <div className="mb-6">
-            <div className="text-xs font-semibold uppercase tracking-widest text-gold-600 mb-2">{STEPS[step].label}</div>
-            <h2 className="text-2xl font-bold text-gray-900">
-              {["Tell us about your business","How does your team operate?","How do you handle calls?","How do you manage email?","How do you schedule jobs?","What tools do you use?","What are your goals?"][step]}
-            </h2>
-          </div>
-
-          {/* Step content */}
-          {stepViews[step]}
-
-          {/* Nav buttons */}
-          <div className="flex gap-3 mt-8">
-            {step > 0 && (
-              <button onClick={()=>setStep(s=>s-1)}
-                className="btn-ghost flex-1 rounded-full border border-gray-200 px-5 py-3 text-sm font-medium text-gray-400">
-                <span>← Back</span>
-              </button>
-            )}
-            {step < STEPS.length-1 ? (
-              <button onClick={()=>canNext()&&setStep(s=>s+1)} disabled={!canNext()}
-                className={`btn-gold flex-1 rounded-full px-5 py-3 text-sm font-semibold text-white ${canNext()?"bg-gold-500":"bg-gray-200 text-gray-400 cursor-not-allowed"}`}>
-                Continue <IChevR cls="inline h-4 w-4"/>
-              </button>
-            ) : (
-              <button onClick={()=>onComplete(data)}
-                className="btn-gold flex-1 rounded-full bg-gold-500 px-5 py-3 text-sm font-semibold text-white">
-                Generate My Free Report →
-              </button>
-            )}
-          </div>
-
-          {step===0 && (
-            <p className="mt-5 text-center text-[10px] text-gray-400 leading-5">
-              Takes ~3 minutes. No credit card. No spam.<br/>Your personalised workflow report appears instantly.
-            </p>
-          )}
-        </div>
+      <div style={{textAlign:'center',padding:'16px 24px 36px',borderTop:'1px solid #e2e8f0'}}>
+        <span style={{fontSize:10,fontWeight:500,color:'#cbd5e1'}}>Powered by OTW Studios</span>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
-  /* ══════════════════════════════════════════════════════════
-     EMAIL AUTOMATION — EmailJS (client-side, no backend)
-     Setup guide: https://emailjs.com
-     STEP 1: Sign up at emailjs.com (free — 200 emails/month)
-     STEP 2: Add Email Service (Gmail) → copy Service ID below
-     STEP 3: Create Template "otw_admin_notify" with these vars:
-       {{owner_name}}, {{business_name}}, {{lead_email}},
-       {{lead_phone}}, {{trade}}, {{location}},
-       {{overall_score}}, {{phone_score}}, {{email_score}},
-       {{scheduling_score}}, {{total_cost}}, {{main_interests}},
-       {{product_recs}}, {{budget}}, {{timeline}}, {{notes}}
-     STEP 4: Create Template "otw_client_report" with these vars:
-       {{to_email}}, {{owner_name}}, {{business_name}},
-       {{overall_score}}, {{total_cost}}, {{main_interests}},
-       {{recommended_product}}, {{recommended_tier}}
-     STEP 5: Account > API Keys → copy Public Key below
-     ══════════════════════════════════════════════════════════ */
-
-  const EMAILJS_PUBLIC_KEY   = "YOUR_PUBLIC_KEY";          // ← replace
-  const EMAILJS_SERVICE_ID   = "YOUR_SERVICE_ID";          // ← replace
-  const EMAILJS_ADMIN_TPL    = "otw_admin_notify";
-  const EMAILJS_CLIENT_TPL   = "otw_client_report";
-  const ADMIN_EMAIL          = "andy@otwstudios.com.au";
-
-  async function sendEmails(audit, formData) {
-    if (typeof emailjs === "undefined") throw new Error("EmailJS not loaded");
-    emailjs.init(EMAILJS_PUBLIC_KEY);
-
-    const scoreAreas = [
-      { label:"Phone & Calls",   score:audit.scores.phones },
-      { label:"Email & Admin",   score:audit.scores.email },
-      { label:"Scheduling",      score:audit.scores.scheduling },
-      { label:"Admin Tools",     score:audit.scores.admin },
-    ].sort((a,b) => a.score - b.score);
-    const mainInterests = scoreAreas.slice(0,2).map(x=>`${x.label} (score: ${x.score})`).join(", ");
-
-    const productRecs = audit.recs.map(r =>
-      `${r.product} — ${r.tier} tier\nReason: ${r.reason}\nEstimated saving: $${r.roi.saving.toLocaleString()}/mo`
-    ).join("\n\n---\n\n");
-
-    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_ADMIN_TPL, {
-      to_email:          ADMIN_EMAIL,
-      owner_name:        formData.ownerName    || "Unknown",
-      business_name:     formData.businessName || "Unknown",
-      lead_email:        formData.email        || "Not provided",
-      lead_phone:        formData.phone        || "Not provided",
-      trade:             formData.trade        || "Not specified",
-      location:          formData.location     || "Not specified",
-      overall_score:     audit.scores.overall,
-      phone_score:       audit.scores.phones,
-      email_score:       audit.scores.email,
-      scheduling_score:  audit.scores.scheduling,
-      total_cost:        `$${audit.totalCost.toLocaleString()}`,
-      main_interests:    mainInterests,
-      product_recs:      productRecs,
-      budget:            formData.budget    || "Not specified",
-      timeline:          formData.timeline  || "Not specified",
-      notes:             formData.notes     || "None",
-    });
-
-    if (formData.email) {
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_CLIENT_TPL, {
-        to_email:            formData.email,
-        owner_name:          formData.ownerName    || "there",
-        business_name:       formData.businessName || "your business",
-        overall_score:       audit.scores.overall,
-        total_cost:          `$${audit.totalCost.toLocaleString()}`,
-        main_interests:      scoreAreas.slice(0,2).map(x=>x.label).join(" and "),
-        recommended_product: audit.recs[0]?.product || "AI Receptionist",
-        recommended_tier:    audit.recs[0]?.tier    || "Full Service",
-      });
-    }
-
-    /* ══════════════════════════════════════════════════════════
-       TODO: 7-DAY FOLLOW-UP EMAIL (requires n8n — deferred)
-       Architecture: On audit complete → POST to n8n webhook →
-         n8n waits 7 days → sends follow-up email via SMTP/Gmail.
-       Draft subject: "Quick question about your OTW audit, [name]"
-       Draft body:
-         Hi [name], Just touching base to see if you had any
-         questions after going through your business audit last week.
-         We identified you could be recovering up to $[totalCost]/month.
-         Setup takes 48 hours and we handle everything.
-         Worth a quick 15-minute call? [Book a call → calendly link]
-         Cheers, Andy — OTW Studios
-       NOTE: CTA copy needs optimising for high conversion before launch.
-       n8n fields: email, ownerName, businessName, totalCost,
-         recommendedProduct, auditDate
-       ══════════════════════════════════════════════════════════ */
-  }
-
-  /* ── APP ── */
-  function App() {
-    const [formData, setFormData] = useState(null);
-    const [audit, setAudit] = useState(null);
-
-    const handleComplete = (data) => {
-      setFormData(data);
-      setAudit(calculateAudit(data));
-    };
-    const handleBack = () => { setAudit(null); };
-
-    if (audit) return <Report audit={audit} formData={formData} onBack={handleBack}/>;
-    return <AuditForm onComplete={handleComplete}/>;
-  }
-
-  ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>

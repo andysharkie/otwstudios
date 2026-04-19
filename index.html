@@ -66,6 +66,7 @@ const products = [
     tagline:'Answer every call. Capture every lead.',
     description:'A fully managed AI phone receptionist configured around your business — your services, service area, and urgency rules. Answers calls, qualifies leads, handles FAQs, and routes every next step while your team stays on the job.',
     highlight: true,
+    href:'otw_ai_receptionist.html',
   },
   {
     status:'live', badge:'Available now',
@@ -73,6 +74,7 @@ const products = [
     tagline:'Sort every email. Draft replies in your voice.',
     description:'A fully managed email triage system that reads, categorises, and drafts replies to every inbound message. Urgent jobs get flagged. Quotes get tracked. Admin gets handled — without you touching the inbox.',
     highlight: false,
+    href:'otw_triageai.html',
   },
   {
     status:'coming', badge:'Coming soon',
@@ -80,6 +82,7 @@ const products = [
     tagline:'Book jobs without the back-and-forth.',
     description:'Automated scheduling that works around your team\'s availability, job types, and service area. Keep your calendar full without constant interruptions.',
     highlight: false,
+    href:'otw_scheduling.html',
   },
   {
     status:'coming', badge:'Coming soon',
@@ -87,6 +90,7 @@ const products = [
     tagline:'Turn completed jobs into 5-star reviews.',
     description:'After every job, automatically sends a personalised review request. Happy customers go to Google. Unhappy ones are caught privately. AI drafts responses to every review.',
     highlight: false,
+    href:'otw_reviewgenius.html',
   },
   {
     status:'coming', badge:'Coming soon',
@@ -94,6 +98,7 @@ const products = [
     tagline:'Stop chasing. Start getting paid.',
     description:'Connects to Xero or MYOB and runs a structured follow-up sequence on every overdue invoice — from friendly reminder to final notice — in your voice.',
     highlight: false,
+    href:'otw_debtcollector.html',
   },
 ];
 
@@ -717,7 +722,7 @@ function App() {
                     <p className={`mt-4 text-sm leading-6 ${p.highlight ? 'text-white/85' : 'text-white/55'}`}>{p.description}</p>
                   </div>
 
-                  <a href="otw_audit.html"
+                  <a href={p.href}
                     className={`mt-7 inline-block rounded-full px-5 py-3 text-center text-sm font-semibold transition-all ${
                       p.highlight
                         ? 'bg-white text-navy-900 hover:bg-slate-100'
@@ -725,7 +730,7 @@ function App() {
                         ? 'bg-gold-500 text-white hover:bg-gold-600'
                         : 'border border-white/15 text-white/50 hover:border-white/35 hover:text-white/75'
                     }`}>
-                    {p.status === 'live' ? 'Start your free audit' : 'Join the waitlist'}
+                    {p.status === 'live' ? 'Learn more' : 'Register interest'}
                   </a>
                 </div>
               ))}
