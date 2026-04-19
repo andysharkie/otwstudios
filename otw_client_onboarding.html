@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OTW Studios — Client Onboarding</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:#04080F;color:#fff;min-height:100vh}
+  .app{max-width:860px;margin:0 auto;padding:32px 20px 100px}
+
+  /* Header */
+  .hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.06)}
+  .hdr-left{display:flex;align-items:center;gap:10px}
+  .logo-box{width:30px;height:30px;border-radius:8px;background:#F59E0B;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;color:#04080F;letter-spacing:-0.03em}
+  .logo-name{font-size:14px;font-weight:700;color:#fff}
+  .tool-badge{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(245,158,11,0.12);color:#F59E0B;border:1px solid rgba(245,158,11,0.25);padding:4px 10px;border-radius:20px}
+  .session-id{font-size:11px;color:rgba(255,255,255,0.2);font-family:monospace}
+
+  /* Progress */
+  .progress-wrap{margin-bottom:32px}
+  .progress-bar-bg{height:2px;background:rgba(255,255,255,0.06);border-radius:2px;margin-bottom:16px;position:relative}
+  .progress-bar-fill{height:2px;background:linear-gradient(90deg,#F59E0B,#FCD34D);border-radius:2px;transition:width 0.4s ease}
+  .step-pills{display:flex;gap:6px;flex-wrap:wrap}
+  .pill{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;transition:all 0.2s;cursor:default}
+  .pill-done{background:rgba(245,158,11,0.12);color:rgba(245,158,11,0.6);border:1px solid rgba(245,158,11,0.2)}
+  .pill-active{background:rgba(245,158,11,0.18);color:#F59E0B;border:1px solid rgba(245,158,11,0.4)}
+  .pill-pending{background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.07)}
+
+  /* Card */
+  .card{background:#0A0F1E;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:28px;margin-bottom:16px}
+  .card-head{margin-bottom:24px}
+  .card-eyebrow{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#F59E0B;margin-bottom:6px}
+  .card-title{font-size:20px;font-weight:800;color:#fff;margin-bottom:6px}
+  .card-desc{font-size:13px;color:rgba(255,255,255,0.38);line-height:1.6}
+
+  /* Fields */
+  .field{margin-bottom:18px}
+  .field-row{display:grid;gap:14px;margin-bottom:18px}
+  .col2{grid-template-columns:1fr 1fr}
+  .col3{grid-template-columns:1fr 1fr 1fr}
+  label{display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:7px}
+  label .req{color:#F59E0B;margin-left:2px}
+  input,select,textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:10px;padding:11px 14px;font-size:14px;color:#fff;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s,background 0.2s}
+  input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.18)}
+  input:focus,select:focus,textarea:focus{border-color:rgba(245,158,11,0.5);background:rgba(245,158,11,0.04)}
+  select option{background:#0A0F1E;color:#fff}
+  textarea{resize:vertical;min-height:80px;line-height:1.6}
+
+  /* Product cards */
+  .product-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .product-card{border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:18px;cursor:pointer;transition:all 0.2s;background:rgba(255,255,255,0.02);user-select:none;position:relative;overflow:hidden}
+  .product-card:hover{border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.04)}
+  .product-card.selected{border-color:rgba(245,158,11,0.5);background:rgba(245,158,11,0.07)}
+  .product-card-check{width:20px;height:20px;border-radius:6px;border:1.5px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;margin-bottom:12px}
+  .product-card-check.on{background:#F59E0B;border-color:#F59E0B}
+  .product-card-icon{font-size:22px;margin-bottom:8px}
+  .product-card-name{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px}
+  .product-card-desc{font-size:12px;color:rgba(255,255,255,0.38);line-height:1.5}
+  .product-card-badge{position:absolute;top:14px;right:14px;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;border-radius:10px}
+  .badge-live{background:rgba(245,158,11,0.12);color:#F59E0B;border:1px solid rgba(245,158,11,0.25)}
+  .badge-soon{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.08)}
+
+  /* Day picker */
+  .days-row{display:flex;gap:6px;flex-wrap:wrap}
+  .day-chip{padding:7px 13px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.35);transition:all 0.15s;user-select:none}
+  .day-chip.on{background:rgba(245,158,11,0.15);border-color:rgba(245,158,11,0.4);color:#F59E0B}
+
+  /* Services / rows */
+  .svc-row{display:grid;grid-template-columns:2fr 90px 90px auto;gap:10px;align-items:start;margin-bottom:10px}
+  .svc-row-sch{display:grid;grid-template-columns:2fr 90px 90px auto;gap:10px;align-items:start;margin-bottom:10px}
+  .rm-btn{width:36px;height:42px;border-radius:8px;border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.06);color:rgba(239,68,68,0.5);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0;line-height:1}
+  .rm-btn:hover{background:rgba(239,68,68,0.15);color:#EF4444;border-color:rgba(239,68,68,0.4)}
+  .add-row{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:1px dashed rgba(245,158,11,0.3);background:rgba(245,158,11,0.04);color:rgba(245,158,11,0.7);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;margin-top:2px}
+  .add-row:hover{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.5);color:#F59E0B}
+
+  /* Checkbox list */
+  .check-list{display:flex;flex-direction:column;gap:9px}
+  .check-item{display:flex;align-items:flex-start;gap:10px;cursor:pointer}
+  .chk{width:18px;height:18px;border-radius:5px;border:1.5px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.03);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+  .chk.on{background:#F59E0B;border-color:#F59E0B}
+  .chk.on::after{content:'✓';font-size:11px;font-weight:800;color:#04080F}
+  .chk-text{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.5}
+
+  /* Divider */
+  .divider{height:1px;background:rgba(255,255,255,0.06);margin:24px 0}
+
+  /* Nav */
+  .nav-bar{display:flex;justify-content:space-between;align-items:center;margin-top:28px}
+  .btn-back{padding:11px 22px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.4);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s}
+  .btn-back:hover{border-color:rgba(255,255,255,0.22);color:rgba(255,255,255,0.7)}
+  .btn-next{padding:11px 26px;border-radius:10px;background:#F59E0B;color:#04080F;font-size:14px;font-weight:800;cursor:pointer;border:none;transition:all 0.15s;letter-spacing:0.01em}
+  .btn-next:hover{background:#FBBF24;transform:translateY(-1px)}
+  .btn-next:disabled{background:rgba(245,158,11,0.2);color:rgba(245,158,11,0.35);cursor:not-allowed;transform:none}
+  .step-counter{font-size:12px;color:rgba(255,255,255,0.2);font-weight:500}
+
+  /* Output */
+  .out-card{background:#0A0F1E;border:1px solid rgba(255,255,255,0.08);border-radius:14px;overflow:hidden;margin-bottom:16px}
+  .out-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06)}
+  .out-hdr-left{display:flex;align-items:center;gap:10px}
+  .out-icon{font-size:18px}
+  .out-title{font-size:14px;font-weight:700}
+  .out-sub{font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px}
+  .copy-btn{padding:6px 13px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid rgba(245,158,11,0.3);background:rgba(245,158,11,0.08);color:#F59E0B;letter-spacing:0.04em;text-transform:uppercase;transition:all 0.15s}
+  .copy-btn:hover{background:rgba(245,158,11,0.18);border-color:rgba(245,158,11,0.5)}
+  .copy-btn.ok{background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3);color:#4ADE80}
+  .out-body{padding:18px}
+  .out-pre{background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px;font-family:'SF Mono','Fira Code',monospace;font-size:11.5px;line-height:1.75;color:rgba(255,255,255,0.6);white-space:pre-wrap;word-break:break-word;max-height:300px;overflow-y:auto}
+  .out-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px}
+  .out-row:last-child{border-bottom:none}
+  .out-row-label{color:rgba(255,255,255,0.35);font-weight:500;width:160px;flex-shrink:0}
+  .out-row-val{color:#fff;font-weight:500;text-align:right;flex:1}
+
+  /* Summary badges */
+  .sum-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+  .sbadge{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid}
+  .sbadge-gold{background:rgba(245,158,11,0.1);color:#F59E0B;border-color:rgba(245,158,11,0.25)}
+  .sbadge-blue{background:rgba(99,102,241,0.1);color:#818CF8;border-color:rgba(99,102,241,0.25)}
+  .sbadge-green{background:rgba(34,197,94,0.08);color:#4ADE80;border-color:rgba(34,197,94,0.2)}
+
+  /* Email sent */
+  .sent-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);color:#4ADE80;font-size:12px;font-weight:600}
+
+  /* Hint */
+  .hint{font-size:12px;color:rgba(255,255,255,0.25);margin-top:6px;line-height:1.5}
+
+  @media(max-width:620px){
+    .col2,.col3,.product-grid,.svc-row,.svc-row-sch{grid-template-columns:1fr}
+    .pill{font-size:10px;padding:4px 9px}
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useMemo, useCallback, useEffect } = React;
+
+/* ─── EmailJS config ────────────────────────────── */
+const EJS_SERVICE  = 'YOUR_SERVICE_ID';
+const EJS_TEMPLATE = 'YOUR_TEMPLATE_ID';
+const EJS_KEY      = 'YOUR_PUBLIC_KEY';
+
+/* ─── Constants ─────────────────────────────────── */
+const TRADES = ['Plumber','Electrician','HVAC / Air Conditioning','Builder / Carpenter','Landscaper / Gardener','Painter','Tiler','Roofer','Pest Control','Locksmith','Cleaner','Other'];
+const STATES = ['VIC','NSW','QLD','SA','WA','TAS','ACT','NT'];
+const DAYS   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const AFTER_HOURS = [
+  "Don't take after-hours calls — collect details and call back next business day",
+  "Emergency callouts only — after-hours surcharge applies",
+  "Available 24/7 — handle all hours normally",
+];
+const BOOK_METHODS = ['Calendly link (online booking)','Phone call only','Both phone and online booking','Email enquiry'];
+const EMAIL_PLATFORMS = ['Gmail','Outlook / Microsoft 365','Apple Mail','Other'];
+const EMAIL_TONES = ['Professional & formal','Friendly & warm','Direct & concise','Casual (Australian, relaxed)'];
+const FOLLOWUP_DAYS = ['2 days','3 days','5 days','7 days','14 days'];
+const CAL_PLATFORMS = ['Google Calendar','Calendly','Acuity Scheduling','SimPRO','ServiceM8','Other'];
+const LEAD_TIMES = ['Same day','24 hours','48 hours','3 days','1 week'];
+const INVOICE_SW = ['Xero','MYOB','QuickBooks','Invoice Ninja','ServiceM8','Square','Other'];
+const DEBT_TONES = ['Friendly first, firm if no response','Firm throughout','Formal / legal tone from the start'];
+const REMINDER_DAYS = ['3 days overdue','7 days overdue','14 days overdue','21 days overdue','30 days overdue'];
+const MAX_REMINDERS = ['2 reminders','3 reminders','4 reminders','5 reminders'];
+
+const DO_LIST = [
+  'Always collect customer name, address, and job description before booking',
+  'Mention response time and availability upfront',
+  'Offer a free quote / site visit where applicable',
+  'Confirm suburb is within our service area before proceeding',
+  'Ask if the customer has photos to share',
+  'Upsell maintenance plans or service agreements where relevant',
+];
+const DONT_LIST = [
+  "Never give exact pricing over the phone — say we assess on-site first",
+  "Never promise same-day availability without checking with the team",
+  "Never discuss competitor pricing",
+  "Don't engage with abusive callers — politely end the call",
+  "Don't book jobs outside our service area",
+];
+
+/* ─── Default state ──────────────────────────────── */
+const D = {
+  businessName:'', ownerName:'', trade:'', phone:'', email:'',
+  website:'', abn:'', suburb:'', state:'VIC', serviceArea:'',
+
+  products:{ receptionist:false, triageai:false, scheduling:false, debtcollector:false },
+
+  /* Receptionist */
+  recServices:[{ name:'', price:'', unit:'per job', desc:'' }],
+  recDays:{ Mon:true, Tue:true, Wed:true, Thu:true, Fri:true, Sat:false, Sun:false },
+  recFrom:'07:00', recTo:'17:00',
+  recAfterHours: AFTER_HOURS[0],
+  recSurcharge:'', recBookMethod: BOOK_METHODS[0],
+  recCalendly:'', recEscPhone:'', recGreeting:'',
+  recDo:[true,true,false,true,false,false],
+  recDont:[true,true,false,false,false],
+  recCustomDo:'', recCustomDont:'', recFAQ:'',
+
+  /* TriageAI */
+  triEmail:'', triPlatform:'Gmail', triFromName:'', triTone: EMAIL_TONES[0],
+  triKeywords:'', triFollowUp: FOLLOWUP_DAYS[2], triDigest:'',
+  triCats:{ urgent:true, quotes:true, enquiries:true, complaints:true, spam:true, general:true },
+
+  /* Scheduling */
+  schPlatform:'Google Calendar', schLink:'',
+  schServices:[{ name:'', duration:'60', buffer:'15' }],
+  schDays:{ Mon:true, Tue:true, Wed:true, Thu:true, Fri:true, Sat:false, Sun:false },
+  schFrom:'07:00', schTo:'17:00',
+  schLead: LEAD_TIMES[1], schConfirm:'Instant confirmation',
+  schCancel:'',
+
+  /* DebtCollector */
+  debtSoftware:'Xero', debtOther:'',
+  debtFirst: REMINDER_DAYS[1], debtMax: MAX_REMINDERS[1],
+  debtTone: DEBT_TONES[0],
+  debtPayment:'', debtEscalation:'', debtSignature:'',
+};
+
+/* ─── Helpers ────────────────────────────────────── */
+function genSessionId() {
+  const d = new Date();
+  return `OTW-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${Math.random().toString(36).slice(2,6).toUpperCase()}`;
+}
+
+/* ─── Reusable components ────────────────────────── */
+function Lbl({ text, req }) {
+  return <label>{text}{req && <span className="req"> *</span>}</label>;
+}
+
+function F({ label, req, children, className='' }) {
+  return (
+    <div className={`field ${className}`}>
+      {label && <Lbl text={label} req={req}/>}
+      {children}
+    </div>
+  );
+}
+
+function DayPicker({ value, onChange }) {
+  return (
+    <div className="days-row">
+      {DAYS.map(d => (
+        <div key={d} className={`day-chip ${value[d] ? 'on' : ''}`}
+          onClick={() => onChange({ ...value, [d]: !value[d] })}>
+          {d}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CheckItem({ label, checked, onChange }) {
+  return (
+    <div className="check-item" onClick={onChange}>
+      <div className={`chk ${checked ? 'on' : ''}`}/>
+      <span className="chk-text">{label}</span>
+    </div>
+  );
+}
+
+function CopyBtn({ text }) {
+  const [ok, setOk] = useState(false);
+  return (
+    <button className={`copy-btn ${ok ? 'ok' : ''}`}
+      onClick={() => { navigator.clipboard.writeText(text); setOk(true); setTimeout(()=>setOk(false),2000); }}>
+      {ok ? '✓ Copied' : 'Copy'}
+    </button>
+  );
+}
+
+/* ─── STEP 1 — Business ──────────────────────────── */
+function StepBusiness({ data, upd }) {
+  const s = (k,v) => upd(p=>({...p,[k]:v}));
+  return (
+    <>
+      <div className="card-head">
+        <div className="card-eyebrow">Step 1 of setup</div>
+        <div className="card-title">Business Details</div>
+        <div className="card-desc">Core information about the client — powers every product's identity and configuration.</div>
+      </div>
+
+      <div className="field-row col2">
+        <F label="Business name" req>
+          <input value={data.businessName} onChange={e=>s('businessName',e.target.value)} placeholder="e.g. Northside Plumbing"/>
+        </F>
+        <F label="Owner / Contact name" req>
+          <input value={data.ownerName} onChange={e=>s('ownerName',e.target.value)} placeholder="e.g. Pete Nguyen"/>
+        </F>
+      </div>
+
+      <div className="field-row col2">
+        <F label="Trade type" req>
+          <select value={data.trade} onChange={e=>s('trade',e.target.value)}>
+            <option value="">Select a trade…</option>
+            {TRADES.map(t=><option key={t}>{t}</option>)}
+          </select>
+        </F>
+        <F label="ABN">
+          <input value={data.abn} onChange={e=>s('abn',e.target.value)} placeholder="12 345 678 901"/>
+        </F>
+      </div>
+
+      <div className="field-row col2">
+        <F label="Phone number" req>
+          <input value={data.phone} onChange={e=>s('phone',e.target.value)} placeholder="0412 345 678"/>
+        </F>
+        <F label="Email address" req>
+          <input value={data.email} onChange={e=>s('email',e.target.value)} placeholder="pete@northsideplumbing.com.au"/>
+        </F>
+      </div>
+
+      <div className="field-row col2">
+        <F label="Website">
+          <input value={data.website} onChange={e=>s('website',e.target.value)} placeholder="northsideplumbing.com.au"/>
+        </F>
+        <div/>
+      </div>
+
+      <div className="field-row col2">
+        <F label="Suburb / City" req>
+          <input value={data.suburb} onChange={e=>s('suburb',e.target.value)} placeholder="e.g. Northcote"/>
+        </F>
+        <F label="State">
+          <select value={data.state} onChange={e=>s('state',e.target.value)}>
+            {STATES.map(st=><option key={st}>{st}</option>)}
+          </select>
+        </F>
+      </div>
+
+      <F label="Service area">
+        <textarea value={data.serviceArea} onChange={e=>s('serviceArea',e.target.value)} rows={2}
+          placeholder="List suburbs or regions — e.g. Northcote, Thornbury, Preston, Fitzroy, Carlton (inner-north Melbourne)"/>
+      </F>
+    </>
+  );
+}
+
+/* ─── STEP 2 — Products ──────────────────────────── */
+function StepProducts({ data, upd }) {
+  const tog = k => upd(p=>({...p, products:{...p.products,[k]:!p.products[k]}}));
+  const PRODS = [
+    { key:'receptionist', icon:'📞', name:'OTW AI Receptionist', desc:'Answers calls, qualifies leads, books jobs and handles after-hours.', badge:'live' },
+    { key:'triageai',     icon:'📧', name:'OTW TriageAI',        desc:'Sorts every email, drafts replies in your voice, chases cold quotes.', badge:'live' },
+    { key:'scheduling',  icon:'📅', name:'OTW Scheduling',      desc:'Manages calendar, sends confirmations, prevents double-bookings.', badge:'soon' },
+    { key:'debtcollector',icon:'💰', name:'OTW DebtCollector',  desc:'Automates overdue invoice reminders with escalating sequences.', badge:'soon' },
+  ];
+  return (
+    <>
+      <div className="card-head">
+        <div className="card-eyebrow">Step 2 of setup</div>
+        <div className="card-title">Products</div>
+        <div className="card-desc">Select all OTW products this client is signing up for. A setup section will appear for each one.</div>
+      </div>
+      <div className="product-grid">
+        {PRODS.map(p => (
+          <div key={p.key} className={`product-card ${data.products[p.key] ? 'selected' : ''}`}
+            onClick={()=>tog(p.key)}>
+            <span className={`product-card-badge ${p.badge === 'live' ? 'badge-live' : 'badge-soon'}`}>
+              {p.badge === 'live' ? 'Live' : 'Soon'}
+            </span>
+            <div className={`product-card-check ${data.products[p.key] ? 'on' : ''}`}/>
+            <div className="product-card-icon">{p.icon}</div>
+            <div className="product-card-name">{p.name}</div>
+            <div className="product-card-desc">{p.desc}</div>
+          </div>
+        ))}
+      </div>
+      {!Object.values(data.products).some(Boolean) &&
+        <div className="hint" style={{marginTop:14}}>↑ Select at least one product to continue.</div>
+      }
+    </>
+  );
+}
+
+/* ─── STEP 3 — Receptionist ──────────────────────── */
+function StepReceptionist({ data, upd }) {
+  const s = (k,v) => upd(p=>({...p,[k]:v}));
+  const addSvc = () => upd(p=>({...p, recServices:[...p.recServices,{name:'',price:'',unit:'per job',desc:''}]}));
+  const rmSvc  = i  => upd(p=>({...p, recServices:p.recServices.filter((_,j)=>j!==i)}));
+  const setSvc = (i,k,v) => upd(p=>{ const a=[...p.recServices]; a[i]={...a[i],[k]:v}; return {...p,recServices:a}; });
+
+  return (
+    <>
+      <div className="card-head">
+        <div className="card-eyebrow">OTW AI Receptionist</div>
+        <div className="card-title">Receptionist Setup</div>
+        <div className="card-desc">Everything needed to configure the AI agent — hours, services, booking flow, and persona.</div>
+      </div>
+
+      {/* Services */}
+      <div style={{marginBottom:6}}>
+        <Lbl text="Services offered"/>
+        {data.recServices.map((sv,i)=>(
+          <div key={i} className="svc-row">
+            <input value={sv.name} onChange={e=>setSvc(i,'name',e.target.value)} placeholder="e.g. Hot water replacement"/>
+            <input value={sv.price} onChange={e=>setSvc(i,'price',e.target.value)} placeholder="Price ($)"/>
+            <select value={sv.unit} onChange={e=>setSvc(i,'unit',e.target.value)}>
+              {['per job','per hour','call-out','per m²','per day','quote only'].map(u=><option key={u}>{u}</option>)}
+            </select>
+            <button className="rm-btn" onClick={()=>rmSvc(i)} disabled={data.recServices.length===1}>×</button>
+          </div>
+        ))}
+        <button className="add-row" onClick={addSvc}>+ Add service</button>
+      </div>
+
+      <div className="divider"/>
+
+      {/* Hours */}
+      <F label="Working days">
+        <DayPicker value={data.recDays} onChange={v=>s('recDays',v)}/>
+      </F>
+      <div className="field-row col3">
+        <F label="Open from">
+          <input type="time" value={data.recFrom} onChange={e=>s('recFrom',e.target.value)}/>
+        </F>
+        <F label="Close at">
+          <input type="time" value={data.recTo} onChange={e=>s('recTo',e.target.value)}/>
+        </F>
+        <div/>
+      </div>
+
+      <F label="After-hours policy">
+        <select value={data.recAfterHours} onChange={e=>s('recAfterHours',e.target.value)}>
+          {AFTER_HOURS.map(a=><option key={a}>{a}</option>)}
+        </select>
+      </F>
+
+      {data.recAfterHours.includes('surcharge') &&
+        <F label="After-hours surcharge ($)">
+          <input value={data.recSurcharge} onChange={e=>s('recSurcharge',e.target.value)} placeholder="e.g. 150"/>
+        </F>
+      }
+
+      <div className="divider"/>
+
+      {/* Booking */}
+      <F label="Booking method">
+        <select value={data.recBookMethod} onChange={e=>s('recBookMethod',e.target.value)}>
+          {BOOK_METHODS.map(b=><option key={b}>{b}</option>)}
+        </select>
+      </F>
+
+      {data.recBookMethod.toLowerCase().includes('calendly') &&
+        <F label="Calendly URL">
+          <input value={data.recCalendly} onChange={e=>s('recCalendly',e.target.value)} placeholder="calendly.com/yourlink"/>
+        </F>
+      }
+
+      <F label="Escalation phone (call-back number for urgent jobs)">
+        <input value={data.recEscPhone} onChange={e=>s('recEscPhone',e.target.value)} placeholder="Owner's mobile"/>
+      </F>
+
+      <div className="divider"/>
+
+      {/* Persona */}
+      <F label="Custom greeting / persona notes">
+        <textarea value={data.recGreeting} onChange={e=>s('recGreeting',e.target.value)} rows={2}
+          placeholder="e.g. 'Hi, thanks for calling Northside Plumbing! How can I help you today?' — or any tone notes"/>
+      </F>
+
+      <div className="field-row col2">
+        <div>
+          <Lbl text="The AI should always…"/>
+          <div className="check-list" style={{marginTop:4}}>
+            {DO_LIST.map((l,i)=>(
+              <CheckItem key={i} label={l} checked={data.recDo[i]}
+                onChange={()=>upd(p=>{ const a=[...p.recDo]; a[i]=!a[i]; return {...p,recDo:a}; })}/>
+            ))}
+          </div>
+          <input style={{marginTop:10}} value={data.recCustomDo} onChange={e=>s('recCustomDo',e.target.value)} placeholder="Add a custom rule…"/>
+        </div>
+        <div>
+          <Lbl text="The AI should never…"/>
+          <div className="check-list" style={{marginTop:4}}>
+            {DONT_LIST.map((l,i)=>(
+              <CheckItem key={i} label={l} checked={data.recDont[i]}
+                onChange={()=>upd(p=>{ const a=[...p.recDont]; a[i]=!a[i]; return {...p,recDont:a}; })}/>
+            ))}
+          </div>
+          <input style={{marginTop:10}} value={data.recCustomDont} onChange={e=>s('recCustomDont',e.target.value)} placeholder="Add a custom rule…"/>
+        </div>
+      </div>
+
+      <div className="divider"/>
+
+      <F label="Extra FAQs / business knowledge">
+        <textarea value={data.recFAQ} onChange={e=>s('recFAQ',e.target.value)} rows={3}
+          placeholder="Anything specific the AI should know — warranties, service guarantees, special instructions, local knowledge…"/>
+      </F>
+    </>
+  );
+}
+
+/* ─── STEP 4 — TriageAI ──────────────────────────── */
+function StepTriageAI({ data, upd }) {
+  const s = (k,v) => upd(p=>({...p,[k]:v}));
+  const togCat = k => upd(p=>({...p, triCats:{...p.triCats,[k]:!p.triCats[k]}}));
+  const CATS = [
+    { key:'urgent',    label:'🚨 Urgent / emergency jobs — flag for immediate response' },
+    { key:'quotes',    label:'📋 Quote requests — enter follow-up sequence' },
+    { key:'enquiries', label:'❓ General enquiries — draft helpful reply' },
+    { key:'complaints',label:'😤 Complaints / negative feedback — draft empathy-first reply' },
+    { key:'spam',      label:'🗑 Spam / cold outreach — auto-archive, no draft needed' },
+    { key:'general',   label:'📩 General mail — draft standard reply' },
+  ];
+  return (
+    <>
+      <div className="card-head">
+        <div className="card-eyebrow">OTW TriageAI</div>
+        <div className="card-title">TriageAI Setup</div>
+        <div className="card-desc">Configure the email triage system — what inbox to monitor, how to reply, and how to chase cold quotes.</div>
+      </div>
+
+      <div className="field-row col2">
+        <F label="Business email to triage" req>
+          <input value={data.triEmail} onChange={e=>s('triEmail',e.target.value)} placeholder="info@northsideplumbing.com.au"/>
+        </F>
+        <F label="Email platform">
+          <select value={data.triPlatform} onChange={e=>s('triPlatform',e.target.value)}>
+            {EMAIL_PLATFORMS.map(p=><option key={p}>{p}</option>)}
+          </select>
+        </F>
+      </div>
+
+      <div className="field-row col2">
+        <F label="Reply-from name (how drafts will sign off)" req>
+          <input value={data.triFromName} onChange={e=>s('triFromName',e.target.value)} placeholder="e.g. Pete — Northside Plumbing"/>
+        </F>
+        <F label="Weekly digest send to">
+          <input value={data.triDigest} onChange={e=>s('triDigest',e.target.value)} placeholder="owner@business.com.au"/>
+        </F>
+      </div>
+
+      <F label="Reply tone / voice">
+        <select value={data.triTone} onChange={e=>s('triTone',e.target.value)}>
+          {EMAIL_TONES.map(t=><option key={t}>{t}</option>)}
+        </select>
+      </F>
+
+      <div className="divider"/>
+
+      <F label="Email categories to monitor">
+        <div className="hint" style={{marginBottom:10}}>Tick all that apply — TriageAI will sort every email into these buckets.</div>
+        <div className="check-list">
+          {CATS.map(c=>(
+            <CheckItem key={c.key} label={c.label} checked={data.triCats[c.key]} onChange={()=>togCat(c.key)}/>
+          ))}
+        </div>
+      </F>
+
+      <div className="divider"/>
+
+      <F label="Urgency keywords (comma-separated)">
+        <input value={data.triKeywords} onChange={e=>s('triKeywords',e.target.value)}
+          placeholder="e.g. burst, leak, flood, no hot water, emergency, ASAP, urgent"/>
+        <div className="hint">Emails containing these words get flagged as urgent regardless of sender.</div>
+      </F>
+
+      <F label="Quote follow-up — chase unanswered quotes after">
+        <select value={data.triFollowUp} onChange={e=>s('triFollowUp',e.target.value)}>
+          {FOLLOWUP_DAYS.map(d=><option key={d}>{d}</option>)}
+        </select>
+      </F>
+    </>
+  );
+}
+
+/* ─── STEP 5 — Scheduling ────────────────────────── */
+function StepScheduling({ data, upd }) {
+  const s = (k,v) => upd(p=>({...p,[k]:v}));
+  const addSvc = () => upd(p=>({...p, schServices:[...p.schServices,{name:'',duration:'60',buffer:'15'}]}));
+  const rmSvc  = i  => upd(p=>({...p, schServices:p.schServices.filter((_,j)=>j!==i)}));
+  const setSvc = (i,k,v) => upd(p=>{ const a=[...p.schServices]; a[i]={...a[i],[k]:v}; return {...p,schServices:a}; });
+
+  return (
+    <>
+      <div className="card-head">
+        <div className="card-eyebrow">OTW Scheduling</div>
+        <div className="card-title">Scheduling Setup</div>
+        <div className="card-desc">Configure calendar integration, service types, and availability for automated booking management.</div>
+      </div>
+
+      <div className="field-row col2">
+        <F label="Calendar platform" req>
+          <select value={data.schPlatform} onChange={e=>s('schPlatform',e.target.value)}>
+            {CAL_PLATFORMS.map(p=><option key={p}>{p}</option>)}
+          </select>
+        </F>
+        <F label="Existing booking link (if any)">
+          <input value={data.schLink} onChange={e=>s('schLink',e.target.value)} placeholder="calendly.com/your-link"/>
+        </F>
+      </div>
+
+      <div className="divider"/>
+
+      <div style={{marginBottom:6}}>
+        <Lbl text="Service types"/>
+        <div className="hint" style={{marginBottom:10}}>Name, duration (mins), and buffer time after each job.</div>
+        {data.schServices.map((sv,i)=>(
+          <div key={i} className="svc-row-sch">
+            <input value={sv.name} onChange={e=>setSvc(i,'name',e.target.value)} placeholder="e.g. Hot water service"/>
+            <input value={sv.duration} onChange={e=>setSvc(i,'duration',e.target.value)} placeholder="Mins" type="number"/>
+            <input value={sv.buffer} onChange={e=>setSvc(i,'buffer',e.target.value)} placeholder="Buffer (mins)" type="number"/>
+            <button className="rm-btn" onClick={()=>rmSvc(i)} disabled={data.schServices.length===1}>×</button>
+          </div>
+        ))}
+        <button className="add-row" onClick={addSvc}>+ Add service type</button>
+      </div>
+
+      <div className="divider"/>
+
+      <F label="Available days">
+        <DayPicker value={data.schDays} onChange={v=>s('schDays',v)}/>
+      </F>
+      <div className="field-row col3">
+        <F label="Start time">
+          <input type="time" value={data.schFrom} onChange={e=>s('schFrom',e.target.value)}/>
+        </F>
+        <F label="End time">
+          <input type="time" value={data.schTo} onChange={e=>s('schTo',e.target.value)}/>
+        </F>
+        <div/>
+      </div>
+
+      <div className="field-row col2">
+        <F label="Minimum lead time (advance booking)">
+          <select value={data.schLead} onChange={e=>s('schLead',e.target.value)}>
+            {LEAD_TIMES.map(l=><option key={l}>{l}</option>)}
+          </select>
+        </F>
+        <F label="Booking confirmation">
+          <select value={data.schConfirm} onChange={e=>s('schConfirm',e.target.value)}>
+            <option>Instant confirmation</option>
+            <option>Manual approval required</option>
+          </select>
+        </F>
+      </div>
+
+      <F label="Cancellation / rescheduling policy">
+        <textarea value={data.schCancel} onChange={e=>s('schCancel',e.target.value)} rows={2}
+          placeholder="e.g. 24 hours notice required for cancellation, late cancellations incur a $50 fee…"/>
+      </F>
+    </>
+  );
+}
+
+/* ─── STEP 6 — DebtCollector ─────────────────────── */
+function StepDebt({ data, upd }) {
+  const s = (k,v) => upd(p=>({...p,[k]:v}));
+  return (
+    <>
+      <div className="card-head">
+        <div className="card-eyebrow">OTW DebtCollector</div>
+        <div className="card-title">Debt Collection Setup</div>
+        <div className="card-desc">Configure automated overdue invoice reminders — from first nudge to escalation.</div>
+      </div>
+
+      <div className="field-row col2">
+        <F label="Invoicing software" req>
+          <select value={data.debtSoftware} onChange={e=>s('debtSoftware',e.target.value)}>
+            {INVOICE_SW.map(sw=><option key={sw}>{sw}</option>)}
+          </select>
+        </F>
+        {data.debtSoftware === 'Other' &&
+          <F label="Software name">
+            <input value={data.debtOther} onChange={e=>s('debtOther',e.target.value)} placeholder="e.g. Tradify"/>
+          </F>
+        }
+      </div>
+
+      <div className="divider"/>
+
+      <div className="field-row col2">
+        <F label="Send first reminder" req>
+          <select value={data.debtFirst} onChange={e=>s('debtFirst',e.target.value)}>
+            {REMINDER_DAYS.map(d=><option key={d}>{d}</option>)}
+          </select>
+        </F>
+        <F label="Maximum reminders before escalation">
+          <select value={data.debtMax} onChange={e=>s('debtMax',e.target.value)}>
+            {MAX_REMINDERS.map(m=><option key={m}>{m}</option>)}
+          </select>
+        </F>
+      </div>
+
+      <F label="Reminder tone">
+        <select value={data.debtTone} onChange={e=>s('debtTone',e.target.value)}>
+          {DEBT_TONES.map(t=><option key={t}>{t}</option>)}
+        </select>
+      </F>
+
+      <div className="divider"/>
+
+      <F label="Payment methods accepted">
+        <input value={data.debtPayment} onChange={e=>s('debtPayment',e.target.value)}
+          placeholder="e.g. Bank transfer, credit card via Square, cash on-site"/>
+      </F>
+
+      <F label="Escalation contact (after max reminders)">
+        <input value={data.debtEscalation} onChange={e=>s('debtEscalation',e.target.value)}
+          placeholder="Name and email/phone of debt recovery contact or agency"/>
+      </F>
+
+      <F label="Email signature for all reminders">
+        <textarea value={data.debtSignature} onChange={e=>s('debtSignature',e.target.value)} rows={2}
+          placeholder="e.g. Pete Nguyen | Northside Plumbing | 0412 345 678 | pete@northsideplumbing.com.au"/>
+      </F>
+    </>
+  );
+}
+
+/* ─── Output builders ────────────────────────────── */
+function buildRecPrompt(d) {
+  const days = DAYS.filter(day=>d.recDays[day]).join(', ');
+  const svcs = d.recServices.filter(s=>s.name).map(s=>`  • ${s.name}${s.price?` — $${s.price} ${s.unit}`:''}${s.desc?` (${s.desc})`:''}`).join('\n');
+  const doR  = d.recDo.map((on,i)=>on?`  - ${DO_LIST[i]}`:null).filter(Boolean).join('\n');
+  const dontR= d.recDont.map((on,i)=>on?`  - ${DONT_LIST[i]}`:null).filter(Boolean).join('\n');
+  const bookBlk = d.recBookMethod.includes('Calendly')&&d.recCalendly
+    ? `Direct the customer to book online at: ${d.recCalendly}\nCollect their name and job description first.`
+    : d.recBookMethod.includes('Phone')
+    ? `Collect name, address, and job description. Let them know ${d.ownerName||'the team'} will call back to confirm.`
+    : `Collect name, address, and job description. Ask them to email ${d.email||'[email]'} with details.`;
+  const ahBlk = d.recAfterHours.includes("Don't")
+    ? `After hours, let them know we're closed and back ${days} ${d.recFrom}–${d.recTo}. Take their name and number.`
+    : d.recAfterHours.includes('Emergency')
+    ? `We take emergency callouts after hours.${d.recSurcharge?` Surcharge: $${d.recSurcharge}.`:''} Confirm urgency, collect details, and advise someone will call within 30 minutes.`
+    : `We're available 24/7 — handle all enquiries normally.`;
+
+  return `# AI AGENT SYSTEM PROMPT
+# ${d.businessName||'[Business Name]'} — Generated by OTW Studios
+# ============================================================
+
+You are the AI assistant for **${d.businessName||'[Business Name]'}**, a ${d.trade||'[trade]'} business in ${d.suburb||'[suburb]'}, ${d.state}.
+Your name is "Alex" — a friendly, professional assistant for ${d.ownerName||'[Owner]'}'s business.
+
+---
+
+## ABOUT US
+Business: ${d.businessName||'[Business Name]'}
+Owner: ${d.ownerName||'[Owner]'}
+Trade: ${d.trade||'[Trade]'}
+Phone: ${d.phone||'[Phone]'}
+Email: ${d.email||'[Email]'}
+Website: ${d.website||'[Website]'}
+Location: ${d.suburb||'[Suburb]'}, ${d.state}
+Service Area: ${d.serviceArea||d.suburb+' and surrounding suburbs'}
+
+---
+
+## OUR SERVICES
+${svcs||'  • [Add services above]'}
+
+---
+
+## OPERATING HOURS
+Days: ${days||'[Days]'}
+Hours: ${d.recFrom} – ${d.recTo}
+
+${ahBlk}
+
+---
+
+## HOW WE BOOK JOBS
+${bookBlk}
+
+---
+
+## RULES
+
+DO:
+${doR}${d.recCustomDo?'\n  - '+d.recCustomDo:''}
+  - Always be helpful, warm, and professional
+
+DO NOT:
+${dontR}${d.recCustomDont?'\n  - '+d.recCustomDont:''}
+  - Never make up information — say "I'll have ${d.ownerName||'the team'} follow up"
+
+---
+
+## TONE & STYLE
+- ${d.recGreeting||'Friendly, warm, and professional — like a well-trained office manager'}
+- Keep responses concise — trade customers are busy and calling from job sites
+- Use plain Australian English — "no worries", "mate" is fine occasionally
+- If someone is frustrated, empathise before solving
+- Never use jargon or overly corporate language
+
+---
+
+## ESCALATION
+If unable to answer or customer asks for the owner:
+"No worries — I'll make sure ${d.ownerName||'the team'} gets back to you personally. Can I grab your name and best number?"
+${d.recEscPhone?'\nFor urgent escalations, contact: '+d.recEscPhone:''}
+
+${d.recFAQ?`---\n\n## ADDITIONAL KNOWLEDGE\n${d.recFAQ}`:''}
+# ============================================================`;
+}
+
+function buildTriageConfig(d) {
+  const cats = Object.entries(d.triCats).filter(([,v])=>v).map(([k])=>k.charAt(0).toUpperCase()+k.slice(1)).join(', ');
+  return `# TRIAGEAI CONFIGURATION
+# ${d.businessName||'[Business Name]'} — Generated by OTW Studios
+# ============================================================
+
+INBOX TO MONITOR:   ${d.triEmail||'[email not set]'}
+PLATFORM:           ${d.triPlatform}
+REPLY-FROM NAME:    ${d.triFromName||'[Not set]'}
+REPLY TONE:         ${d.triTone}
+WEEKLY DIGEST TO:   ${d.triDigest||d.email||'[email]'}
+
+CATEGORIES:
+${cats||'Urgent, Quotes, Enquiries, Complaints, Spam'}
+
+URGENCY KEYWORDS:
+${d.triKeywords||'[Not set — add keywords that signal emergency jobs]'}
+
+QUOTE FOLLOW-UP:
+Chase unanswered quotes after ${d.triFollowUp}. Continue until replied or unsubscribed.
+
+BUSINESS CONTEXT:
+${d.businessName||'[Business]'} is a ${d.trade||'[trade]'} business in ${d.suburb||'[suburb]'}, ${d.state}.
+Contact: ${d.phone||'[phone]'} | ${d.email||'[email]'}
+Service area: ${d.serviceArea||d.suburb||'[area]'}
+# ============================================================`;
+}
+
+function buildSchConfig(d) {
+  const days = DAYS.filter(day=>d.schDays[day]).join(', ');
+  const svcs = d.schServices.filter(s=>s.name).map(s=>`  ${s.name}: ${s.duration} min + ${s.buffer} min buffer`).join('\n');
+  return `# SCHEDULING CONFIGURATION
+# ${d.businessName||'[Business Name]'} — Generated by OTW Studios
+# ============================================================
+
+PLATFORM:           ${d.schPlatform}
+EXISTING LINK:      ${d.schLink||'[None]'}
+
+AVAILABLE DAYS:     ${days}
+HOURS:              ${d.schFrom} – ${d.schTo}
+MIN LEAD TIME:      ${d.schLead}
+CONFIRMATION:       ${d.schConfirm}
+
+SERVICE TYPES:
+${svcs||'  [No services added]'}
+
+CANCELLATION POLICY:
+${d.schCancel||'[Not set]'}
+
+BUSINESS:           ${d.businessName||'[Business]'} | ${d.phone||'[phone]'}
+# ============================================================`;
+}
+
+function buildDebtConfig(d) {
+  return `# DEBTCOLLECTOR CONFIGURATION
+# ${d.businessName||'[Business Name]'} — Generated by OTW Studios
+# ============================================================
+
+INVOICING SOFTWARE: ${d.debtSoftware==='Other'?d.debtOther||'[Specify]':d.debtSoftware}
+FIRST REMINDER:     ${d.debtFirst}
+MAX REMINDERS:      ${d.debtMax}
+TONE:               ${d.debtTone}
+
+PAYMENT METHODS:
+${d.debtPayment||'[Not set]'}
+
+ESCALATION AFTER MAX REMINDERS:
+${d.debtEscalation||'[Not set]'}
+
+EMAIL SIGNATURE:
+${d.debtSignature||`${d.ownerName||'[Owner]'} | ${d.businessName||'[Business]'} | ${d.phone||'[phone]'} | ${d.email||'[email]'}`}
+
+BUSINESS:           ${d.businessName||'[Business]'} | ${d.email||'[email]'}
+# ============================================================`;
+}
+
+function buildEmailBody(d, sessionId) {
+  const prods = Object.entries(d.products).filter(([,v])=>v).map(([k])=>k.charAt(0).toUpperCase()+k.slice(1)).join(', ');
+  let body = `OTW STUDIOS — CLIENT ONBOARDING INTAKE
+Session: ${sessionId}
+Date: ${new Date().toLocaleDateString('en-AU', {weekday:'long',year:'numeric',month:'long',day:'numeric'})}
+=============================================
+
+BUSINESS DETAILS
+Business name:   ${d.businessName}
+Owner:           ${d.ownerName}
+Trade:           ${d.trade}
+Phone:           ${d.phone}
+Email:           ${d.email}
+Website:         ${d.website||'—'}
+ABN:             ${d.abn||'—'}
+Location:        ${d.suburb}, ${d.state}
+Service area:    ${d.serviceArea||'—'}
+
+PRODUCTS SELECTED: ${prods||'None'}
+`;
+
+  if (d.products.receptionist) {
+    const days = DAYS.filter(day=>d.recDays[day]).join(', ');
+    const svcs = d.recServices.filter(s=>s.name).map(s=>`${s.name}${s.price?' ($'+s.price+' '+s.unit+')':''}`).join(', ');
+    body += `
+---------------------------------------------
+OTW AI RECEPTIONIST
+Services:        ${svcs||'—'}
+Working days:    ${days}
+Hours:           ${d.recFrom} – ${d.recTo}
+After-hours:     ${d.recAfterHours}${d.recSurcharge?' — $'+d.recSurcharge+' surcharge':''}
+Booking method:  ${d.recBookMethod}${d.recCalendly?' — '+d.recCalendly:''}
+Escalation ph:   ${d.recEscPhone||'—'}
+Greeting/tone:   ${d.recGreeting||'—'}
+Custom DO:       ${d.recCustomDo||'—'}
+Custom DON'T:    ${d.recCustomDont||'—'}
+Extra FAQs:
+${d.recFAQ||'—'}
+`;
+  }
+
+  if (d.products.triageai) {
+    const cats = Object.entries(d.triCats).filter(([,v])=>v).map(([k])=>k).join(', ');
+    body += `
+---------------------------------------------
+OTW TRIAGEAI
+Inbox email:     ${d.triEmail}
+Platform:        ${d.triPlatform}
+Reply-from:      ${d.triFromName}
+Tone:            ${d.triTone}
+Digest to:       ${d.triDigest||d.email}
+Categories:      ${cats}
+Urgency keywords:${d.triKeywords||'—'}
+Quote follow-up: ${d.triFollowUp}
+`;
+  }
+
+  if (d.products.scheduling) {
+    const days = DAYS.filter(day=>d.schDays[day]).join(', ');
+    const svcs = d.schServices.filter(s=>s.name).map(s=>`${s.name} (${s.duration}min, ${s.buffer}min buffer)`).join(', ');
+    body += `
+---------------------------------------------
+OTW SCHEDULING
+Platform:        ${d.schPlatform}
+Existing link:   ${d.schLink||'—'}
+Services:        ${svcs||'—'}
+Days:            ${days}
+Hours:           ${d.schFrom} – ${d.schTo}
+Lead time:       ${d.schLead}
+Confirmation:    ${d.schConfirm}
+Cancellation:    ${d.schCancel||'—'}
+`;
+  }
+
+  if (d.products.debtcollector) {
+    body += `
+---------------------------------------------
+OTW DEBTCOLLECTOR
+Software:        ${d.debtSoftware==='Other'?d.debtOther:d.debtSoftware}
+First reminder:  ${d.debtFirst}
+Max reminders:   ${d.debtMax}
+Tone:            ${d.debtTone}
+Payment methods: ${d.debtPayment||'—'}
+Escalation:      ${d.debtEscalation||'—'}
+Signature:       ${d.debtSignature||'—'}
+`;
+  }
+
+  body += `\n=============================================\nGenerated by OTW Studios Onboarding Tool`;
+  return body;
+}
+
+/* ─── STEP 7 — Output ────────────────────────────── */
+function StepOutput({ data, sessionId }) {
+  const [sent, setSent]     = useState(false);
+  const [sending, setSend]  = useState(false);
+  const [err, setErr]       = useState('');
+  const prods = Object.entries(data.products).filter(([,v])=>v).map(([k])=>k);
+
+  const recPrompt = data.products.receptionist ? buildRecPrompt(data) : '';
+  const triConf   = data.products.triageai     ? buildTriageConfig(data) : '';
+  const schConf   = data.products.scheduling   ? buildSchConfig(data) : '';
+  const debtConf  = data.products.debtcollector? buildDebtConfig(data) : '';
+
+  const sendEmail = () => {
+    setSend(true);
+    const body = buildEmailBody(data, sessionId);
+    emailjs.send(EJS_SERVICE, EJS_TEMPLATE, {
+      to_name: 'Andy',
+      from_name: data.businessName || 'New Client',
+      business: data.businessName,
+      owner: data.ownerName,
+      products: prods.join(', '),
+      message: body,
+      reply_to: data.email || 'andyngo.consulting@gmail.com',
+    }, EJS_KEY)
+    .then(()=>{ setSent(true); setSend(false); })
+    .catch(()=>{ setErr('Email failed — copy the config manually below.'); setSend(false); });
+  };
+
+  useEffect(()=>{ sendEmail(); }, []);
+
+  const OUTS = [
+    { show: data.products.receptionist, icon:'📞', title:'AI Receptionist — System Prompt', sub:'Paste into Vapi / your AI platform', content: recPrompt },
+    { show: data.products.triageai,     icon:'📧', title:'TriageAI — Configuration',        sub:'Paste into OTW TriageAI setup panel', content: triConf },
+    { show: data.products.scheduling,   icon:'📅', title:'Scheduling — Configuration',      sub:'Reference for calendar integration setup', content: schConf },
+    { show: data.products.debtcollector,icon:'💰', title:'DebtCollector — Configuration',   sub:'Reference for invoice reminder setup', content: debtConf },
+  ].filter(o=>o.show);
+
+  return (
+    <>
+      <div className="card-head">
+        <div className="card-eyebrow">Setup complete</div>
+        <div className="card-title">Onboarding Summary</div>
+        <div className="card-desc">Everything's captured. Email sent to Andy — copyable configs are ready below.</div>
+      </div>
+
+      {/* Status */}
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20,flexWrap:'wrap'}}>
+        {sent
+          ? <span className="sent-pill">✓ Email sent to andyngo.consulting@gmail.com</span>
+          : sending
+          ? <span style={{fontSize:13,color:'rgba(255,255,255,0.4)'}}>Sending email…</span>
+          : err
+          ? <span style={{fontSize:13,color:'#F87171'}}>{err}</span>
+          : null
+        }
+        {!sent && !sending && <button className="add-row" onClick={sendEmail}>Retry send</button>}
+      </div>
+
+      {/* Summary */}
+      <div className="out-card">
+        <div className="out-hdr">
+          <div className="out-hdr-left">
+            <span className="out-icon">🏢</span>
+            <div>
+              <div className="out-title">{data.businessName||'[Business]'}</div>
+              <div className="out-sub">{data.ownerName} · {data.trade} · {data.suburb}, {data.state}</div>
+            </div>
+          </div>
+          <span style={{fontSize:11,color:'rgba(255,255,255,0.2)',fontFamily:'monospace'}}>{sessionId}</span>
+        </div>
+        <div className="out-body">
+          <div className="sum-badges">
+            {prods.map(p=>(
+              <span key={p} className="sbadge sbadge-gold">
+                {p==='receptionist'?'📞 Receptionist':p==='triageai'?'📧 TriageAI':p==='scheduling'?'📅 Scheduling':'💰 DebtCollector'}
+              </span>
+            ))}
+          </div>
+          <div className="out-row"><span className="out-row-label">Phone</span><span className="out-row-val">{data.phone||'—'}</span></div>
+          <div className="out-row"><span className="out-row-label">Email</span><span className="out-row-val">{data.email||'—'}</span></div>
+          <div className="out-row"><span className="out-row-label">Website</span><span className="out-row-val">{data.website||'—'}</span></div>
+          <div className="out-row"><span className="out-row-label">Service area</span><span className="out-row-val">{data.serviceArea||`${data.suburb}, ${data.state}`}</span></div>
+        </div>
+      </div>
+
+      {/* Per-product output blocks */}
+      {OUTS.map((o,i)=>(
+        <div key={i} className="out-card">
+          <div className="out-hdr">
+            <div className="out-hdr-left">
+              <span className="out-icon">{o.icon}</span>
+              <div>
+                <div className="out-title">{o.title}</div>
+                <div className="out-sub">{o.sub}</div>
+              </div>
+            </div>
+            <CopyBtn text={o.content}/>
+          </div>
+          <div className="out-body">
+            <pre className="out-pre">{o.content}</pre>
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
+
+/* ─── App shell ──────────────────────────────────── */
+const STEP_COMPONENTS = {
+  'Business':     (props) => <StepBusiness {...props}/>,
+  'Products':     (props) => <StepProducts {...props}/>,
+  'Receptionist': (props) => <StepReceptionist {...props}/>,
+  'TriageAI':     (props) => <StepTriageAI {...props}/>,
+  'Scheduling':   (props) => <StepScheduling {...props}/>,
+  'DebtCollector':(props) => <StepDebt {...props}/>,
+  'Summary':      (props) => <StepOutput {...props}/>,
+};
+
+function App() {
+  const [data, setData]   = useState(D);
+  const [step, setStep]   = useState(0);
+  const [sessionId]       = useState(genSessionId);
+
+  const steps = useMemo(()=>{
+    const s = ['Business','Products'];
+    if (data.products.receptionist)  s.push('Receptionist');
+    if (data.products.triageai)      s.push('TriageAI');
+    if (data.products.scheduling)    s.push('Scheduling');
+    if (data.products.debtcollector) s.push('DebtCollector');
+    s.push('Summary');
+    return s;
+  }, [data.products]);
+
+  const cur   = steps[step];
+  const pct   = Math.round((step / (steps.length - 1)) * 100);
+  const isLast = step === steps.length - 1;
+  const isSumm = cur === 'Summary';
+
+  const canNext = useMemo(()=>{
+    if (cur === 'Business') return data.businessName && data.ownerName && data.trade && data.phone && data.email && data.suburb;
+    if (cur === 'Products') return Object.values(data.products).some(Boolean);
+    return true;
+  }, [cur, data]);
+
+  const go = dir => {
+    const n = step + dir;
+    if (n >= 0 && n < steps.length) { setStep(n); window.scrollTo(0,0); }
+  };
+
+  const StepComp = STEP_COMPONENTS[cur];
+
+  return (
+    <div className="app">
+      {/* Header */}
+      <div className="hdr">
+        <div className="hdr-left">
+          <div className="logo-box">OTW</div>
+          <div>
+            <div className="logo-name">OTW Studios</div>
+          </div>
+        </div>
+        <span className="tool-badge">Client Onboarding</span>
+        <span className="session-id">{sessionId}</span>
+      </div>
+
+      {/* Progress */}
+      <div className="progress-wrap">
+        <div className="progress-bar-bg">
+          <div className="progress-bar-fill" style={{width:`${pct}%`}}/>
+        </div>
+        <div className="step-pills">
+          {steps.map((st,i)=>(
+            <span key={st} className={`pill ${i < step ? 'pill-done' : i === step ? 'pill-active' : 'pill-pending'}`}>
+              {i < step ? '✓ ' : ''}{st}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Step card */}
+      <div className="card">
+        <StepComp data={data} upd={setData} sessionId={sessionId}/>
+
+        {!isSumm &&
+          <div className="nav-bar">
+            <button className="btn-back" onClick={()=>go(-1)} disabled={step===0}>← Back</button>
+            <span className="step-counter">{step + 1} / {steps.length}</span>
+            <button className="btn-next" onClick={()=>go(1)} disabled={!canNext}>
+              {step === steps.length - 2 ? 'Generate outputs →' : 'Continue →'}
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

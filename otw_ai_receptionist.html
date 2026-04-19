@@ -539,31 +539,143 @@
             {/* HERO (LIGHT) */}
             <section ref={heroRef} className="bg-white pt-28 pb-20 lg:pt-36 lg:pb-24">
               <div className="mx-auto max-w-7xl px-6">
-                <div className="max-w-4xl">
-                  <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-medium text-slate-500">
-                    <span className="h-1.5 w-1.5 rounded-full bg-gold-500"></span>
-                    Available now for trade businesses · Australia
+
+                {/* 2-col grid */}
+                <div className="grid lg:grid-cols-2 gap-16 items-center mb-16">
+
+                  {/* Left — copy */}
+                  <div>
+                    <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-medium text-slate-500">
+                      <span className="h-1.5 w-1.5 rounded-full bg-gold-500"></span>
+                      Available now for trade businesses · Australia
+                    </div>
+                    <h1 className="text-5xl font-bold tracking-tight text-slate-950 leading-[1.07] sm:text-6xl lg:text-6xl">
+                      Answer every call.<br/>Capture every lead.<br/>
+                      <span className="text-gold-600">Miss nothing.</span>
+                    </h1>
+                    <p className="mt-7 text-lg leading-8 text-slate-500">
+                      Your AI receptionist handles inbound calls 24/7 — qualifies leads, escalates emergencies, books jobs, and sends lead notifications while your team stays focused on the work.
+                    </p>
+                    <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+                      <a href="#audit" className="btn-dark rounded-full bg-slate-950 px-7 py-3.5 text-sm font-semibold text-white hover:bg-slate-800 shadow-sm">
+                        Book a free audit
+                      </a>
+                      <a href="#demo" className="btn-ghost-light rounded-full border border-slate-300 px-7 py-3.5 text-sm font-medium text-slate-700 flex items-center gap-2">
+                        <svg className="h-4 w-4 text-gold-500" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                        Hear it live
+                      </a>
+                    </div>
+                    <p className="mt-4 text-xs text-slate-400">Set up in 48 hours · No tech skills required · Fully managed</p>
                   </div>
-                  <h1 className="text-5xl font-bold tracking-tight text-slate-950 leading-[1.07] sm:text-6xl lg:text-7xl">
-                    Answer every call.<br/>Capture every lead.<br/>
-                    <span className="text-gold-600">Miss nothing.</span>
-                  </h1>
-                  <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-500">
-                    Your AI receptionist handles inbound calls 24/7 — qualifies leads, escalates emergencies, books jobs, and sends lead notifications while your team stays focused on the work.
-                  </p>
-                  <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <a href="#audit" className="btn-dark rounded-full bg-slate-950 px-7 py-3.5 text-sm font-semibold text-white hover:bg-slate-800 shadow-sm">
-                      Book a free audit
-                    </a>
-                    <a href="#demo" className="btn-ghost-light rounded-full border border-slate-300 px-7 py-3.5 text-sm font-medium text-slate-700 flex items-center gap-2">
-                      <svg className="h-4 w-4 text-gold-500" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-                      Hear it live
-                    </a>
+
+                  {/* Right — phone mockup */}
+                  <div className="relative flex justify-center lg:justify-end">
+
+                    {/* Phone frame */}
+                    <div style={{
+                      width: 272, borderRadius: 44, background: '#0F172A',
+                      padding: '10px 8px 14px',
+                      boxShadow: '0 40px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.12)',
+                      position: 'relative', flexShrink: 0,
+                    }}>
+                      {/* Notch */}
+                      <div style={{
+                        position: 'absolute', top: 13, left: '50%', transform: 'translateX(-50%)',
+                        width: 88, height: 7, background: '#1E293B', borderRadius: 4, zIndex: 10,
+                      }}/>
+                      {/* Screen */}
+                      <div style={{ borderRadius: 36, overflow: 'hidden', background: '#F2F5FA' }}>
+
+                        {/* Status bar */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                          padding: '12px 18px 4px', fontSize: 10, fontWeight: 700, color: '#0F172A' }}>
+                          <span>11:47 PM</span>
+                          <span style={{ fontSize: 9, color: 'rgba(15,23,42,0.4)', letterSpacing: 1 }}>●●● ▲</span>
+                        </div>
+
+                        {/* App header */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7,
+                          padding: '8px 14px 10px', borderBottom: '1px solid rgba(0,0,0,0.07)', background: '#fff' }}>
+                          <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#F59E0B', flexShrink: 0 }}/>
+                          <div>
+                            <div style={{ fontSize: 11, fontWeight: 800, color: '#0F172A', letterSpacing: -0.3, lineHeight: 1.2 }}>OTW Studios</div>
+                            <div style={{ fontSize: 8, fontWeight: 700, color: '#B45309', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Receptionist</div>
+                          </div>
+                        </div>
+
+                        {/* Call — Sarah Thompson — Booked */}
+                        <div style={{ padding: '11px 14px', borderBottom: '1px solid rgba(0,0,0,0.06)', background: '#fff' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: '#0F172A' }}>Sarah Thompson</span>
+                            <span style={{ fontSize: 9, color: 'rgba(15,23,42,0.35)' }}>09:42</span>
+                          </div>
+                          <div style={{ fontSize: 10, color: 'rgba(15,23,42,0.5)', marginBottom: 6 }}>Quote — blocked drain, Bondi</div>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9, fontWeight: 700,
+                            padding: '3px 9px', borderRadius: 20,
+                            background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.28)', color: '#16A34A',
+                            textTransform: 'uppercase', letterSpacing: '0.06em' }}>✓ Booked</span>
+                        </div>
+
+                        {/* Call — Mike Alverez — Qualified */}
+                        <div style={{ padding: '11px 14px', borderBottom: '1px solid rgba(0,0,0,0.06)', background: '#fff' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: '#0F172A' }}>Mike Alverez</span>
+                            <span style={{ fontSize: 9, color: 'rgba(15,23,42,0.35)' }}>10:18</span>
+                          </div>
+                          <div style={{ fontSize: 10, color: 'rgba(15,23,42,0.5)', marginBottom: 6 }}>Hot water — out of hours</div>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9, fontWeight: 700,
+                            padding: '3px 9px', borderRadius: 20,
+                            background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.32)', color: '#B45309',
+                            textTransform: 'uppercase', letterSpacing: '0.06em' }}>⚡ Qualified</span>
+                        </div>
+
+                        {/* Call — Live — Escalating */}
+                        <div style={{ padding: '11px 14px', background: 'rgba(239,68,68,0.03)', borderBottom: '1px solid rgba(239,68,68,0.08)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: '#0F172A' }}>Live — Dave R.</span>
+                            <span style={{ fontSize: 9, color: '#F59E0B', fontWeight: 700 }}>now</span>
+                          </div>
+                          <div style={{ fontSize: 10, color: 'rgba(15,23,42,0.5)', marginBottom: 6 }}>Burst pipe, Mount Lawley</div>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9, fontWeight: 700,
+                            padding: '3px 9px', borderRadius: 20,
+                            background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', color: '#DC2626',
+                            textTransform: 'uppercase', letterSpacing: '0.06em' }}>● Escalating</span>
+                        </div>
+
+                        {/* Call button row */}
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 14px', background: '#F8FAFC' }}>
+                          <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#F59E0B',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            boxShadow: '0 4px 12px rgba(245,158,11,0.4)' }}>
+                            <svg width="16" height="16" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.9 10.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012.81 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.25a16 16 0 006.29 6.29l1.61-1.35a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+                            </svg>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+
+                    {/* Floating badge */}
+                    <div style={{
+                      position: 'absolute', bottom: -16, left: -20,
+                      background: '#0F172A', border: '1px solid rgba(245,158,11,0.22)',
+                      borderRadius: 16, padding: '12px 16px',
+                      boxShadow: '0 12px 32px rgba(0,0,0,0.18)',
+                    }}>
+                      <div style={{ fontSize: 9, fontWeight: 800, color: '#F59E0B',
+                        letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>
+                        Call handled while you slept
+                      </div>
+                      <div style={{ fontSize: 26, fontWeight: 900, color: '#fff', letterSpacing: -0.5, lineHeight: 1.1 }}>+$1,240</div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>Avg job value from after-hours leads</div>
+                    </div>
+
                   </div>
-                  <p className="mt-4 text-xs text-slate-400">Set up in 48 hours · No tech skills required · Fully managed</p>
                 </div>
 
-                <div className="mt-16 grid gap-px bg-slate-200 sm:grid-cols-2 lg:grid-cols-4 rounded-2xl overflow-hidden border border-slate-200">
+                {/* Stats grid — full width below */}
+                <div className="grid gap-px bg-slate-200 sm:grid-cols-2 lg:grid-cols-4 rounded-2xl overflow-hidden border border-slate-200">
                   {[["24/7","Always answering"],["48 hrs","Setup time"],["< 90s","Emergency escalation"],["0","Tech skills needed"]].map(([v, l]) => (
                     <div key={l} className="bg-white px-6 py-6">
                       <div className="text-3xl font-bold tracking-tight text-slate-950">{v}</div>
@@ -571,6 +683,7 @@
                     </div>
                   ))}
                 </div>
+
               </div>
             </section>
 
