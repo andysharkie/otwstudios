@@ -29,6 +29,10 @@
     @keyframes redGlow{0%,100%{box-shadow:0 0 24px rgba(239,68,68,0.12);}50%{box-shadow:0 0 48px rgba(239,68,68,0.22);}}
 
     .fade-up{animation:fadeUp 0.4s ease forwards;}
+    .otw-products-menu{display:none;}
+    .otw-products-dropdown:hover .otw-products-menu{display:block;}
+    .otw-products-dropdown:hover .otw-products-btn svg{transform:rotate(180deg);}
+    .otw-products-btn svg{transition:transform 0.2s ease;}
     .count-up{animation:countUp 0.6s ease forwards;}
     .slide-in{animation:slideIn 0.3s ease forwards;}
     .red-glow{animation:redGlow 2.5s ease-in-out infinite;}
@@ -162,6 +166,35 @@ function Nav({ step, total }) {
         <div style={{fontSize:14,fontWeight:800,color:'#0f172a'}}>OTW Studios</div>
         <div style={{fontSize:9,fontWeight:700,color:'#F59E0B',textTransform:'uppercase',letterSpacing:'0.14em',marginTop:1}}>Free Audit</div>
       </a>
+      <div className="otw-products-dropdown" style={{position:'relative'}}>
+        <button className="otw-products-btn" style={{display:'flex',alignItems:'center',gap:5,fontSize:13,fontWeight:600,color:'#475569',background:'none',border:'none',cursor:'pointer',padding:'4px 0'}}>
+          Products
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div className="otw-products-menu" style={{position:'absolute',top:'calc(100% + 10px)',left:'50%',transform:'translateX(-50%)',width:224,background:'#fff',border:'1px solid #e2e8f0',borderRadius:16,boxShadow:'0 12px 40px rgba(0,0,0,0.12)',padding:8,zIndex:300}}>
+          <a href="otw_ai_receptionist.html" style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'9px 12px',borderRadius:10,textDecoration:'none',transition:'background 0.15s'}}>
+            <span style={{fontSize:13,fontWeight:600,color:'#0f172a'}}>OTW Receptionist</span>
+            <span style={{fontSize:10,fontWeight:700,color:'#d97706',textTransform:'uppercase',letterSpacing:'0.05em'}}>Live</span>
+          </a>
+          <a href="otw_triageai.html" style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'9px 12px',borderRadius:10,textDecoration:'none'}}>
+            <span style={{fontSize:13,fontWeight:600,color:'#0f172a'}}>OTW TriageAI</span>
+            <span style={{fontSize:10,fontWeight:700,color:'#d97706',textTransform:'uppercase',letterSpacing:'0.05em'}}>Live</span>
+          </a>
+          <div style={{margin:'6px 0',borderTop:'1px solid #f1f5f9'}}/>
+          <a href="otw_scheduling.html" style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'9px 12px',borderRadius:10,textDecoration:'none'}}>
+            <span style={{fontSize:13,fontWeight:500,color:'#94a3b8'}}>OTW Scheduling</span>
+            <span style={{fontSize:10,fontWeight:500,color:'#cbd5e1',textTransform:'uppercase',letterSpacing:'0.05em'}}>Soon</span>
+          </a>
+          <a href="otw_debtcollector.html" style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'9px 12px',borderRadius:10,textDecoration:'none'}}>
+            <span style={{fontSize:13,fontWeight:500,color:'#94a3b8'}}>OTW DebtCollector</span>
+            <span style={{fontSize:10,fontWeight:500,color:'#cbd5e1',textTransform:'uppercase',letterSpacing:'0.05em'}}>Soon</span>
+          </a>
+          <a href="otw_reviewgenius.html" style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'9px 12px',borderRadius:10,textDecoration:'none'}}>
+            <span style={{fontSize:13,fontWeight:500,color:'#94a3b8'}}>OTW ReviewGenius</span>
+            <span style={{fontSize:10,fontWeight:500,color:'#cbd5e1',textTransform:'uppercase',letterSpacing:'0.05em'}}>Soon</span>
+          </a>
+        </div>
+      </div>
       {step > 0 && step <= total && (
         <div style={{fontSize:12,fontWeight:600,color:'#94a3b8'}}>Step {step} of {total}</div>
       )}

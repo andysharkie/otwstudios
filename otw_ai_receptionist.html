@@ -480,7 +480,38 @@
                 <span className={`text-[11px] transition-colors duration-300 ${navLogoSub}`}>Optimise The Workflow</span>
               </a>
 
-              <nav className="hidden gap-7 text-sm md:flex">
+              <nav className="hidden gap-7 text-sm md:flex items-center">
+                <div className="relative group">
+                  <button className={`flex items-center gap-1.5 transition-colors duration-300 ${navLink}`}>
+                    Products
+                    <svg className="h-3 w-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 hidden group-hover:block z-50">
+                    <div className="w-60 rounded-2xl border border-white/10 bg-navy-900 shadow-2xl p-2">
+                      <a href="otw_ai_receptionist.html" className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/5">
+                        <span className="text-sm font-semibold text-white">OTW Receptionist</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wide text-gold-400">You're here</span>
+                      </a>
+                      <a href="otw_triageai.html" className="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/8 transition-colors">
+                        <span className="text-sm font-semibold text-white">OTW TriageAI</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wide text-gold-400">Live</span>
+                      </a>
+                      <div className="my-1.5 border-t border-white/10"/>
+                      <a href="otw_scheduling.html" className="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/5 transition-colors">
+                        <span className="text-sm font-medium text-white/40">OTW Scheduling</span>
+                        <span className="text-[10px] font-medium uppercase tracking-wide text-white/25">Soon</span>
+                      </a>
+                      <a href="otw_debtcollector.html" className="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/5 transition-colors">
+                        <span className="text-sm font-medium text-white/40">OTW DebtCollector</span>
+                        <span className="text-[10px] font-medium uppercase tracking-wide text-white/25">Soon</span>
+                      </a>
+                      <a href="otw_reviewgenius.html" className="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/5 transition-colors">
+                        <span className="text-sm font-medium text-white/40">OTW ReviewGenius</span>
+                        <span className="text-[10px] font-medium uppercase tracking-wide text-white/25">Soon</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
                 {[["#demo","Demo"],["#features","Features"],["#faq","FAQ"]].map(([href, label]) => (
                   <a key={href} href={href} className={`transition-colors duration-300 ${navLink}`}>{label}</a>
                 ))}

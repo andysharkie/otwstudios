@@ -98,6 +98,37 @@ function App() {
             <span className="text-base font-bold tracking-tight text-slate-900">OTW Studios</span>
             <span className="text-[10px] font-700 uppercase tracking-widest text-slate-400">Optimise The Workflow</span>
           </a>
+          <div className="relative group hidden md:flex items-center">
+            <button className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+              Products
+              <svg className="h-3 w-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 hidden group-hover:block z-50">
+              <div className="w-60 rounded-2xl border border-slate-100 bg-white shadow-2xl p-2">
+                <a href="otw_ai_receptionist.html" className="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-amber-50 transition-colors">
+                  <span className="text-sm font-semibold text-slate-900">OTW Receptionist</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wide text-amber-600">Live</span>
+                </a>
+                <a href="otw_triageai.html" className="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-amber-50 transition-colors">
+                  <span className="text-sm font-semibold text-slate-900">OTW TriageAI</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wide text-amber-600">Live</span>
+                </a>
+                <div className="my-1.5 border-t border-slate-100"/>
+                <a href="otw_scheduling.html" className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-50">
+                  <span className="text-sm font-semibold text-slate-700">OTW Scheduling</span>
+                  <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">You're here</span>
+                </a>
+                <a href="otw_debtcollector.html" className="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-slate-50 transition-colors">
+                  <span className="text-sm font-medium text-slate-400">OTW DebtCollector</span>
+                  <span className="text-[10px] font-medium uppercase tracking-wide text-slate-300">Soon</span>
+                </a>
+                <a href="otw_reviewgenius.html" className="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-slate-50 transition-colors">
+                  <span className="text-sm font-medium text-slate-400">OTW ReviewGenius</span>
+                  <span className="text-[10px] font-medium uppercase tracking-wide text-slate-300">Soon</span>
+                </a>
+              </div>
+            </div>
+          </div>
           <a href="otw_audit.html" className="rounded-full bg-gold-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gold-600 transition-colors shadow-sm">
             Start free audit
           </a>
