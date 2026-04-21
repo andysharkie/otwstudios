@@ -989,7 +989,7 @@ function StepOutput({ data, sessionId }) {
       owner: data.ownerName,
       products: prods.join(', '),
       message: body,
-      reply_to: data.email || 'andyngo.consulting@gmail.com',
+      reply_to: data.email || 'andy@otwstudios.com.au',
     }, EJS_KEY)
     .then(()=>{ setSent(true); setSend(false); })
     .catch(()=>{ setErr('Email failed — copy the config manually below.'); setSend(false); });
@@ -1015,7 +1015,7 @@ function StepOutput({ data, sessionId }) {
       {/* Status */}
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20,flexWrap:'wrap'}}>
         {sent
-          ? <span className="sent-pill">✓ Email sent to andyngo.consulting@gmail.com</span>
+          ? <span className="sent-pill">✓ Email sent to andy@otwstudios.com.au</span>
           : sending
           ? <span style={{fontSize:13,color:'rgba(255,255,255,0.4)'}}>Sending email…</span>
           : err
