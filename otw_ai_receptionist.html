@@ -8,7 +8,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@vapi-ai/web@latest/dist/vapi.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/retell-client-js-sdk@latest/dist/index.umd.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -139,8 +139,10 @@
     const IconCal     = ({ cls }) => <Ic cls={cls}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></Ic>;
     const IconChart   = ({ cls }) => <Ic cls={cls}><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></Ic>;
 
-    const VAPI_PUBLIC_KEY = "YOUR_VAPI_PUBLIC_KEY";
-    const VAPI_ASSISTANT_ID = "YOUR_VAPI_ASSISTANT_ID";
+    // Retell web call requires a backend endpoint that calls Retell's /v2/create-web-call API
+    // and returns { access_token: "..." }. Set this to your endpoint URL when ready.
+    const RETELL_TOKEN_ENDPOINT = "YOUR_TOKEN_ENDPOINT"; // e.g. "/api/retell-token"
+    const RETELL_AGENT_ID = "YOUR_RETELL_AGENT_ID"; // from Retell dashboard
 
     const DEMO_LEAD = {
       caller: "Sarah Thompson", phone: "0412 555 018",
@@ -172,7 +174,7 @@
     }
 
     function VoiceDemo() {
-      const vapiRef = useRef(null);
+      const retellRef = useRef(null);
       const transcriptRef = useRef(null);
       const [callState, setCallState] = useState("idle");
       const [isSpeaking, setIsSpeaking] = useState(false);
@@ -181,26 +183,54 @@
       const [callStartTime, setCallStartTime] = useState(null);
 
       useEffect(() => {
-        if (typeof Vapi !== "undefined") {
-          vapiRef.current = new Vapi(VAPI_PUBLIC_KEY);
-          const v = vapiRef.current;
-          v.on("call-start", () => { setCallState("active"); setCallStartTime(Date.now()); setTranscript([]); });
-          v.on("call-end", () => { setCallState("ended"); setIsSpeaking(false); setSpeakerRole(null); });
-          v.on("speech-start", () => setIsSpeaking(true));
-          v.on("speech-end", () => { setIsSpeaking(false); setSpeakerRole(null); });
-          v.on("message", (msg) => {
-            if (msg.type === "transcript" && msg.transcriptType === "final") {
-              setSpeakerRole(msg.role);
-              setTranscript(prev => [...prev, { role: msg.role, text: msg.transcript, id: Date.now() }]);
+        if (typeof RetellWebClient !== "undefined") {
+          retellRef.current = new RetellWebClient();
+          const r = retellRef.current;
+
+          r.on("call_started", () => {
+            setCallState("active");
+            setCallStartTime(Date.now());
+            setTranscript([]);
+          });
+
+          r.on("call_ended", () => {
+            setCallState("ended");
+            setIsSpeaking(false);
+            setSpeakerRole(null);
+          });
+
+          r.on("agent_start_talking", () => {
+            setIsSpeaking(true);
+            setSpeakerRole("assistant");
+          });
+
+          r.on("agent_stop_talking", () => {
+            setIsSpeaking(false);
+            setSpeakerRole(null);
+          });
+
+          r.on("update", (update) => {
+            if (update.transcript && update.transcript.length > 0) {
+              const lastMsg = update.transcript[update.transcript.length - 1];
+              setSpeakerRole(lastMsg.role === "agent" ? "assistant" : "user");
+              setTranscript(update.transcript.map((msg, i) => ({
+                role: msg.role === "agent" ? "assistant" : "user",
+                text: msg.content,
+                id: i,
+              })));
             }
           });
-          v.on("error", (err) => {
-            if (err.error?.message?.includes("Permission denied") || err.error?.message?.includes("NotAllowedError")) {
+
+          r.on("error", (err) => {
+            const msg = err?.message || "";
+            if (msg.includes("Permission denied") || msg.includes("NotAllowedError")) {
               setCallState("mic-denied");
-            } else { setCallState("error"); }
+            } else {
+              setCallState("error");
+            }
           });
         }
-        return () => { if (vapiRef.current) vapiRef.current.stop(); };
+        return () => { if (retellRef.current) retellRef.current.stopCall(); };
       }, []);
 
       useEffect(() => {
@@ -208,17 +238,30 @@
       }, [transcript]);
 
       const startCall = useCallback(async () => {
-        setCallState("connecting"); setTranscript([]);
-        try { await vapiRef.current.start(VAPI_ASSISTANT_ID); }
-        catch (err) { setCallState("error"); }
+        setCallState("connecting");
+        setTranscript([]);
+        try {
+          // Fetch a short-lived web call access token from your backend
+          const res = await fetch(RETELL_TOKEN_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ agent_id: RETELL_AGENT_ID }),
+          });
+          if (!res.ok) throw new Error("Token endpoint error");
+          const { access_token } = await res.json();
+          await retellRef.current.startCall({ accessToken: access_token, sampleRate: 24000 });
+        } catch (err) {
+          console.error("Retell start error:", err);
+          setCallState("error");
+        }
       }, []);
 
       const endCall = useCallback(() => {
-        if (vapiRef.current) vapiRef.current.stop();
+        if (retellRef.current) retellRef.current.stopCall();
         setCallState("ended");
       }, []);
 
-      const vapiReady = typeof Vapi !== "undefined" && VAPI_PUBLIC_KEY !== "YOUR_VAPI_PUBLIC_KEY";
+      const retellReady = typeof RetellWebClient !== "undefined" && RETELL_TOKEN_ENDPOINT !== "YOUR_TOKEN_ENDPOINT";
 
       return (
         <div className="rounded-3xl border border-white/10 bg-navy-800 overflow-hidden">
@@ -250,7 +293,7 @@
                 <p className="mt-2 max-w-sm text-sm text-white/40">Use your microphone for a real conversation. Try asking about a burst pipe, a quote, or your service area.</p>
               </div>
 
-              {vapiReady ? (
+              {retellReady ? (
                 <button onClick={startCall}
                   className="pulse-ring relative flex h-20 w-20 items-center justify-center rounded-full bg-gold-500 text-white shadow-lg hover:bg-gold-600 transition-colors gold-glow">
                   <svg className="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
@@ -265,9 +308,9 @@
                 </div>
               )}
 
-              {!vapiReady && (
+              {!retellReady && (
                 <div className="rounded-2xl border border-gold-500/20 bg-gold-500/5 px-5 py-3 text-center text-xs text-gold-400 max-w-xs">
-                  Add your Vapi credentials to activate the live demo
+                  Live demo activates once the Retell token endpoint is connected
                 </div>
               )}
 
@@ -727,7 +770,7 @@
                     <p className="mt-4 text-base leading-7 text-white/50">
                       This is the actual AI Receptionist — not a recording, not a chatbot. Use your microphone and have a real conversation with the Northside Plumbing demo assistant.
                     </p>
-                    <p className="mt-4 text-sm text-white/30">Powered by Vapi · Claude · Deepgram · ElevenLabs</p>
+                    <p className="mt-4 text-sm text-white/30">Powered by Retell AI · Claude · Deepgram · ElevenLabs</p>
 
                     <div className="mt-8 space-y-3">
                       {[
@@ -820,7 +863,7 @@
                       { name: "Deepgram", role: "Speech recognition", note: "en-AU tuned" },
                       { name: "Claude", role: "AI reasoning", note: "Anthropic" },
                       { name: "ElevenLabs / Cartesia", role: "Natural voice", note: "T2 / T1" },
-                      { name: "Vapi + Twilio", role: "Call infrastructure", note: "AU numbers" },
+                      { name: "Retell AI + Twilio", role: "Call infrastructure", note: "AU numbers" },
                     ].map((t) => (
                       <div key={t.name} className="card-dark rounded-2xl p-4">
                         <div className="text-sm font-semibold text-white">{t.name}</div>
