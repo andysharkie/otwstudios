@@ -18,7 +18,7 @@
   /* Header */
   .hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.06)}
   .hdr-left{display:flex;align-items:center;gap:10px}
-  .logo-box{width:30px;height:30px;border-radius:8px;background:#F59E0B;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;color:#04080F;letter-spacing:-0.03em}
+  .logo-dot{width:8px;height:8px;border-radius:50%;background:#F59E0B;flex-shrink:0;box-shadow:0 0 6px rgba(245,158,11,0.45);}
   .logo-name{font-size:14px;font-weight:700;color:#fff}
   .tool-badge{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(245,158,11,0.12);color:#F59E0B;border:1px solid rgba(245,158,11,0.25);padding:4px 10px;border-radius:20px}
   .session-id{font-size:11px;color:rgba(255,255,255,0.2);font-family:monospace}
@@ -1123,7 +1123,7 @@ function App() {
       {/* Header */}
       <div className="hdr">
         <div className="hdr-left">
-          <div className="logo-box">OTW</div>
+          <div className="logo-dot"></div>
           <div>
             <div className="logo-name">OTW Studios</div>
           </div>

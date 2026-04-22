@@ -88,26 +88,26 @@
     .dark-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#F59E0B;cursor:pointer;box-shadow:0 0 0 4px rgba(245,158,11,0.22);border:2px solid #fff;}
     .dark-slider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#F59E0B;cursor:pointer;border:2px solid #fff;}
 
-    /* ── Calculator layout — client UI design language ── */
-    .calc-wrap{display:grid;grid-template-columns:1fr 380px;gap:0;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.10),0 0 0 1px rgba(0,0,0,0.06);}
+    /* ── Calculator layout ── */
+    .calc-wrap{display:grid;grid-template-columns:1fr 380px;gap:0;border-radius:20px;overflow:hidden;box-shadow:0 12px 60px rgba(0,0,0,0.22),0 0 0 1px rgba(255,255,255,0.06);}
     @media(max-width:860px){.calc-wrap{grid-template-columns:1fr;}}
-    /* Left panel — light surface matching client UI */
-    .calc-left{background:#F2F5FA;padding:32px 28px;overflow-y:auto;max-height:90vh;border-right:1px solid rgba(0,0,0,0.07);}
-    @media(max-width:860px){.calc-left{max-height:none;border-right:none;border-bottom:1px solid rgba(0,0,0,0.07);}}
+    /* Left panel — dark navy brand colour */
+    .calc-left{background:#0A0F1E;padding:32px 28px;overflow-y:auto;max-height:90vh;border-right:1px solid rgba(255,255,255,0.07);}
+    @media(max-width:860px){.calc-left{max-height:none;border-right:none;border-bottom:1px solid rgba(255,255,255,0.07);}}
     /* Right panel — white card with gold accent stripe */
     .calc-right{background:#ffffff;padding:32px 24px;display:flex;flex-direction:column;border-top:4px solid #F59E0B;}
     /* Section headers */
-    .calc-section-hd{display:flex;align-items:center;gap:10px;margin-bottom:14px;margin-top:22px;padding-top:18px;border-top:1px solid rgba(0,0,0,0.06);}
+    .calc-section-hd{display:flex;align-items:center;gap:10px;margin-bottom:14px;margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08);}
     .calc-section-hd:first-of-type{margin-top:0;padding-top:0;border-top:none;}
-    .calc-section-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(245,158,11,0.10);border:1px solid rgba(245,158,11,0.22);}
-    .calc-section-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.13em;color:#B45309;}
+    .calc-section-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(245,158,11,0.14);border:1px solid rgba(245,158,11,0.3);}
+    .calc-section-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.13em;color:#F59E0B;}
     .loss-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.05);}
     .loss-row:last-of-type{border-bottom:none;}
     .saving-card{background:#F2F5FA;border:1px solid rgba(0,0,0,0.07);border-radius:12px;padding:14px;margin-bottom:8px;}
-    /* Light-mode range slider */
-    .calc-left input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:3px;outline:none;cursor:pointer;background:#e2e8f0;}
-    .calc-left input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#F59E0B;cursor:pointer;box-shadow:0 0 0 4px rgba(245,158,11,0.15);border:2px solid #fff;}
-    .calc-left input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#F59E0B;cursor:pointer;border:2px solid #fff;}
+    /* Dark-bg range slider for left panel */
+    .calc-left input[type=range]{-webkit-appearance:none;width:100%;height:4px;border-radius:2px;outline:none;cursor:pointer;background:rgba(255,255,255,0.12);}
+    .calc-left input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#F59E0B;cursor:pointer;box-shadow:0 0 0 4px rgba(245,158,11,0.22);border:2px solid #0A0F1E;}
+    .calc-left input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#F59E0B;cursor:pointer;border:2px solid #0A0F1E;}
   </style>
 </head>
 <body>
@@ -189,8 +189,8 @@ function Slider({ label, hint, value, min, max, step=1, onChange, display }) {
     <div style={{marginBottom:32}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:12}}>
         <div>
-          <div style={{fontSize:14,fontWeight:600,color:'#475569'}}>{label}</div>
-          {hint && <div style={{fontSize:11,color:'#94a3b8',marginTop:2}}>{hint}</div>}
+          <div style={{fontSize:14,fontWeight:600,color:'rgba(255,255,255,0.85)'}}>{label}</div>
+          {hint && <div style={{fontSize:11,color:'rgba(255,255,255,0.38)',marginTop:2}}>{hint}</div>}
         </div>
         <div style={{fontSize:26,fontWeight:900,color:'#F59E0B',letterSpacing:'-0.02em',flexShrink:0,marginLeft:16}}>
           {display !== undefined ? display : value}
@@ -198,7 +198,7 @@ function Slider({ label, hint, value, min, max, step=1, onChange, display }) {
       </div>
       <input type="range" min={min} max={max} step={step} value={value}
         onChange={e => onChange(Number(e.target.value))}/>
-      <div style={{display:'flex',justifyContent:'space-between',marginTop:6,fontSize:10,color:'#cbd5e1'}}>
+      <div style={{display:'flex',justifyContent:'space-between',marginTop:6,fontSize:10,color:'rgba(255,255,255,0.22)'}}>
         <span>{min}</span><span>{max}</span>
       </div>
     </div>
@@ -652,20 +652,20 @@ function DSlider({ label, hint, value, min, max, step=1, onChange, display }) {
     <div style={{marginBottom:20}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:8}}>
         <div>
-          <div style={{fontSize:13,fontWeight:600,color:'#0f172a',lineHeight:1.3}}>{label}</div>
-          {hint && <div style={{fontSize:11,color:'#94a3b8',marginTop:2}}>{hint}</div>}
+          <div style={{fontSize:13,fontWeight:600,color:'rgba(255,255,255,0.85)',lineHeight:1.3}}>{label}</div>
+          {hint && <div style={{fontSize:11,color:'rgba(255,255,255,0.38)',marginTop:2}}>{hint}</div>}
         </div>
-        <div style={{fontSize:15,fontWeight:800,color:'#B45309',minWidth:80,textAlign:'right',flexShrink:0}}>{display}</div>
+        <div style={{fontSize:15,fontWeight:800,color:'#F59E0B',minWidth:80,textAlign:'right',flexShrink:0}}>{display}</div>
       </div>
       <input type="range" min={min} max={max} step={step} value={value}
         onChange={e=>onChange(Number(e.target.value))}
         style={{
-          WebkitAppearance:'none',appearance:'none',width:'100%',height:5,
-          borderRadius:3,outline:'none',cursor:'pointer',border:'none',
-          background:`linear-gradient(to right,#F59E0B ${pct}%,#e2e8f0 ${pct}%)`,
+          WebkitAppearance:'none',appearance:'none',width:'100%',height:4,
+          borderRadius:2,outline:'none',cursor:'pointer',border:'none',
+          background:`linear-gradient(to right,#F59E0B ${pct}%,rgba(255,255,255,0.12) ${pct}%)`,
         }}
       />
-      <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'#cbd5e1',marginTop:4}}>
+      <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'rgba(255,255,255,0.22)',marginTop:4}}>
         <span>{typeof min==='number'&&min>=100?'$'+min.toLocaleString('en-AU'):min}</span>
         <span>{typeof max==='number'&&max>=100?'$'+max.toLocaleString('en-AU'):max}</span>
       </div>
@@ -758,8 +758,8 @@ function CalculatorStep({ data, onNext, onBack }) {
           <DSlider label="Monthly reception / admin cost" hint="Staff time or answering service you pay for now" value={c.receptionCost} min={0} max={5000} step={100} onChange={v=>sc('receptionCost',v)} display={'$'+c.receptionCost.toLocaleString('en-AU')+'/mo'} />
 
           {/* Loss callout */}
-          <div style={{background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.2)',borderRadius:10,padding:'10px 14px',marginBottom:6,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-            <span style={{fontSize:12,color:'rgba(239,68,68,0.7)'}}>Estimated monthly missed-call revenue loss</span>
+          <div style={{background:'rgba(239,68,68,0.12)',border:'1px solid rgba(239,68,68,0.28)',borderRadius:10,padding:'10px 14px',marginBottom:6,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span style={{fontSize:12,color:'rgba(239,68,68,0.85)'}}>Estimated monthly missed-call revenue loss</span>
             <AnimCounter value={missedRevLoss} color='#ef4444' size={16}/>
           </div>
 
@@ -773,8 +773,8 @@ function CalculatorStep({ data, onNext, onBack }) {
           <DSlider label="Emails received per day" value={c.emailsPerDay} min={5} max={200} step={5} onChange={v=>sc('emailsPerDay',v)} display={c.emailsPerDay+'/day'} />
           <DSlider label="Hours spent on email per week" hint="Reading, sorting, writing replies" value={c.emailHrsPerWeek} min={1} max={40} step={1} onChange={v=>sc('emailHrsPerWeek',v)} display={c.emailHrsPerWeek+'hrs/wk'} />
           <DSlider label="Your effective billing rate" hint="What an hour of your time is actually worth" value={c.billingRate} min={50} max={300} step={5} onChange={v=>sc('billingRate',v)} display={'$'+c.billingRate+'/hr'} />
-          <div style={{background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.2)',borderRadius:10,padding:'10px 14px',marginBottom:6,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-            <span style={{fontSize:12,color:'rgba(239,68,68,0.7)'}}>Wasted billing time on email admin per month</span>
+          <div style={{background:'rgba(239,68,68,0.12)',border:'1px solid rgba(239,68,68,0.28)',borderRadius:10,padding:'10px 14px',marginBottom:6,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span style={{fontSize:12,color:'rgba(239,68,68,0.85)'}}>Wasted billing time on email admin per month</span>
             <AnimCounter value={emailWasteLoss} color='#ef4444' size={16}/>
           </div>
 
@@ -787,8 +787,8 @@ function CalculatorStep({ data, onNext, onBack }) {
           </div>
           <DSlider label="Jobs completed per week" value={c.jobsPerWeek} min={1} max={60} step={1} onChange={v=>sc('jobsPerWeek',v)} display={c.jobsPerWeek+' jobs/wk'} />
           <DSlider label="Current Google reviews" hint="Businesses with 50+ reviews get 2× more calls" value={c.currentReviews} min={0} max={200} step={1} onChange={v=>sc('currentReviews',v)} display={c.currentReviews+' reviews'} />
-          <div style={{background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.2)',borderRadius:10,padding:'10px 14px',marginBottom:6,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-            <span style={{fontSize:12,color:'rgba(239,68,68,0.7)'}}>Revenue lost monthly from low Google ranking</span>
+          <div style={{background:'rgba(239,68,68,0.12)',border:'1px solid rgba(239,68,68,0.28)',borderRadius:10,padding:'10px 14px',marginBottom:6,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span style={{fontSize:12,color:'rgba(239,68,68,0.85)'}}>Revenue lost monthly from low Google ranking</span>
             <AnimCounter value={reviewLoss} color='#ef4444' size={16}/>
           </div>
 
@@ -801,8 +801,8 @@ function CalculatorStep({ data, onNext, onBack }) {
           </div>
           <DSlider label="Overdue invoices per month" value={c.overduePerMonth} min={1} max={40} step={1} onChange={v=>sc('overduePerMonth',v)} display={c.overduePerMonth+' invoices'} />
           <DSlider label="Average invoice value" value={c.invoiceValue} min={200} max={10000} step={100} onChange={v=>sc('invoiceValue',v)} display={'$'+c.invoiceValue.toLocaleString('en-AU')} />
-          <div style={{background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.2)',borderRadius:10,padding:'10px 14px',marginBottom:6,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-            <span style={{fontSize:12,color:'rgba(239,68,68,0.7)'}}>Invoices written off or never recovered per month</span>
+          <div style={{background:'rgba(239,68,68,0.12)',border:'1px solid rgba(239,68,68,0.28)',borderRadius:10,padding:'10px 14px',marginBottom:6,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span style={{fontSize:12,color:'rgba(239,68,68,0.85)'}}>Invoices written off or never recovered per month</span>
             <AnimCounter value={debtLoss} color='#ef4444' size={16}/>
           </div>
 
@@ -819,7 +819,7 @@ function CalculatorStep({ data, onNext, onBack }) {
             <AnimCounter value={roadTimeLoss} color='#ef4444' size={16}/>
           </div>
 
-          <button onClick={onBack} style={{fontSize:12,color:'rgba(15,23,42,0.35)',background:'none',border:'none',cursor:'pointer',fontFamily:'Inter',marginBottom:4}}>← Back to business info</button>
+          <button onClick={onBack} style={{fontSize:12,color:'rgba(255,255,255,0.3)',background:'none',border:'none',cursor:'pointer',fontFamily:'Inter',marginBottom:4}}>← Back to business info</button>
         </div>
 
         {/* RIGHT — results panel */}
