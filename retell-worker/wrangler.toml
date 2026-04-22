@@ -1,0 +1,6 @@
+name = "retell-token"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# Secret is set via dashboard or: wrangler secret put RETELL_API_KEY
+# Do NOT put the actual API key here — use the Cloudflare dashboard
