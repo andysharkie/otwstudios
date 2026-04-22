@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -43,8 +45,9 @@
     .feature-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
     .feature-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
 
-    .fade-up { opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; }
-    .fade-up.visible { opacity: 1; transform: translateY(0); }
+    .fade-up { opacity: 0; transform: translateY(20px); }
+    /* ── GSAP hero entrance ── */
+    .gsap-hero-el { opacity: 0; transform: translateY(30px); }
 
     .email-row { animation: slideInRow 0.4s ease forwards; opacity: 0; }
     .email-row:nth-child(1) { animation-delay: 0.1s; }
@@ -186,21 +189,21 @@
 
         <!-- Left copy -->
         <div>
-          <div class="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-medium text-slate-500">
+          <div class="gsap-hero-el mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-medium text-slate-500">
             <span class="h-1.5 w-1.5 rounded-full bg-gold-500 animate-pulse"></span>
             Available now for trade businesses · Australia
           </div>
 
-          <h1 class="text-5xl font-bold tracking-tight text-slate-950 leading-[1.07] sm:text-6xl lg:text-6xl">
+          <h1 class="gsap-hero-el text-5xl font-bold tracking-tight text-slate-950 leading-[1.07] sm:text-6xl lg:text-6xl">
             Sort every email.<br/>Draft replies<br/>
             <span class="text-gold-600">in your voice.</span>
           </h1>
 
-          <p class="mt-7 text-lg leading-8 text-slate-500">
+          <p class="gsap-hero-el mt-7 text-lg leading-8 text-slate-500">
             A fully managed email triage system built for trade businesses. Every inbound email is read, categorised, and has a draft reply waiting — in your tone, with the right urgency.
           </p>
 
-          <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div class="gsap-hero-el mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
             <a href="otw_triageai_app.html"
               class="btn-primary rounded-full bg-slate-950 px-7 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 flex items-center gap-2">
               <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
@@ -212,7 +215,7 @@
             </a>
           </div>
 
-          <p class="mt-4 text-xs text-slate-400">No inbox access required to start · Setup in 48 hours · Fully managed by OTW</p>
+          <p class="gsap-hero-el mt-4 text-xs text-slate-400">No inbox access required to start · Setup in 48 hours · Fully managed by OTW</p>
         </div>
 
         <!-- Right — email mockup (light style) -->
@@ -538,10 +541,28 @@
   </footer>
 
   <script>
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    // ── GSAP scroll animations ──────────────────────────────
+    document.addEventListener('DOMContentLoaded', function() {
+      gsap.registerPlugin(ScrollTrigger);
+
+      // Hero entrance stagger
+      gsap.to('.gsap-hero-el', {
+        opacity: 1, y: 0, stagger: 0.11, duration: 0.85,
+        ease: 'power3.out', delay: 0.1,
+      });
+
+      // ScrollTrigger batch reveals for all fade-up elements
+      ScrollTrigger.batch('.fade-up', {
+        onEnter: function(els) {
+          gsap.to(els, {
+            opacity: 1, y: 0, stagger: 0.08, duration: 0.68,
+            ease: 'power2.out', overwrite: 'auto',
+          });
+        },
+        start: 'top 88%',
+        once: true,
+      });
+    });
   </script>
 
 </body>

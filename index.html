@@ -7,6 +7,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -67,13 +69,18 @@
     .prod-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:3px; }
     .prod-grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:3px; }
     .prod-divider { border-top:1px solid #f1f5f9; margin:12px 0 10px; }
-    /* ── Tech stack marquee ── */
-    @keyframes marquee-left { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
-    .marquee-track { display:flex; width:max-content; animation:marquee-left 36s linear infinite; }
-    .marquee-track:hover { animation-play-state:paused; }
-    .stack-chip { display:inline-flex; align-items:center; gap:10px; flex-shrink:0; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.10); border-radius:12px; padding:10px 18px; white-space:nowrap; }
-    .stack-chip-name { font-size:13px; font-weight:600; color:#fff; }
-    .stack-chip-tag { font-size:11px; color:rgba(255,255,255,0.38); font-weight:400; padding-left:8px; border-left:1px solid rgba(255,255,255,0.14); }
+    /* ── Tech stack marquee (GSAP velocity-driven) ── */
+    .marquee-track { display:flex; width:max-content; gap:14px; will-change:transform; }
+    /* ── Tech stack icon cards ── */
+    .tech-card { display:flex; flex-direction:column; align-items:center; gap:9px; padding:14px 14px 12px; border-radius:18px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); flex-shrink:0; width:86px; cursor:default; transition:background 0.2s,border-color 0.2s; }
+    .tech-card:hover { background:rgba(255,255,255,0.09); border-color:rgba(245,158,11,0.3); }
+    .tech-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+    .tech-icon img { width:28px; height:28px; display:block; }
+    .tech-name { font-size:11px; font-weight:700; color:#fff; text-align:center; line-height:1.3; }
+    .tech-tag { font-size:9.5px; color:rgba(255,255,255,0.35); text-align:center; margin-top:1px; }
+    /* ── GSAP scroll reveal ── */
+    .gsap-reveal { opacity:0; transform:translateY(40px); }
+    .gsap-hero-el { opacity:0; transform:translateY(30px); }
   </style>
 </head>
 <body class="bg-white text-slate-900 antialiased">
@@ -589,6 +596,58 @@ function App() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // ── GSAP animations ──────────────────────────────────────
+  useEffect(() => {
+    if (typeof gsap === 'undefined') return;
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Hero stagger entrance
+    const heroEls = gsap.utils.toArray('.gsap-hero-el');
+    if (heroEls.length) {
+      gsap.to(heroEls, {
+        opacity: 1, y: 0, stagger: 0.11, duration: 0.85,
+        ease: 'power3.out', delay: 0.08,
+      });
+    }
+
+    // ScrollTrigger batch reveals
+    ScrollTrigger.batch('.gsap-reveal', {
+      onEnter: els => gsap.to(els, {
+        opacity: 1, y: 0, stagger: 0.09, duration: 0.72,
+        ease: 'power2.out', overwrite: 'auto',
+      }),
+      start: 'top 88%',
+      once: true,
+    });
+
+    // Scroll-velocity–driven marquee
+    const track = document.getElementById('marquee-track');
+    if (track) {
+      // Wait one frame so layout is complete
+      requestAnimationFrame(() => {
+        const halfW = track.scrollWidth / 2;
+        let pos = 0;
+        const tickFn = () => {
+          const vel = ScrollTrigger.getVelocity() || 0;
+          // base drift left: -0.9px/frame; scroll adds velocity-scaled delta
+          pos += -0.9 - vel * 0.016;
+          if (pos < -halfW) pos += halfW;
+          if (pos > 0)      pos -= halfW;
+          gsap.set(track, { x: pos });
+        };
+        gsap.ticker.add(tickFn);
+        // Cleanup
+        track._otwTicker = tickFn;
+      });
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(t => t.kill());
+      const track = document.getElementById('marquee-track');
+      if (track && track._otwTicker) gsap.ticker.remove(track._otwTicker);
+    };
+  }, []);
+
   const navBg   = scrolled ? 'bg-navy-900/95 backdrop-blur border-white/10 shadow-lg shadow-black/20' : 'bg-white/95 backdrop-blur border-slate-200';
   const navLogo = scrolled ? 'text-white' : 'text-slate-900';
   const navSub  = scrolled ? 'text-white/40' : 'text-slate-400';
@@ -711,18 +770,18 @@ function App() {
         <section ref={heroRef} className="bg-white pt-28 pb-20 lg:pt-36 lg:pb-24">
           <div className="mx-auto max-w-7xl px-6">
             <div className="max-w-4xl">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-medium text-slate-500">
+              <div className="gsap-hero-el mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-medium text-slate-500">
                 <span className="h-1.5 w-1.5 rounded-full bg-gold-500"></span>
                 Workflow automation for Australian service businesses
               </div>
-              <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 leading-[1.07] sm:text-5xl lg:text-7xl">
+              <h1 className="gsap-hero-el text-4xl font-extrabold tracking-tight text-slate-950 leading-[1.07] sm:text-5xl lg:text-7xl">
                 Your business runs better when the admin{' '}
                 <span className="text-gold-600">runs itself.</span>
               </h1>
-              <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-500">
+              <p className="gsap-hero-el mt-7 max-w-2xl text-lg leading-8 text-slate-500">
                 OTW Studios builds AI-powered workflow tools for service businesses — starting with your phone and inbox. We configure, manage, and improve everything. You just run your business.
               </p>
-              <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="gsap-hero-el mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <a href="otw_audit.html"
                   className="rounded-full bg-gold-500 px-7 py-3.5 text-sm font-semibold text-white hover:bg-gold-600 transition-colors shadow-sm gold-glow">
                   Start your free audit
@@ -735,7 +794,7 @@ function App() {
                   Hear the AI receptionist live
                 </a>
               </div>
-              <p className="mt-4 text-xs text-slate-400">Free audit · No obligation · Setup in 48 hours · No tech skills needed</p>
+              <p className="gsap-hero-el mt-4 text-xs text-slate-400">Free audit · No obligation · Setup in 48 hours · No tech skills needed</p>
             </div>
 
             {/* Stats */}
@@ -787,40 +846,47 @@ function App() {
         <div className="section-fade"></div>
 
         {/* ── TECH STACK MARQUEE ──────────────────────────── */}
-        <section style={{background:'#060a16', borderBottom:'1px solid rgba(255,255,255,0.06)', paddingTop:'32px', paddingBottom:'32px', overflow:'hidden'}}>
-          <div style={{textAlign:'center', marginBottom:'20px'}}>
-            <p style={{fontSize:'10px', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.14em', color:'rgba(255,255,255,0.28)'}}>Technology we build on</p>
-          </div>
-          <div style={{overflow:'hidden', WebkitMaskImage:'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)', maskImage:'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)'}}>
-            <div className="marquee-track">
-              {[
-                { name:'Retell AI',       tag:'Voice AI'         },
-                { name:'ElevenLabs',      tag:'Speech synthesis' },
-                { name:'Claude AI',       tag:'Intelligence'     },
-                { name:'Make.com',        tag:'Automation'       },
-                { name:'Twilio',          tag:'Communications'   },
-                { name:'Stripe',          tag:'Payments'         },
-                { name:'Google Calendar', tag:'Scheduling'       },
-                { name:'Cloudflare',      tag:'Infrastructure'   },
-              ].concat([
-                { name:'Retell AI',       tag:'Voice AI'         },
-                { name:'ElevenLabs',      tag:'Speech synthesis' },
-                { name:'Claude AI',       tag:'Intelligence'     },
-                { name:'Make.com',        tag:'Automation'       },
-                { name:'Twilio',          tag:'Communications'   },
-                { name:'Stripe',          tag:'Payments'         },
-                { name:'Google Calendar', tag:'Scheduling'       },
-                { name:'Cloudflare',      tag:'Infrastructure'   },
-              ]).map((chip, i) => (
-                <span key={i} className="stack-chip" style={{marginRight:'12px'}}>
-                  <span className="stack-chip-name">{chip.name}</span>
-                  <span className="stack-chip-tag">{chip.tag}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-          <p style={{textAlign:'center', marginTop:'20px', fontSize:'12px', color:'rgba(255,255,255,0.22)', fontWeight:500}}>Need a custom stack? We adapt our technology to perfectly match your requirements.</p>
-        </section>
+        {(() => {
+          const techItems = [
+            { name:'Retell AI',    tag:'Voice AI',        bg:'#2D1B69', icon:null,              svg:<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> },
+            { name:'ElevenLabs',  tag:'Voice synthesis', bg:'#000000', icon:'elevenlabs',      svg:null },
+            { name:'Claude AI',   tag:'Intelligence',    bg:'#CC785C', icon:'anthropic',       svg:null },
+            { name:'Make',        tag:'Automation',      bg:'#3D0099', icon:'make',            svg:null },
+            { name:'Twilio',      tag:'Communications',  bg:'#CE0E2D', icon:'twilio',          svg:null },
+            { name:'Stripe',      tag:'Payments',        bg:'#5851EA', icon:'stripe',          svg:null },
+            { name:'Google Cal',  tag:'Scheduling',      bg:'#1A73E8', icon:'googlecalendar',  svg:null },
+            { name:'Cloudflare',  tag:'Infrastructure',  bg:'#F6821F', icon:'cloudflare',      svg:null },
+            { name:'ServiceM8',   tag:'Job Management',  bg:'#0F4C81', icon:null,              svg:<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg> },
+            { name:'Xero',        tag:'Accounting',      bg:'#13B5EA', icon:'xero',            svg:null },
+          ];
+          const doubled = [...techItems, ...techItems];
+          return (
+            <section style={{background:'#060a16', borderBottom:'1px solid rgba(255,255,255,0.06)', paddingTop:'36px', paddingBottom:'36px', overflow:'hidden'}}>
+              <div style={{textAlign:'center', marginBottom:'24px'}}>
+                <p style={{fontSize:'10px', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.14em', color:'rgba(255,255,255,0.28)'}}>Powered by industry-leading technology</p>
+              </div>
+              <div style={{overflow:'hidden', WebkitMaskImage:'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)', maskImage:'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)'}}>
+                <div id="marquee-track" className="marquee-track">
+                  {doubled.map((item, i) => (
+                    <div key={i} className="tech-card">
+                      <div className="tech-icon" style={{background:item.bg}}>
+                        {item.icon
+                          ? <img src={`https://cdn.simpleicons.org/${item.icon}/ffffff`} alt={item.name} width="28" height="28"/>
+                          : item.svg
+                        }
+                      </div>
+                      <div>
+                        <div className="tech-name">{item.name}</div>
+                        <div className="tech-tag">{item.tag}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <p style={{textAlign:'center', marginTop:'22px', fontSize:'12px', color:'rgba(255,255,255,0.22)', fontWeight:500}}>Need a custom integration? We adapt our stack to match your existing tools.</p>
+            </section>
+          );
+        })()}
 
         {/* ── PRODUCTS ────────────────────────────────────── */}
         <section id="products" className="bg-navy-900 py-24">
@@ -835,7 +901,7 @@ function App() {
             <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {products.map(p => (
                 <div key={p.name}
-                  className={`flex flex-col rounded-3xl p-7 transition-all duration-200 ${
+                  className={`gsap-reveal flex flex-col rounded-3xl p-7 transition-all duration-200 ${
                     p.highlight ? 'bg-gold-500 text-white gold-glow' : 'card-dark'
                   }`}>
                   <span className={`self-start rounded-full px-3 py-1 text-xs font-semibold ${
@@ -931,7 +997,7 @@ function App() {
             <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {industries.map(ind => (
                 <div key={ind.name}
-                  className={`flex items-center justify-between rounded-2xl border px-4 py-4 transition-all ${
+                  className={`gsap-reveal flex items-center justify-between rounded-2xl border px-4 py-4 transition-all ${
                     ind.live
                       ? 'border-gold-500/30 bg-gold-500/5 hover:bg-gold-500/10'
                       : 'border-white/5 bg-white/[0.02]'
