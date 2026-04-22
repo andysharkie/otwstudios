@@ -29,8 +29,13 @@
       }
     }
   </script>
-  <!-- Retell Web SDK — pinned to stable 2.x -->
-  <script src="https://cdn.jsdelivr.net/npm/retell-client-js-sdk@2.0.6/dist/index.umd.js" onerror="console.warn('Retell CDN failed, trying fallback'); document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://unpkg.com/retell-client-js-sdk@2.0.6/dist/index.umd.js'}))"></script>
+  <!-- Retell Web SDK — ES module import via esm.sh (avoids UMD global name issues) -->
+  <script type="module">
+    import { RetellWebClient } from 'https://esm.sh/retell-client-js-sdk@2.0.7';
+    window.RetellWebClient = RetellWebClient;
+    window._retellSdkReady = true;
+    console.log('[Retell] SDK loaded via ESM, RetellWebClient:', typeof RetellWebClient);
+  </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <style>
@@ -873,7 +878,7 @@
             </div>
             <div>
               <div class="text-sm font-semibold text-slate-900">Connection failed</div>
-              <p class="mt-2 max-w-xs text-sm text-slate-500">Couldn't connect to the demo. The Retell token endpoint may not be configured yet.</p>
+              <p class="mt-2 max-w-xs text-sm text-slate-500" id="demo-error-msg">Couldn't connect to the demo.</p>
             </div>
             <button id="demo-reset" class="rounded-2xl border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Try again</button>
           </div>
@@ -953,9 +958,16 @@
           });
 
           retellClient.on("error", (err) => {
-            const msg = (err && err.message) || "";
+            const msg = (err && err.message) || String(err) || "Unknown SDK error";
+            console.error("[Retell] SDK error event:", err);
             clearInterval(timerInterval);
-            renderDemo(msg.includes("Permission denied") || msg.includes("NotAllowedError") ? "mic-denied" : "error");
+            if (msg.includes("Permission denied") || msg.includes("NotAllowedError") || msg.includes("not allowed")) {
+              renderDemo("mic-denied");
+            } else {
+              renderDemo("error");
+              const el = document.getElementById("demo-error-msg");
+              if (el) el.textContent = "Error: " + msg;
+            }
           });
         }
 
@@ -969,9 +981,12 @@
         await retellClient.startCall({ accessToken: access_token, sampleRate: 24000 });
 
       } catch (err) {
-        console.error("Retell startCall error:", err);
+        const msg = (err && err.message) || String(err) || "Unknown error";
+        console.error("[Retell] startCall exception:", msg, err);
         clearInterval(timerInterval);
         renderDemo("error");
+        const el = document.getElementById("demo-error-msg");
+        if (el) el.textContent = "Error: " + msg;
       }
     }
 
