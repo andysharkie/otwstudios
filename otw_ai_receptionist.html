@@ -728,18 +728,9 @@
               <div class="text-base font-semibold text-slate-900">Call the AI Receptionist</div>
               <p class="mt-2 max-w-xs text-sm text-slate-500">Use your microphone for a real conversation. Ask about a burst pipe, request a quote, or check the service area.</p>
             </div>
-            ${isRetellReady() ? `
-              <button id="demo-start" class="btn-primary flex h-20 w-20 items-center justify-center rounded-full bg-slate-950 text-white shadow-lg hover:bg-slate-800 transition-colors">
-                <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-              </button>` : `
-              <div class="flex flex-col items-center gap-3">
-                <div class="flex h-20 w-20 items-center justify-center rounded-full bg-slate-200 text-slate-400">
-                  <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-                </div>
-                <div class="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-3 text-center text-xs text-amber-800 max-w-xs">
-                  Live demo activates once the Retell token endpoint is connected
-                </div>
-              </div>`}
+            <button id="demo-start" class="btn-primary flex h-20 w-20 items-center justify-center rounded-full bg-slate-950 text-white shadow-lg hover:bg-slate-800 transition-colors">
+              <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+            </button>
             <div class="flex items-center gap-5 text-xs text-slate-400">
               <span class="flex items-center gap-1.5">
                 <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>

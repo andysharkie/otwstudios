@@ -69,12 +69,18 @@
     .prod-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:3px; }
     .prod-grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:3px; }
     .prod-divider { border-top:1px solid #f1f5f9; margin:12px 0 10px; }
-    /* ── Tech stack marquee (GSAP velocity-driven) ── */
-    .marquee-track { display:flex; width:max-content; will-change:transform; }
-    /* ── Tech stack chips (matching receptionist page style) ── */
-    .stack-chip { display:inline-flex; align-items:center; gap:10px; flex-shrink:0; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); border-radius:12px; padding:10px 16px; white-space:nowrap; }
-    .stack-chip:hover { background:rgba(255,255,255,0.08); border-color:rgba(245,158,11,0.3); }
-    .stack-tag { font-size:11px; color:rgba(255,255,255,0.35); font-weight:400; padding-left:8px; border-left:1px solid rgba(255,255,255,0.12); }
+    /* ── Tech stack marquee — pure CSS infinite scroll ── */
+    @keyframes marquee-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .marquee-outer { overflow:hidden; -webkit-mask-image:linear-gradient(to right,transparent 0%,#000 9%,#000 91%,transparent 100%); mask-image:linear-gradient(to right,transparent 0%,#000 9%,#000 91%,transparent 100%); }
+    .marquee-track { display:flex; width:max-content; gap:14px; animation: marquee-scroll 38s linear infinite; will-change:transform; }
+    .marquee-track:hover { animation-play-state: paused; }
+    /* ── Tech stack chips ── */
+    .stack-chip { display:inline-flex; align-items:center; gap:10px; flex-shrink:0; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); border-radius:12px; padding:10px 18px; white-space:nowrap; transition:background 0.2s,border-color 0.2s; }
+    .stack-chip:hover { background:rgba(255,255,255,0.09); border-color:rgba(245,158,11,0.35); }
+    .stack-tag { font-size:11px; color:rgba(255,255,255,0.32); font-weight:400; padding-left:10px; border-left:1px solid rgba(255,255,255,0.1); }
     /* ── Floating badge animations ── */
     @keyframes float    { 0%,100%{transform:translateY(0)}    50%{transform:translateY(-14px)} }
     @keyframes floatAlt { 0%,100%{transform:translateY(-8px)} 50%{transform:translateY(6px)}  }
@@ -722,31 +728,10 @@ function App() {
     gsap.to('.float-b', { y:   6, duration: 4.0, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.8 });
     gsap.to('.float-c', { y:  -6, duration: 6.4, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 1.6 });
 
-    // Scroll-velocity–driven marquee
-    const track = document.getElementById('marquee-track');
-    if (track) {
-      // Wait one frame so layout is complete
-      requestAnimationFrame(() => {
-        const halfW = track.scrollWidth / 2;
-        let pos = 0;
-        const tickFn = () => {
-          const vel = ScrollTrigger.getVelocity() || 0;
-          // base drift left: -0.9px/frame; scroll adds velocity-scaled delta
-          pos += -0.9 - vel * 0.016;
-          if (pos < -halfW) pos += halfW;
-          if (pos > 0)      pos -= halfW;
-          gsap.set(track, { x: pos });
-        };
-        gsap.ticker.add(tickFn);
-        // Cleanup
-        track._otwTicker = tickFn;
-      });
-    }
+    // Marquee now handled by pure CSS animation (marquee-scroll keyframes)
 
     return () => {
       ScrollTrigger.getAll().forEach(t => t.kill());
-      const track = document.getElementById('marquee-track');
-      if (track && track._otwTicker) gsap.ticker.remove(track._otwTicker);
     };
   }, []);
 
@@ -958,42 +943,49 @@ function App() {
 
         {/* ── TECH STACK MARQUEE ──────────────────────────── */}
         {(() => {
-          // Real brand logos via SimpleIcons CDN + custom SVG fallbacks
+          // Brand logos — coloured where visible on dark, white for dark-brand logos
           const chips = [
-            { name:'Retell AI',    tag:'Voice infrastructure',  logoUrl: null,
-              icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg> },
+            { name:'Retell AI',    tag:'Voice infrastructure',   logoUrl: null,
+              icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg> },
             { name:'ElevenLabs',   tag:'Natural voice synthesis', logoUrl:'https://cdn.simpleicons.org/elevenlabs/ffffff' },
-            { name:'Claude AI',    tag:'Intelligence layer',    logoUrl:'https://cdn.simpleicons.org/anthropic/ffffff' },
-            { name:'Make.com',     tag:'Workflow automation',   logoUrl:'https://cdn.simpleicons.org/make/ffffff' },
-            { name:'Twilio',       tag:'Telephony backbone',    logoUrl:'https://cdn.simpleicons.org/twilio/ffffff' },
-            { name:'Stripe',       tag:'Payments & billing',    logoUrl:'https://cdn.simpleicons.org/stripe/ffffff' },
-            { name:'Google Cal',   tag:'Scheduling & bookings', logoUrl:'https://cdn.simpleicons.org/googlecalendar/ffffff' },
-            { name:'Cloudflare',   tag:'Edge & security',       logoUrl:'https://cdn.simpleicons.org/cloudflare/ffffff' },
-            { name:'Xero',         tag:'Accounting & invoicing',logoUrl:'https://cdn.simpleicons.org/xero/ffffff' },
-            { name:'ServiceM8',    tag:'Job management',        logoUrl: null,
-              icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg> },
+            { name:'Claude AI',    tag:'Intelligence layer',      logoUrl:'https://cdn.simpleicons.org/anthropic/ffffff' },
+            { name:'Make.com',     tag:'Workflow automation',     logoUrl:'https://cdn.simpleicons.org/make/6D00CC' },
+            { name:'Twilio',       tag:'Telephony backbone',      logoUrl:'https://cdn.simpleicons.org/twilio/F22F46' },
+            { name:'Stripe',       tag:'Payments & billing',      logoUrl:'https://cdn.simpleicons.org/stripe/635BFF' },
+            { name:'Google Cal',   tag:'Scheduling & bookings',   logoUrl:'https://cdn.simpleicons.org/googlecalendar/4285F4' },
+            { name:'Cloudflare',   tag:'Edge & security',         logoUrl:'https://cdn.simpleicons.org/cloudflare/F6821F' },
+            { name:'Xero',         tag:'Accounting & invoicing',  logoUrl:'https://cdn.simpleicons.org/xero/13B5EA' },
+            { name:'ServiceM8',    tag:'Job management',          logoUrl: null,
+              icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg> },
           ];
-          const doubled = [...chips, ...chips];
+          // Triple the chips for a seamless loop with no gap at the seam
+          const tripled = [...chips, ...chips, ...chips];
           return (
-            <section style={{background:'#060a16', borderBottom:'1px solid rgba(255,255,255,0.06)', paddingTop:'44px', paddingBottom:'44px', overflow:'hidden'}}>
-              <div style={{textAlign:'center', marginBottom:'28px'}}>
-                <p style={{fontSize:'10px', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.16em', color:'rgba(255,255,255,0.28)'}}>Built on world-class AI infrastructure</p>
+            <section style={{background:'#060a16', borderBottom:'1px solid rgba(255,255,255,0.06)', paddingTop:'60px', paddingBottom:'60px'}}>
+              {/* Heading copy */}
+              <div style={{textAlign:'center', marginBottom:'40px', padding:'0 24px'}}>
+                <p style={{fontSize:'10px', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.18em', color:'rgba(255,255,255,0.3)', marginBottom:'16px'}}>Built on world-class AI infrastructure</p>
+                <h2 style={{fontSize:'28px', fontWeight:900, letterSpacing:'-0.03em', color:'#fff', lineHeight:1.15, marginBottom:'12px', maxWidth:'560px', margin:'0 auto 12px'}}>We adapt our technology to perfectly<br/>match your trade business</h2>
+                <p style={{fontSize:'14px', color:'rgba(255,255,255,0.38)', maxWidth:'480px', margin:'0 auto', lineHeight:1.7}}>Every OTW system is purpose-built for your industry — your services, your call flows, your clients. Not a generic chatbot.</p>
               </div>
-              <div style={{overflow:'hidden', WebkitMaskImage:'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)', maskImage:'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)'}}>
-                <div id="marquee-track" className="marquee-track" style={{gap:14}}>
-                  {doubled.map((chip, i) => (
-                    <div key={i} className="stack-chip" style={{gap:10}}>
+
+              {/* Scrolling marquee */}
+              <div className="marquee-outer">
+                <div className="marquee-track">
+                  {tripled.map((chip, i) => (
+                    <div key={i} className="stack-chip">
                       {chip.logoUrl
-                        ? <img src={chip.logoUrl} alt={chip.name} style={{width:18,height:18,objectFit:'contain',flexShrink:0,display:'block'}} />
+                        ? <img src={chip.logoUrl} alt={chip.name} style={{width:20,height:20,objectFit:'contain',flexShrink:0,display:'block'}} />
                         : chip.icon
                       }
-                      <span style={{fontSize:13,fontWeight:600,color:'rgba(255,255,255,0.9)'}}>{chip.name}</span>
+                      <span style={{fontSize:13,fontWeight:700,color:'rgba(255,255,255,0.88)'}}>{chip.name}</span>
                       <span className="stack-tag">{chip.tag}</span>
                     </div>
                   ))}
                 </div>
               </div>
-              <p style={{textAlign:'center', marginTop:'24px', fontSize:'12px', color:'rgba(255,255,255,0.22)', fontWeight:500}}>Need a custom integration? We adapt our stack to match your existing tools.</p>
+
+              <p style={{textAlign:'center', marginTop:'28px', fontSize:'12px', color:'rgba(255,255,255,0.2)', fontWeight:500}}>Need a custom integration? We adapt our stack to match your existing tools.</p>
             </section>
           );
         })()}
