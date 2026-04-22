@@ -48,6 +48,11 @@
     .dark-section .feature-card { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.08); }
     .dark-section .feature-card:hover { box-shadow:0 8px 24px rgba(0,0,0,0.3); }
     .section-fade { background: linear-gradient(180deg, #ffffff 0%, #020811 100%); height: 90px; margin-top: -1px; pointer-events:none; }
+    @keyframes triageMarquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+    .integration-pill { display:inline-flex;align-items:center;gap:9px;flex-shrink:0;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:9px 16px;white-space:nowrap;transition:background 0.2s,border-color 0.2s; }
+    .integration-pill:hover { background:rgba(255,255,255,0.07);border-color:rgba(245,158,11,0.3); }
+    .integration-pill span:first-of-type { font-size:12.5px;font-weight:700;color:rgba(255,255,255,0.85); }
+    .integration-tag { font-size:10.5px;color:rgba(255,255,255,0.28);font-weight:400;padding-left:9px;border-left:1px solid rgba(255,255,255,0.1); }
 
     .fade-up { opacity: 0; transform: translateY(20px); }
     /* ── GSAP hero entrance ── */
@@ -569,6 +574,43 @@
           <p class="text-sm text-white/50 leading-relaxed">No software to learn. OTW configures, monitors, and fine-tunes everything on your behalf.</p>
         </div>
 
+      </div>
+    </div>
+  </section>
+
+  <!-- ── INTEGRATIONS ── -->
+  <section class="dark-section border-t border-white/5 py-20">
+    <div class="mx-auto max-w-7xl px-6">
+      <div class="max-w-2xl mb-10 fade-up text-center mx-auto">
+        <p class="text-xs font-semibold uppercase tracking-widest text-white/40">Built on world-class infrastructure</p>
+        <h2 class="mt-3 text-2xl font-bold tracking-tight text-white">Connects to Gmail. Learns your voice. Syncs with your tools.</h2>
+      </div>
+      <div style="overflow:hidden;-webkit-mask-image:linear-gradient(to right,transparent 0%,#000 8%,#000 92%,transparent 100%);mask-image:linear-gradient(to right,transparent 0%,#000 8%,#000 92%,transparent 100%)">
+        <div class="triage-marquee-track" style="display:flex;width:max-content;gap:12px;animation:triageMarquee 34s linear infinite">
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/googlegmail/EA4335" alt="Gmail" style="width:16px;height:16px;object-fit:contain"><span>Gmail</span><span class="integration-tag">Email source</span></div>
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/google/4285F4" alt="Gemini" style="width:16px;height:16px;object-fit:contain"><span>Gemini 2.0</span><span class="integration-tag">AI triage &amp; drafts</span></div>
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/supabase/3ECF8E" alt="Supabase" style="width:16px;height:16px;object-fit:contain"><span>Supabase</span><span class="integration-tag">Database</span></div>
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/stripe/635BFF" alt="Stripe" style="width:16px;height:16px;object-fit:contain"><span>Stripe</span><span class="integration-tag">Billing</span></div>
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/xero/13B5EA" alt="Xero" style="width:16px;height:16px;object-fit:contain"><span>Xero</span><span class="integration-tag">Invoicing</span></div>
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/vercel/000000" alt="Vercel" style="width:16px;height:16px;object-fit:contain;filter:invert(1)"><span>Vercel</span><span class="integration-tag">Hosting</span></div>
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/make/6D00CC" alt="Make" style="width:16px;height:16px;object-fit:contain"><span>Make.com</span><span class="integration-tag">Automation</span></div>
+          <!-- duplicate -->
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/googlegmail/EA4335" alt="Gmail" style="width:16px;height:16px;object-fit:contain"><span>Gmail</span><span class="integration-tag">Email source</span></div>
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/google/4285F4" alt="Gemini" style="width:16px;height:16px;object-fit:contain"><span>Gemini 2.0</span><span class="integration-tag">AI triage &amp; drafts</span></div>
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/supabase/3ECF8E" alt="Supabase" style="width:16px;height:16px;object-fit:contain"><span>Supabase</span><span class="integration-tag">Database</span></div>
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/stripe/635BFF" alt="Stripe" style="width:16px;height:16px;object-fit:contain"><span>Stripe</span><span class="integration-tag">Billing</span></div>
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/xero/13B5EA" alt="Xero" style="width:16px;height:16px;object-fit:contain"><span>Xero</span><span class="integration-tag">Invoicing</span></div>
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/vercel/000000" alt="Vercel" style="width:16px;height:16px;object-fit:contain;filter:invert(1)"><span>Vercel</span><span class="integration-tag">Hosting</span></div>
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/make/6D00CC" alt="Make" style="width:16px;height:16px;object-fit:contain"><span>Make.com</span><span class="integration-tag">Automation</span></div>
+          <!-- duplicate again -->
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/googlegmail/EA4335" alt="Gmail" style="width:16px;height:16px;object-fit:contain"><span>Gmail</span><span class="integration-tag">Email source</span></div>
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/google/4285F4" alt="Gemini" style="width:16px;height:16px;object-fit:contain"><span>Gemini 2.0</span><span class="integration-tag">AI triage &amp; drafts</span></div>
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/supabase/3ECF8E" alt="Supabase" style="width:16px;height:16px;object-fit:contain"><span>Supabase</span><span class="integration-tag">Database</span></div>
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/stripe/635BFF" alt="Stripe" style="width:16px;height:16px;object-fit:contain"><span>Stripe</span><span class="integration-tag">Billing</span></div>
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/xero/13B5EA" alt="Xero" style="width:16px;height:16px;object-fit:contain"><span>Xero</span><span class="integration-tag">Invoicing</span></div>
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/vercel/000000" alt="Vercel" style="width:16px;height:16px;object-fit:contain;filter:invert(1)"><span>Vercel</span><span class="integration-tag">Hosting</span></div>
+          <div class="integration-pill"><img src="https://cdn.simpleicons.org/make/6D00CC" alt="Make" style="width:16px;height:16px;object-fit:contain"><span>Make.com</span><span class="integration-tag">Automation</span></div>
+        </div>
       </div>
     </div>
   </section>
