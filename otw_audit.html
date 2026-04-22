@@ -55,6 +55,25 @@
     ::-webkit-scrollbar{width:4px;}
     ::-webkit-scrollbar-track{background:transparent;}
     ::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:2px;}
+
+    /* Dark-panel range slider override */
+    .dark-slider{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;outline:none;cursor:pointer;border:none;}
+    .dark-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#F59E0B;cursor:pointer;box-shadow:0 0 0 4px rgba(245,158,11,0.22);border:2px solid #fff;}
+    .dark-slider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#F59E0B;cursor:pointer;border:2px solid #fff;}
+
+    /* Calculator layout */
+    .calc-wrap{display:grid;grid-template-columns:1fr 380px;gap:0;border-radius:24px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.3);}
+    @media(max-width:860px){.calc-wrap{grid-template-columns:1fr;}}
+    .calc-left{background:#060d1a;padding:32px 28px;overflow-y:auto;max-height:90vh;}
+    @media(max-width:860px){.calc-left{max-height:none;}}
+    .calc-right{background:linear-gradient(160deg,#0d0838 0%,#1e0a3c 45%,#3b1060 100%);padding:32px 24px;display:flex;flex-direction:column;}
+    .calc-section-hd{display:flex;align-items:center;gap:10px;margin-bottom:16px;margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.07);}
+    .calc-section-hd:first-of-type{margin-top:0;padding-top:0;border-top:none;}
+    .calc-section-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .calc-section-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.5);}
+    .loss-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+    .loss-row:last-of-type{border-bottom:none;}
+    .saving-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px;margin-bottom:10px;}
   </style>
 </head>
 <body>
@@ -567,104 +586,256 @@ function Results({ data, loss }) {
   );
 }
 
-// ── OTW RECEPTIONIST SAVINGS CALCULATOR ─────────────
-function CalculatorStep({ data, loss, onNext, onBack }) {
+// ── PRO PLAN DARK SLIDER ─────────────────────────────
+function DSlider({ label, hint, value, min, max, step=1, onChange, display }) {
+  const pct = ((value - min) / (max - min)) * 100;
+  return (
+    <div style={{marginBottom:22}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:7}}>
+        <div>
+          <div style={{fontSize:13,fontWeight:600,color:'rgba(255,255,255,0.82)',lineHeight:1.3}}>{label}</div>
+          {hint && <div style={{fontSize:11,color:'rgba(255,255,255,0.32)',marginTop:2}}>{hint}</div>}
+        </div>
+        <div style={{fontSize:15,fontWeight:800,color:'#F59E0B',minWidth:80,textAlign:'right',flexShrink:0}}>{display}</div>
+      </div>
+      <input type="range" className="dark-slider" min={min} max={max} step={step} value={value}
+        onChange={e=>onChange(Number(e.target.value))}
+        style={{background:`linear-gradient(to right,#F59E0B ${pct}%,rgba(255,255,255,0.1) ${pct}%)`}}
+      />
+      <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'rgba(255,255,255,0.2)',marginTop:4}}>
+        <span>{typeof min==='number'&&min>=100?'$'+min.toLocaleString('en-AU'):min}</span>
+        <span>{typeof max==='number'&&max>=100?'$'+max.toLocaleString('en-AU'):max}</span>
+      </div>
+    </div>
+  );
+}
+
+// ── PRO PLAN COMPREHENSIVE CALCULATOR ────────────────
+function CalculatorStep({ data, onNext, onBack }) {
   const [c, setC] = React.useState({
-    callsPerWeek:   data.callsPerWeek  || 40,
-    missedPct:      Math.min(75, Math.max(5, Math.round(((data.missedCalls||6)/(data.callsPerWeek||20))*100))),
-    jobValue:       data.avgJobValue   || 800,
-    adminHrs:       Math.round((data.adminHours||8)*4.3),
-    receptionCost:  1500,
+    // AI Receptionist
+    callsPerWeek:    Math.max(20, data.callsPerWeek||40),
+    missedPct:       35,
+    jobValue:        data.avgJobValue||800,
+    receptionCost:   1500,
+    // TriageAI — Email & Admin
+    emailsPerDay:    30,
+    emailHrsPerWeek: 8,
+    billingRate:     95,
+    // ReviewGenius
+    jobsPerWeek:     12,
+    currentReviews:  14,
+    // DebtCollector
+    overduePerMonth: 6,
+    invoiceValue:    1400,
+    // Scheduling — time on road
+    roadHrsPerDay:   2,
   });
-  function sc(k, v) { setC(p => ({...p, [k]: v})); }
+  const sc = (k,v) => setC(p=>({...p,[k]:v}));
 
-  const OTW_FEE = 499;
-  const callsPerMonth  = Math.round(c.callsPerWeek * 4.3);
-  const missedPerMonth = Math.round(callsPerMonth * (c.missedPct / 100));
-  const recovered      = Math.round(missedPerMonth * c.jobValue * 0.35);
-  const afterHours     = Math.round(callsPerMonth * 0.28 * c.jobValue * 0.18);
-  const adminSaved     = Math.round(c.adminHrs * 75);
-  const gross          = recovered + afterHours + adminSaved + c.receptionCost;
-  const net            = gross - OTW_FEE;
-  const annualNet      = net * 12;
-  const roi            = OTW_FEE > 0 ? Math.round(net / OTW_FEE) : 0;
+  const OTW_PRO = 499;
 
-  const card = {background:'#fff',border:'1px solid #e2e8f0',borderRadius:20,padding:'28px 24px',boxShadow:'0 2px 16px rgba(0,0,0,0.05)'};
+  // What they're LOSING each month
+  const callsPerMonth   = Math.round(c.callsPerWeek * 4.3);
+  const missedPerMonth  = Math.round(callsPerMonth * c.missedPct / 100);
+  const missedRevLoss   = Math.round(missedPerMonth * c.jobValue * 0.42);
+  const emailWasteLoss  = Math.round(c.emailHrsPerWeek * 4.3 * c.billingRate * 0.65);
+  const reviewLoss      = c.currentReviews < 40 ? Math.round(c.jobsPerWeek * 4.3 * c.jobValue * 0.11) : Math.round(c.jobsPerWeek * 4.3 * c.jobValue * 0.04);
+  const debtLoss        = Math.round(c.overduePerMonth * c.invoiceValue * 0.18);
+  const roadTimeLoss    = Math.round(c.roadHrsPerDay * 22 * c.billingRate * 0.4);
+  const totalLoss       = missedRevLoss + emailWasteLoss + reviewLoss + debtLoss + roadTimeLoss;
+
+  // What OTW Pro recovers
+  const recReception  = Math.round(missedRevLoss * 0.72 + c.receptionCost);
+  const recEmail      = Math.round(emailWasteLoss * 0.58);
+  const recReviews    = Math.round(reviewLoss * 0.75);
+  const recDebt       = Math.round(debtLoss * 0.80);
+  const recRoad       = Math.round(roadTimeLoss * 0.50);
+  const totalRecovery = recReception + recEmail + recReviews + recDebt + recRoad;
+  const netGain       = totalRecovery - OTW_PRO;
+  const annualImpact  = netGain * 12;
+  const roi           = Math.max(1, Math.round(totalRecovery / OTW_PRO));
+
+  const sectionIcon = (bg, icon) => (
+    <div className="calc-section-icon" style={{background:bg}}>{icon}</div>
+  );
 
   return (
-    <div className="fade-up" style={card}>
-      <div style={{marginBottom:28}}>
-        <div style={{display:'inline-flex',alignItems:'center',gap:8,background:'rgba(245,158,11,0.08)',border:'1px solid rgba(245,158,11,0.22)',borderRadius:50,padding:'6px 16px',marginBottom:14}}>
+    <div className="fade-up">
+      {/* Header above calculator */}
+      <div style={{textAlign:'center',marginBottom:28,padding:'0 8px'}}>
+        <div style={{display:'inline-flex',alignItems:'center',gap:8,background:'rgba(245,158,11,0.09)',border:'1px solid rgba(245,158,11,0.22)',borderRadius:50,padding:'6px 18px',marginBottom:14}}>
           <div style={{width:6,height:6,borderRadius:'50%',background:'#F59E0B',animation:'pulse 1.5s ease infinite'}}/>
-          <span style={{fontSize:9,fontWeight:800,color:'#b45309',textTransform:'uppercase',letterSpacing:'0.14em'}}>Your OTW ROI</span>
+          <span style={{fontSize:9,fontWeight:800,color:'#b45309',textTransform:'uppercase',letterSpacing:'0.14em'}}>Your Pro Plan ROI</span>
         </div>
-        <h2 style={{fontSize:24,fontWeight:800,color:'#0f172a',letterSpacing:'-0.02em',marginBottom:6}}>Calculate your Receptionist savings</h2>
-        <p style={{fontSize:14,color:'#94a3b8',lineHeight:1.6}}>Based on your numbers — adjust the sliders to see exactly how OTW AI Receptionist pays for itself.</p>
+        <h2 style={{fontSize:28,fontWeight:900,color:'#0f172a',letterSpacing:'-0.03em',lineHeight:1.1,marginBottom:8}}>
+          Calculate what you're losing — and what OTW recovers
+        </h2>
+        <p style={{fontSize:14,color:'#64748b',lineHeight:1.6,maxWidth:500,margin:'0 auto'}}>
+          Adjust the sliders to match your business. See exactly how much OTW Pro pays for itself across every product.
+        </p>
       </div>
 
-      <Slider label="Calls per week" hint="Total inbound calls your business receives"
-        value={c.callsPerWeek} min={10} max={300} step={5} onChange={v=>sc('callsPerWeek',v)}
-        display={c.callsPerWeek+' calls/wk'} />
+      {/* Two-panel calculator */}
+      <div className="calc-wrap">
 
-      <Slider label="Currently missed" hint="What % of calls go unanswered today"
-        value={c.missedPct} min={5} max={75} step={5} onChange={v=>sc('missedPct',v)}
-        display={c.missedPct+'%'} />
+        {/* LEFT — sliders */}
+        <div className="calc-left">
 
-      <Slider label="Average job value" hint="What a booked job is worth to your business"
-        value={c.jobValue} min={100} max={5000} step={50} onChange={v=>sc('jobValue',v)}
-        display={'$'+c.jobValue.toLocaleString('en-AU')} />
-
-      <Slider label="Admin hours on phones per month" hint="Staff time spent on call intake and follow-up"
-        value={c.adminHrs} min={4} max={100} step={2} onChange={v=>sc('adminHrs',v)}
-        display={c.adminHrs+' hrs/mo'} />
-
-      <Slider label="Current reception / admin cost" hint="What you spend monthly on phone answering today"
-        value={c.receptionCost} min={0} max={5000} step={100} onChange={v=>sc('receptionCost',v)}
-        display={'$'+c.receptionCost.toLocaleString('en-AU')+'/mo'} />
-
-      {/* Dark results panel */}
-      <div style={{background:'#0f172a',borderRadius:16,padding:'24px 20px',marginBottom:20,marginTop:8}}>
-        <div style={{fontSize:10,fontWeight:800,color:'rgba(245,158,11,0.5)',textTransform:'uppercase',letterSpacing:'0.14em',marginBottom:18}}>Monthly savings breakdown</div>
-        {[
-          ['Missed call revenue recovered', recovered],
-          ['After-hours calls captured', afterHours],
-          ['Admin time freed ($75/hr)', adminSaved],
-          ['Reception cost eliminated', c.receptionCost],
-        ].map(([label, value]) => (
-          <div key={label} style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
-            <span style={{fontSize:13,color:'rgba(255,255,255,0.55)'}}>{label}</span>
-            <span style={{fontSize:14,fontWeight:700,color:'#fff'}}>{fmt(value)}</span>
-          </div>
-        ))}
-        <div style={{borderTop:'1px solid rgba(255,255,255,0.07)',padding:'10px 0 4px'}}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-            <span style={{fontSize:13,color:'rgba(255,255,255,0.35)'}}>Less: OTW monthly investment</span>
-            <span style={{fontSize:14,fontWeight:700,color:'rgba(239,68,68,0.65)'}}>−{fmt(OTW_FEE)}</span>
-          </div>
-        </div>
-        <div style={{background:'rgba(245,158,11,0.08)',border:'1px solid rgba(245,158,11,0.2)',borderRadius:12,padding:'16px 18px',marginTop:14}}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
-            <div>
-              <div style={{fontSize:10,fontWeight:800,color:'rgba(245,158,11,0.5)',textTransform:'uppercase',letterSpacing:'0.12em',marginBottom:4}}>Net monthly gain</div>
-              <div style={{fontSize:38,fontWeight:900,color:'#F59E0B',letterSpacing:'-0.03em'}}>{fmt(Math.max(0,net))}</div>
-              <div style={{fontSize:12,color:'rgba(245,158,11,0.4)',marginTop:2}}>{fmt(Math.max(0,annualNet))} per year</div>
-            </div>
-            {roi > 0 && (
-              <div style={{textAlign:'center',background:'rgba(245,158,11,0.12)',borderRadius:10,padding:'10px 14px',flexShrink:0}}>
-                <div style={{fontSize:24,fontWeight:900,color:'#F59E0B'}}>{roi}×</div>
-                <div style={{fontSize:9,fontWeight:700,color:'rgba(245,158,11,0.5)',textTransform:'uppercase',letterSpacing:'0.1em'}}>ROI</div>
-              </div>
+          {/* ── AI RECEPTIONIST ── */}
+          <div className="calc-section-hd">
+            {sectionIcon('rgba(245,158,11,0.18)',
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 014.69 11a19.79 19.79 0 01-3.07-8.67A2 2 0 013.6 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.91 8.09a16 16 0 006 6l1.46-1.45a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
             )}
+            <span className="calc-section-label">AI Receptionist — Missed calls</span>
+          </div>
+          <DSlider label="Calls received per week" value={c.callsPerWeek} min={10} max={300} step={5} onChange={v=>sc('callsPerWeek',v)} display={c.callsPerWeek+' calls/wk'} />
+          <DSlider label="Calls currently missed or unanswered" hint="When you're on-site, on a job, or after hours" value={c.missedPct} min={5} max={80} step={5} onChange={v=>sc('missedPct',v)} display={c.missedPct+'%'} />
+          <DSlider label="Average job value" hint="What a typical booked job earns" value={c.jobValue} min={100} max={5000} step={50} onChange={v=>sc('jobValue',v)} display={'$'+c.jobValue.toLocaleString('en-AU')} />
+          <DSlider label="Monthly reception / admin cost" hint="Staff time or answering service you pay for now" value={c.receptionCost} min={0} max={5000} step={100} onChange={v=>sc('receptionCost',v)} display={'$'+c.receptionCost.toLocaleString('en-AU')+'/mo'} />
+
+          {/* Loss callout */}
+          <div style={{background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.2)',borderRadius:10,padding:'10px 14px',marginBottom:6,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span style={{fontSize:12,color:'rgba(239,68,68,0.7)'}}>Estimated monthly missed-call revenue loss</span>
+            <AnimCounter value={missedRevLoss} color='#ef4444' size={16}/>
+          </div>
+
+          {/* ── TRIAEGI / EMAIL ── */}
+          <div className="calc-section-hd">
+            {sectionIcon('rgba(99,102,241,0.18)',
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
+            )}
+            <span className="calc-section-label">TriageAI — Email & admin waste</span>
+          </div>
+          <DSlider label="Emails received per day" value={c.emailsPerDay} min={5} max={200} step={5} onChange={v=>sc('emailsPerDay',v)} display={c.emailsPerDay+'/day'} />
+          <DSlider label="Hours spent on email per week" hint="Reading, sorting, writing replies" value={c.emailHrsPerWeek} min={1} max={40} step={1} onChange={v=>sc('emailHrsPerWeek',v)} display={c.emailHrsPerWeek+'hrs/wk'} />
+          <DSlider label="Your effective billing rate" hint="What an hour of your time is actually worth" value={c.billingRate} min={50} max={300} step={5} onChange={v=>sc('billingRate',v)} display={'$'+c.billingRate+'/hr'} />
+          <div style={{background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.2)',borderRadius:10,padding:'10px 14px',marginBottom:6,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span style={{fontSize:12,color:'rgba(239,68,68,0.7)'}}>Wasted billing time on email admin per month</span>
+            <AnimCounter value={emailWasteLoss} color='#ef4444' size={16}/>
+          </div>
+
+          {/* ── REVIEW GENIUS ── */}
+          <div className="calc-section-hd">
+            {sectionIcon('rgba(245,158,11,0.18)',
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            )}
+            <span className="calc-section-label">ReviewGenius — Google ranking loss</span>
+          </div>
+          <DSlider label="Jobs completed per week" value={c.jobsPerWeek} min={1} max={60} step={1} onChange={v=>sc('jobsPerWeek',v)} display={c.jobsPerWeek+' jobs/wk'} />
+          <DSlider label="Current Google reviews" hint="Businesses with 50+ reviews get 2× more calls" value={c.currentReviews} min={0} max={200} step={1} onChange={v=>sc('currentReviews',v)} display={c.currentReviews+' reviews'} />
+          <div style={{background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.2)',borderRadius:10,padding:'10px 14px',marginBottom:6,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span style={{fontSize:12,color:'rgba(239,68,68,0.7)'}}>Revenue lost monthly from low Google ranking</span>
+            <AnimCounter value={reviewLoss} color='#ef4444' size={16}/>
+          </div>
+
+          {/* ── DEBT COLLECTOR ── */}
+          <div className="calc-section-hd">
+            {sectionIcon('rgba(34,197,94,0.14)',
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            )}
+            <span className="calc-section-label">DebtCollector — Unpaid invoices</span>
+          </div>
+          <DSlider label="Overdue invoices per month" value={c.overduePerMonth} min={1} max={40} step={1} onChange={v=>sc('overduePerMonth',v)} display={c.overduePerMonth+' invoices'} />
+          <DSlider label="Average invoice value" value={c.invoiceValue} min={200} max={10000} step={100} onChange={v=>sc('invoiceValue',v)} display={'$'+c.invoiceValue.toLocaleString('en-AU')} />
+          <div style={{background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.2)',borderRadius:10,padding:'10px 14px',marginBottom:6,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span style={{fontSize:12,color:'rgba(239,68,68,0.7)'}}>Invoices written off or never recovered per month</span>
+            <AnimCounter value={debtLoss} color='#ef4444' size={16}/>
+          </div>
+
+          {/* ── SCHEDULING ── */}
+          <div className="calc-section-hd">
+            {sectionIcon('rgba(56,189,248,0.14)',
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            )}
+            <span className="calc-section-label">Scheduling — Road & admin time</span>
+          </div>
+          <DSlider label="Hours spent driving / non-billable per day" hint="Inefficient routing, travel between jobs" value={c.roadHrsPerDay} min={0.5} max={6} step={0.5} onChange={v=>sc('roadHrsPerDay',v)} display={c.roadHrsPerDay+'hrs/day'} />
+          <div style={{background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.2)',borderRadius:10,padding:'10px 14px',marginBottom:24,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span style={{fontSize:12,color:'rgba(239,68,68,0.7)'}}>Non-billable road time lost per month</span>
+            <AnimCounter value={roadTimeLoss} color='#ef4444' size={16}/>
+          </div>
+
+          <button onClick={onBack} style={{fontSize:12,color:'rgba(255,255,255,0.3)',background:'none',border:'none',cursor:'pointer',fontFamily:'Inter',marginBottom:4}}>← Back to business info</button>
+        </div>
+
+        {/* RIGHT — results panel */}
+        <div className="calc-right">
+          <div style={{fontSize:10,fontWeight:800,textTransform:'uppercase',letterSpacing:'0.14em',color:'rgba(255,255,255,0.3)',marginBottom:20}}>Your monthly picture</div>
+
+          {/* Total loss */}
+          <div style={{marginBottom:20}}>
+            <div style={{fontSize:12,color:'rgba(239,68,68,0.6)',marginBottom:6,fontWeight:600}}>Without OTW — monthly loss</div>
+            <div style={{fontSize:48,fontWeight:900,color:'#ef4444',letterSpacing:'-0.035em',lineHeight:1}}>
+              <AnimCounter value={totalLoss} color='#ef4444' size={46}/>
+            </div>
+            <div style={{fontSize:11,color:'rgba(255,255,255,0.25)',marginTop:4}}>
+              <AnimCounter value={totalLoss*12} color='rgba(239,68,68,0.45)' size={12}/> per year walking out the door
+            </div>
+          </div>
+
+          <div style={{borderTop:'1px solid rgba(255,255,255,0.08)',marginBottom:20}}/>
+
+          {/* What OTW recovers */}
+          <div style={{fontSize:12,color:'rgba(245,158,11,0.7)',marginBottom:14,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em'}}>With OTW Pro — recovered</div>
+
+          {[
+            ['AI Receptionist',  recReception, '#F59E0B'],
+            ['TriageAI',         recEmail,     '#818cf8'],
+            ['ReviewGenius',     recReviews,   '#F59E0B'],
+            ['DebtCollector',    recDebt,      '#4ade80'],
+            ['Scheduling',       recRoad,      '#38bdf8'],
+          ].map(([label, val, color]) => (
+            <div key={label} className="loss-row">
+              <span style={{fontSize:12,color:'rgba(255,255,255,0.5)'}}>{label}</span>
+              <AnimCounter value={val} color={color} size={14}/>
+            </div>
+          ))}
+
+          <div style={{borderTop:'1px solid rgba(255,255,255,0.08)',margin:'14px 0'}}/>
+
+          {/* Net gain */}
+          <div className="saving-card" style={{background:'rgba(245,158,11,0.09)',border:'1px solid rgba(245,158,11,0.22)'}}>
+            <div style={{fontSize:10,fontWeight:800,color:'rgba(245,158,11,0.5)',textTransform:'uppercase',letterSpacing:'0.12em',marginBottom:6}}>Net monthly gain</div>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end'}}>
+              <AnimCounter value={Math.max(0,netGain)} color='#F59E0B' size={38}/>
+              <div style={{textAlign:'center',background:'rgba(245,158,11,0.14)',borderRadius:10,padding:'8px 12px'}}>
+                <div style={{fontSize:22,fontWeight:900,color:'#F59E0B'}}>{roi}×</div>
+                <div style={{fontSize:9,fontWeight:700,color:'rgba(245,158,11,0.45)',textTransform:'uppercase',letterSpacing:'0.1em'}}>ROI</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="saving-card">
+            <div style={{fontSize:11,color:'rgba(255,255,255,0.4)',marginBottom:4}}>Total yearly impact</div>
+            <AnimCounter value={Math.max(0,annualImpact)} color='#fff' size={28}/>
+          </div>
+
+          <div className="saving-card">
+            <div style={{fontSize:11,color:'rgba(255,255,255,0.4)',marginBottom:4}}>OTW Pro investment</div>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <div style={{fontSize:24,fontWeight:800,color:'rgba(255,255,255,0.85)'}}>$499<span style={{fontSize:13,fontWeight:500,color:'rgba(255,255,255,0.3)'}}>/mo</span></div>
+              <div style={{fontSize:11,color:'rgba(245,158,11,0.6)',fontWeight:600}}>vs {fmt(totalLoss)}/mo in losses</div>
+            </div>
+          </div>
+
+          <div style={{marginTop:'auto',paddingTop:20}}>
+            <button onClick={onNext} style={{
+              width:'100%',background:'#F59E0B',color:'#04080F',border:'none',
+              borderRadius:50,padding:'16px 24px',fontSize:15,fontWeight:900,
+              cursor:'pointer',fontFamily:'Inter',letterSpacing:'-0.01em',
+              boxShadow:'0 0 40px rgba(245,158,11,0.3)',transition:'transform 0.15s,box-shadow 0.15s',
+            }}
+              onMouseEnter={e=>{e.target.style.transform='scale(1.02)';e.target.style.boxShadow='0 0 60px rgba(245,158,11,0.45)';}}
+              onMouseLeave={e=>{e.target.style.transform='scale(1)';e.target.style.boxShadow='0 0 40px rgba(245,158,11,0.3)';}}
+            >
+              Start my 30-day free trial →
+            </button>
+            <div style={{textAlign:'center',marginTop:10,fontSize:11,color:'rgba(255,255,255,0.2)'}}>
+              No credit card · No setup fee · Live in 48 hours
+            </div>
           </div>
         </div>
-        <div style={{marginTop:12,fontSize:11,color:'rgba(255,255,255,0.2)',textAlign:'center'}}>
-          Fully managed by OTW · No tech skills needed · Live in 48 hrs
-        </div>
-      </div>
-
-      <div style={{display:'flex',gap:10}}>
-        <Btn onClick={onBack} ghost>← Back</Btn>
-        <Btn onClick={onNext}>See my full audit report →</Btn>
       </div>
     </div>
   );
@@ -672,26 +843,21 @@ function CalculatorStep({ data, loss, onNext, onBack }) {
 
 // ── APP ───────────────────────────────────────────────
 function App() {
-  const TOTAL = 5;
+  const TOTAL = 3; // Business · Calculator · Contact
   const [step, setStep] = useState(0);
   const [data, setData] = useState({
     name:'', businessName:'', industry:'', suburb:'',
-    callsPerWeek:20, missedCalls:6, avgJobValue:800,
-    quotesPerWeek:8, deadQuotes:3,
-    adminHours:8,
+    callsPerWeek:40, avgJobValue:800,
     email:'', phone:'',
   });
 
-  const loss = calcLoss(data);
+  const loss = calcLoss({...data, missedCalls: Math.round(data.callsPerWeek*0.35), deadQuotes:3, adminHours:8});
 
   function next() { setStep(s=>s+1); window.scrollTo({top:0,behavior:'smooth'}); }
   function back() { setStep(s=>s-1); window.scrollTo({top:0,behavior:'smooth'}); }
   function set(k,v) { setData(d=>({...d,[k]:v})); }
 
-  function submit() {
-    // Wire up EmailJS here when keys are ready
-    setStep(6);
-  }
+  function submit() { setStep(4); }
 
   const cardStyle = {
     background:'#fff',border:'1px solid #e2e8f0',
@@ -699,12 +865,15 @@ function App() {
     boxShadow:'0 2px 16px rgba(0,0,0,0.05)',
   };
 
+  // For calculator step — break out of 600px container
+  const isCalcStep = step === 2;
+
   return (
     <div style={{minHeight:'100vh',background:'#f8fafc'}}>
       <Nav step={step} total={TOTAL}/>
-      {step >= 2 && step < 7 && <Ticker amount={loss.total}/>}
+      {step >= 2 && step < 4 && <Ticker amount={loss.total}/>}
 
-      <div style={{maxWidth:600,margin:'0 auto',padding:'90px 22px 80px'}}>
+      <div style={{maxWidth: isCalcStep ? 980 : 600, margin:'0 auto', padding: isCalcStep ? '90px 16px 60px' : '90px 22px 80px', transition:'max-width 0.4s ease'}}>
 
         {/* Progress */}
         {step > 0 && step <= TOTAL+1 && (
@@ -720,16 +889,16 @@ function App() {
           <div className="fade-up" style={{textAlign:'center',maxWidth:520,margin:'60px auto 0'}}>
             <div style={{display:'inline-flex',alignItems:'center',gap:8,background:'rgba(239,68,68,0.07)',border:'1px solid rgba(239,68,68,0.18)',borderRadius:50,padding:'7px 18px',marginBottom:28}}>
               <div style={{width:6,height:6,borderRadius:'50%',background:'#EF4444',animation:'pulse 1.5s ease infinite'}}/>
-              <span style={{fontSize:10,fontWeight:800,color:'rgba(239,68,68,0.7)',textTransform:'uppercase',letterSpacing:'0.12em'}}>Free revenue audit</span>
+              <span style={{fontSize:10,fontWeight:800,color:'rgba(239,68,68,0.7)',textTransform:'uppercase',letterSpacing:'0.12em'}}>Free Pro Plan Audit</span>
             </div>
             <h1 style={{fontSize:38,fontWeight:900,color:'#0f172a',letterSpacing:'-0.03em',lineHeight:1.1,marginBottom:16}}>
               How much is your workflow costing you?
             </h1>
             <p style={{fontSize:15,color:'#64748b',lineHeight:1.7,marginBottom:36}}>
-              4 quick questions. We calculate exactly how much revenue your business is losing to missed calls, dead quotes, and admin — and show you how to recover it.
+              2 minutes. We calculate exactly how much revenue your business is losing across every area — missed calls, dead quotes, unpaid invoices, lost reviews, admin time — and show you exactly how OTW Pro recovers it.
             </p>
             <div style={{display:'flex',flexDirection:'column',gap:10,alignItems:'center',marginBottom:36}}>
-              {['Takes less than 2 minutes','Real dollar figures based on your numbers','Free — no obligation'].map(t => (
+              {['Takes less than 2 minutes','Real dollar figures, 5 product areas','Free — no obligation, no credit card'].map(t => (
                 <div key={t} style={{display:'flex',alignItems:'center',gap:8,fontSize:13,color:'#64748b'}}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
                   {t}
@@ -751,10 +920,10 @@ function App() {
         {step === 1 && (
           <div className="fade-up" style={cardStyle}>
             <h2 style={{fontSize:24,fontWeight:800,color:'#0f172a',letterSpacing:'-0.02em',marginBottom:6}}>Tell us about your business</h2>
-            <p style={{fontSize:14,color:'#94a3b8',marginBottom:28,lineHeight:1.6}}>We'll tailor your results to your industry.</p>
+            <p style={{fontSize:14,color:'#94a3b8',marginBottom:28,lineHeight:1.6}}>We'll tailor your results to your industry and size.</p>
             <div style={{display:'flex',flexDirection:'column',gap:14,marginBottom:28}}>
               {[
-                {label:'Your name',      key:'name',         placeholder:'Dave Morrison',    type:'text'},
+                {label:'Your name',      key:'name',         placeholder:'Dave Morrison',     type:'text'},
                 {label:'Business name',  key:'businessName', placeholder:'Morrison Plumbing', type:'text'},
                 {label:'City / Suburb',  key:'suburb',       placeholder:'Perth WA',          type:'text'},
               ].map(f => (
@@ -768,7 +937,7 @@ function App() {
                 <label style={{display:'block',fontSize:11,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:7}}>Trade / Industry</label>
                 <select className="inp" value={data.industry} onChange={e=>set('industry',e.target.value)}>
                   <option value="">Select your trade...</option>
-                  {['Plumbing','Electrical','HVAC / Air conditioning','Carpentry / Cabinet making','Landscaping','Cleaning','Pest control','Auto services','Other trade'].map(t=>(
+                  {['Plumbing','Electrical','HVAC / Air conditioning','Carpentry / Cabinet making','Landscaping','Cleaning','Pest control','Auto services','Building & construction','Other trade'].map(t=>(
                     <option key={t} value={t}>{t}</option>
                   ))}
                 </select>
@@ -776,113 +945,32 @@ function App() {
             </div>
             <div style={{display:'flex',gap:10}}>
               <Btn onClick={back} ghost>← Back</Btn>
-              <Btn onClick={next} disabled={!data.name || !data.businessName}>Next →</Btn>
+              <Btn onClick={next} disabled={!data.name || !data.businessName}>See your losses →</Btn>
             </div>
           </div>
         )}
 
-        {/* ── STEP 2: CALLS ── */}
+        {/* ── STEP 2: COMPREHENSIVE CALCULATOR ── */}
         {step === 2 && (
-          <div className="fade-up" style={cardStyle}>
-            <h2 style={{fontSize:24,fontWeight:800,color:'#0f172a',letterSpacing:'-0.02em',marginBottom:6}}>Your phone & calls</h2>
-            <p style={{fontSize:14,color:'#94a3b8',marginBottom:28,lineHeight:1.6}}>Most trade businesses miss 4–8 calls a week. Every one is a job you didn't get.</p>
-
-            <Slider
-              label="How many calls do you get per week?"
-              hint="From new and existing customers"
-              value={data.callsPerWeek} min={1} max={100}
-              onChange={v=>set('callsPerWeek',v)}
-              display={data.callsPerWeek + ' calls'}
-            />
-            <Slider
-              label="How many do you miss or can't answer?"
-              hint="When you're onsite, with a customer, or after hours"
-              value={data.missedCalls} min={0} max={Math.min(data.callsPerWeek, 50)}
-              onChange={v=>set('missedCalls',Math.min(v, data.callsPerWeek))}
-              display={data.missedCalls + (data.missedCalls === 1 ? ' call' : ' calls')}
-            />
-            <Slider
-              label="Average job value"
-              value={data.avgJobValue} min={100} max={5000} step={50}
-              onChange={v=>set('avgJobValue',v)}
-              display={'$'+data.avgJobValue.toLocaleString('en-AU')}
-            />
-            <LossCallout amount={loss.missedRev} label="Missed call revenue leaking every month:"/>
-            <div style={{display:'flex',gap:10}}>
-              <Btn onClick={back} ghost>← Back</Btn>
-              <Btn onClick={next}>Next →</Btn>
-            </div>
-          </div>
+          <CalculatorStep
+            data={data}
+            onNext={next}
+            onBack={back}
+          />
         )}
 
-        {/* ── STEP 3: QUOTES ── */}
+        {/* ── STEP 3: CONTACT ── */}
         {step === 3 && (
           <div className="fade-up" style={cardStyle}>
-            <h2 style={{fontSize:24,fontWeight:800,color:'#0f172a',letterSpacing:'-0.02em',marginBottom:6}}>Your quotes & follow-up</h2>
-            <p style={{fontSize:14,color:'#94a3b8',marginBottom:28,lineHeight:1.6}}>Quotes that go quiet are one of the biggest silent revenue leaks in trade businesses.</p>
-
-            <Slider
-              label="How many quotes do you send per week?"
-              value={data.quotesPerWeek} min={1} max={30}
-              onChange={v=>set('quotesPerWeek',v)}
-              display={data.quotesPerWeek + ' quotes'}
-            />
-            <Slider
-              label="How many go quiet without follow-up?"
-              hint="Customer never hears back — and goes with someone else"
-              value={data.deadQuotes} min={0} max={Math.min(data.quotesPerWeek, 20)}
-              onChange={v=>set('deadQuotes',Math.min(v, data.quotesPerWeek))}
-              display={data.deadQuotes + (data.deadQuotes === 1 ? ' quote' : ' quotes')}
-            />
-            <LossCallout amount={loss.quoteRev} label="Dead quote revenue leaking every month:"/>
-            <div style={{display:'flex',gap:10}}>
-              <Btn onClick={back} ghost>← Back</Btn>
-              <Btn onClick={next}>Next →</Btn>
-            </div>
-          </div>
-        )}
-
-        {/* ── STEP 4: ADMIN ── */}
-        {step === 4 && (
-          <div className="fade-up" style={cardStyle}>
-            <h2 style={{fontSize:24,fontWeight:800,color:'#0f172a',letterSpacing:'-0.02em',marginBottom:6}}>Admin & inbox time</h2>
-            <p style={{fontSize:14,color:'#94a3b8',marginBottom:28,lineHeight:1.6}}>Every hour on admin is an hour you could be billing.</p>
-
-            <Slider
-              label="Hours per week on admin tasks"
-              hint="Emails, booking calls, chasing invoices, scheduling"
-              value={data.adminHours} min={1} max={30}
-              onChange={v=>set('adminHours',v)}
-              display={data.adminHours + ' hrs/week'}
-            />
-            <LossCallout amount={loss.adminCost} label="Admin time cost every month (at $75/hr):"/>
-
+            <h2 style={{fontSize:24,fontWeight:800,color:'#0f172a',letterSpacing:'-0.02em',marginBottom:6}}>Where should we send your full report?</h2>
+            <p style={{fontSize:14,color:'#94a3b8',marginBottom:24,lineHeight:1.6}}>Andy will review your audit personally — you'll get specific recommendations for your trade, not a generic pitch.</p>
             <div style={{
-              background:'rgba(245,158,11,0.06)',border:'1.5px solid rgba(245,158,11,0.2)',
-              borderRadius:14,padding:'16px 20px',marginBottom:28,
-            }}>
-              <div style={{fontSize:11,fontWeight:700,color:'rgba(180,83,9,0.7)',marginBottom:6}}>Total monthly revenue leak across all three areas:</div>
-              <div style={{fontSize:34,fontWeight:900,color:'#F59E0B',letterSpacing:'-0.025em'}}>{fmt(loss.total)}<span style={{fontSize:14,fontWeight:500,color:'rgba(245,158,11,0.5)'}}>/month</span></div>
-              <div style={{fontSize:12,color:'#94a3b8',marginTop:4}}>{fmt(loss.annual)} per year in recoverable revenue</div>
-            </div>
-            <div style={{display:'flex',gap:10}}>
-              <Btn onClick={back} ghost>← Back</Btn>
-              <Btn onClick={next}>See my full report →</Btn>
-            </div>
-          </div>
-        )}
-
-        {/* ── STEP 5: CONTACT ── */}
-        {step === 5 && (
-          <div className="fade-up" style={cardStyle}>
-            <h2 style={{fontSize:24,fontWeight:800,color:'#0f172a',letterSpacing:'-0.02em',marginBottom:6}}>Where should we send your report?</h2>
-            <p style={{fontSize:14,color:'#94a3b8',marginBottom:24,lineHeight:1.6}}>Andy will review your audit personally before any call — so you get specific recommendations, not a generic pitch.</p>
-            <div style={{
-              background:'rgba(239,68,68,0.05)',border:'1.5px solid rgba(239,68,68,0.15)',
+              background:'rgba(245,158,11,0.05)',border:'1.5px solid rgba(245,158,11,0.18)',
               borderRadius:16,padding:'18px',textAlign:'center',marginBottom:24,
             }}>
-              <div style={{fontSize:10,fontWeight:800,color:'rgba(239,68,68,0.5)',textTransform:'uppercase',letterSpacing:'0.14em',marginBottom:6}}>Your annual revenue leak</div>
-              <div style={{fontSize:44,fontWeight:900,color:'#EF4444',letterSpacing:'-0.035em'}}>{fmt(loss.annual)}</div>
+              <div style={{fontSize:10,fontWeight:800,color:'rgba(245,158,11,0.5)',textTransform:'uppercase',letterSpacing:'0.14em',marginBottom:6}}>Recoverable annual revenue with OTW Pro</div>
+              <div style={{fontSize:44,fontWeight:900,color:'#F59E0B',letterSpacing:'-0.035em'}}>{fmt(loss.annual)}</div>
+              <div style={{fontSize:12,color:'#94a3b8',marginTop:4}}>at $499/month — yours to recover</div>
             </div>
             <div style={{display:'flex',flexDirection:'column',gap:14,marginBottom:24}}>
               <div>
@@ -896,7 +984,7 @@ function App() {
                   onChange={e=>set('phone',e.target.value)}/>
               </div>
             </div>
-            <p style={{fontSize:11,color:'#94a3b8',marginBottom:20,textAlign:'center'}}>No spam. Andy uses this to send your report and reach out after you book a call.</p>
+            <p style={{fontSize:11,color:'#94a3b8',marginBottom:20,textAlign:'center'}}>No spam. Andy uses this to personalise your report and set up your free 30-day Pro trial.</p>
             <div style={{display:'flex',gap:10}}>
               <Btn onClick={back} ghost>← Back</Btn>
               <Btn onClick={submit} disabled={!data.email}>Show me my full report →</Btn>
@@ -904,17 +992,8 @@ function App() {
           </div>
         )}
 
-        {/* ── STEP 6: RECEPTIONIST SAVINGS CALCULATOR ── */}
-        {step === 6 && (
-          <CalculatorStep
-            data={data} loss={loss}
-            onNext={() => { setStep(7); window.scrollTo({top:0,behavior:'smooth'}); }}
-            onBack={() => setStep(5)}
-          />
-        )}
-
         {/* ── RESULTS ── */}
-        {step === 7 && <Results data={data} loss={loss}/>}
+        {step === 4 && <Results data={data} loss={loss}/>}
 
       </div>
 
