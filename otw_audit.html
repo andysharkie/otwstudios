@@ -567,9 +567,112 @@ function Results({ data, loss }) {
   );
 }
 
+// ── OTW RECEPTIONIST SAVINGS CALCULATOR ─────────────
+function CalculatorStep({ data, loss, onNext, onBack }) {
+  const [c, setC] = React.useState({
+    callsPerWeek:   data.callsPerWeek  || 40,
+    missedPct:      Math.min(75, Math.max(5, Math.round(((data.missedCalls||6)/(data.callsPerWeek||20))*100))),
+    jobValue:       data.avgJobValue   || 800,
+    adminHrs:       Math.round((data.adminHours||8)*4.3),
+    receptionCost:  1500,
+  });
+  function sc(k, v) { setC(p => ({...p, [k]: v})); }
+
+  const OTW_FEE = 499;
+  const callsPerMonth  = Math.round(c.callsPerWeek * 4.3);
+  const missedPerMonth = Math.round(callsPerMonth * (c.missedPct / 100));
+  const recovered      = Math.round(missedPerMonth * c.jobValue * 0.35);
+  const afterHours     = Math.round(callsPerMonth * 0.28 * c.jobValue * 0.18);
+  const adminSaved     = Math.round(c.adminHrs * 75);
+  const gross          = recovered + afterHours + adminSaved + c.receptionCost;
+  const net            = gross - OTW_FEE;
+  const annualNet      = net * 12;
+  const roi            = OTW_FEE > 0 ? Math.round(net / OTW_FEE) : 0;
+
+  const card = {background:'#fff',border:'1px solid #e2e8f0',borderRadius:20,padding:'28px 24px',boxShadow:'0 2px 16px rgba(0,0,0,0.05)'};
+
+  return (
+    <div className="fade-up" style={card}>
+      <div style={{marginBottom:28}}>
+        <div style={{display:'inline-flex',alignItems:'center',gap:8,background:'rgba(245,158,11,0.08)',border:'1px solid rgba(245,158,11,0.22)',borderRadius:50,padding:'6px 16px',marginBottom:14}}>
+          <div style={{width:6,height:6,borderRadius:'50%',background:'#F59E0B',animation:'pulse 1.5s ease infinite'}}/>
+          <span style={{fontSize:9,fontWeight:800,color:'#b45309',textTransform:'uppercase',letterSpacing:'0.14em'}}>Your OTW ROI</span>
+        </div>
+        <h2 style={{fontSize:24,fontWeight:800,color:'#0f172a',letterSpacing:'-0.02em',marginBottom:6}}>Calculate your Receptionist savings</h2>
+        <p style={{fontSize:14,color:'#94a3b8',lineHeight:1.6}}>Based on your numbers — adjust the sliders to see exactly how OTW AI Receptionist pays for itself.</p>
+      </div>
+
+      <Slider label="Calls per week" hint="Total inbound calls your business receives"
+        value={c.callsPerWeek} min={10} max={300} step={5} onChange={v=>sc('callsPerWeek',v)}
+        display={c.callsPerWeek+' calls/wk'} />
+
+      <Slider label="Currently missed" hint="What % of calls go unanswered today"
+        value={c.missedPct} min={5} max={75} step={5} onChange={v=>sc('missedPct',v)}
+        display={c.missedPct+'%'} />
+
+      <Slider label="Average job value" hint="What a booked job is worth to your business"
+        value={c.jobValue} min={100} max={5000} step={50} onChange={v=>sc('jobValue',v)}
+        display={'$'+c.jobValue.toLocaleString('en-AU')} />
+
+      <Slider label="Admin hours on phones per month" hint="Staff time spent on call intake and follow-up"
+        value={c.adminHrs} min={4} max={100} step={2} onChange={v=>sc('adminHrs',v)}
+        display={c.adminHrs+' hrs/mo'} />
+
+      <Slider label="Current reception / admin cost" hint="What you spend monthly on phone answering today"
+        value={c.receptionCost} min={0} max={5000} step={100} onChange={v=>sc('receptionCost',v)}
+        display={'$'+c.receptionCost.toLocaleString('en-AU')+'/mo'} />
+
+      {/* Dark results panel */}
+      <div style={{background:'#0f172a',borderRadius:16,padding:'24px 20px',marginBottom:20,marginTop:8}}>
+        <div style={{fontSize:10,fontWeight:800,color:'rgba(245,158,11,0.5)',textTransform:'uppercase',letterSpacing:'0.14em',marginBottom:18}}>Monthly savings breakdown</div>
+        {[
+          ['Missed call revenue recovered', recovered],
+          ['After-hours calls captured', afterHours],
+          ['Admin time freed ($75/hr)', adminSaved],
+          ['Reception cost eliminated', c.receptionCost],
+        ].map(([label, value]) => (
+          <div key={label} style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+            <span style={{fontSize:13,color:'rgba(255,255,255,0.55)'}}>{label}</span>
+            <span style={{fontSize:14,fontWeight:700,color:'#fff'}}>{fmt(value)}</span>
+          </div>
+        ))}
+        <div style={{borderTop:'1px solid rgba(255,255,255,0.07)',padding:'10px 0 4px'}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span style={{fontSize:13,color:'rgba(255,255,255,0.35)'}}>Less: OTW monthly investment</span>
+            <span style={{fontSize:14,fontWeight:700,color:'rgba(239,68,68,0.65)'}}>−{fmt(OTW_FEE)}</span>
+          </div>
+        </div>
+        <div style={{background:'rgba(245,158,11,0.08)',border:'1px solid rgba(245,158,11,0.2)',borderRadius:12,padding:'16px 18px',marginTop:14}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+            <div>
+              <div style={{fontSize:10,fontWeight:800,color:'rgba(245,158,11,0.5)',textTransform:'uppercase',letterSpacing:'0.12em',marginBottom:4}}>Net monthly gain</div>
+              <div style={{fontSize:38,fontWeight:900,color:'#F59E0B',letterSpacing:'-0.03em'}}>{fmt(Math.max(0,net))}</div>
+              <div style={{fontSize:12,color:'rgba(245,158,11,0.4)',marginTop:2}}>{fmt(Math.max(0,annualNet))} per year</div>
+            </div>
+            {roi > 0 && (
+              <div style={{textAlign:'center',background:'rgba(245,158,11,0.12)',borderRadius:10,padding:'10px 14px',flexShrink:0}}>
+                <div style={{fontSize:24,fontWeight:900,color:'#F59E0B'}}>{roi}×</div>
+                <div style={{fontSize:9,fontWeight:700,color:'rgba(245,158,11,0.5)',textTransform:'uppercase',letterSpacing:'0.1em'}}>ROI</div>
+              </div>
+            )}
+          </div>
+        </div>
+        <div style={{marginTop:12,fontSize:11,color:'rgba(255,255,255,0.2)',textAlign:'center'}}>
+          Fully managed by OTW · No tech skills needed · Live in 48 hrs
+        </div>
+      </div>
+
+      <div style={{display:'flex',gap:10}}>
+        <Btn onClick={onBack} ghost>← Back</Btn>
+        <Btn onClick={onNext}>See my full audit report →</Btn>
+      </div>
+    </div>
+  );
+}
+
 // ── APP ───────────────────────────────────────────────
 function App() {
-  const TOTAL = 4;
+  const TOTAL = 5;
   const [step, setStep] = useState(0);
   const [data, setData] = useState({
     name:'', businessName:'', industry:'', suburb:'',
@@ -599,7 +702,7 @@ function App() {
   return (
     <div style={{minHeight:'100vh',background:'#f8fafc'}}>
       <Nav step={step} total={TOTAL}/>
-      {step >= 2 && step < 6 && <Ticker amount={loss.total}/>}
+      {step >= 2 && step < 7 && <Ticker amount={loss.total}/>}
 
       <div style={{maxWidth:600,margin:'0 auto',padding:'90px 22px 80px'}}>
 
@@ -801,8 +904,17 @@ function App() {
           </div>
         )}
 
+        {/* ── STEP 6: RECEPTIONIST SAVINGS CALCULATOR ── */}
+        {step === 6 && (
+          <CalculatorStep
+            data={data} loss={loss}
+            onNext={() => { setStep(7); window.scrollTo({top:0,behavior:'smooth'}); }}
+            onBack={() => setStep(5)}
+          />
+        )}
+
         {/* ── RESULTS ── */}
-        {step === 6 && <Results data={data} loss={loss}/>}
+        {step === 7 && <Results data={data} loss={loss}/>}
 
       </div>
 
