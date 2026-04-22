@@ -8,155 +8,66 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Retell Web SDK -->
   <script src="https://cdn.jsdelivr.net/npm/retell-client-js-sdk@latest/dist/index.umd.js"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            navy: {
-              950: '#04080F',
-              900: '#0A0F1E',
-              800: '#0F1629',
-              700: '#172035',
-              600: '#1E2D47',
-              500: '#2A3F5F',
-            },
-            gold: {
-              300: '#FDE68A',
-              400: '#FCD34D',
-              500: '#F59E0B',
-              600: '#D97706',
-              700: '#B45309',
-            }
-          },
-          fontFamily: {
-            sans: ['-apple-system', 'BlinkMacSystemFont', 'Inter', 'Segoe UI', 'sans-serif'],
-          }
-        }
-      }
-    }
-  </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-    * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
-    html { scroll-behavior: smooth; }
-
-    /* ── SCROLL-TRIGGERED SECTION FADE ── */
-    .section-reveal-950,
-    .section-reveal-900,
-    .section-reveal-800 {
-      background-color: #f8fafc;
-      transition: background-color 600ms ease;
+    @keyframes pulse-ring {
+      0% { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(1.6); opacity: 0; }
     }
-    .section-reveal-950.is-visible { background-color: #04080F; }
-    .section-reveal-900.is-visible { background-color: #0A0F1E; }
-    .section-reveal-800.is-visible { background-color: #0F1629; }
-
-    /* ── BUTTON ANIMATIONS ── */
-    .btn-gold {
-      transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1),
-                  box-shadow 0.22s ease,
-                  background-color 0.15s ease;
+    @keyframes sound-wave {
+      0%, 100% { height: 6px; }
+      50% { height: 22px; }
     }
-    .btn-gold:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 28px rgba(245,158,11,0.45);
-    }
-    .btn-gold:active { transform: translateY(0); transition-duration: 0.08s; }
-
-    .btn-dark {
-      transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1),
-                  box-shadow 0.22s ease,
-                  background-color 0.15s ease;
-    }
-    .btn-dark:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-    }
-    .btn-dark:active { transform: translateY(0); transition-duration: 0.08s; }
-
-    .btn-ghost {
-      position: relative;
-      overflow: hidden;
-      transition: color 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
-    }
-    .btn-ghost::after {
+    .pulse-ring::before {
       content: '';
       position: absolute;
-      inset: 0;
-      background: rgba(255,255,255,0.08);
-      transform: translateY(101%);
-      transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
-      border-radius: inherit;
-      z-index: 0;
+      inset: -6px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: pulse-ring 1.2s ease-out infinite;
     }
-    .btn-ghost > * { position: relative; z-index: 1; }
-    .btn-ghost:hover::after { transform: translateY(0); }
-    .btn-ghost:hover { border-color: rgba(255,255,255,0.30) !important; color: rgba(255,255,255,0.92) !important; transform: translateY(-1px); }
-
-    .btn-ghost-light { transition: all 0.2s ease; }
-    .btn-ghost-light:hover { background-color: #f1f5f9; transform: translateY(-1px); }
-
-    /* ── VOICE DEMO ANIMATIONS ── */
-    .gold-glow { box-shadow: 0 0 40px rgba(245, 158, 11, 0.2); }
-    .card-dark { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s ease; }
-    .card-dark:hover { background: rgba(255,255,255,0.07); border-color: rgba(245,158,11,0.25); }
-    @keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(1.7); opacity: 0; } }
-    @keyframes sound-wave { 0%, 100% { height: 4px; } 50% { height: 20px; } }
-    .sound-bar { animation: sound-wave 0.7s ease-in-out infinite; }
+    .sound-bar { animation: sound-wave 0.8s ease-in-out infinite; }
     .sound-bar:nth-child(2) { animation-delay: 0.1s; }
     .sound-bar:nth-child(3) { animation-delay: 0.2s; }
     .sound-bar:nth-child(4) { animation-delay: 0.3s; }
     .sound-bar:nth-child(5) { animation-delay: 0.15s; }
-    .pulse-ring::before {
-      content: '';
-      position: absolute;
-      inset: -8px;
-      border-radius: 50%;
-      background: rgba(245, 158, 11, 0.3);
-      animation: pulse-ring 1.4s ease-out infinite;
-    }
   </style>
 </head>
-<body class="bg-white text-slate-900 antialiased">
+<body>
   <div id="root"></div>
 
   <script type="text/babel">
     const { useState, useEffect, useRef, useCallback } = React;
 
-    /* ── SVG LINE ART ICONS (Features) ── */
-    const Ic = ({ children, cls = "" }) => (
-      <svg className={cls} width="22" height="22" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        {children}
-      </svg>
-    );
-    const IconPhone   = ({ cls }) => <Ic cls={cls}><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.9 10.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012.81 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.25a16 16 0 006.29 6.29l1.61-1.35a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></Ic>;
-    const IconCheck   = ({ cls }) => <Ic cls={cls}><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></Ic>;
-    const IconBell    = ({ cls }) => <Ic cls={cls}><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></Ic>;
-    const IconMsg     = ({ cls }) => <Ic cls={cls}><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></Ic>;
-    const IconCal     = ({ cls }) => <Ic cls={cls}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></Ic>;
-    const IconChart   = ({ cls }) => <Ic cls={cls}><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></Ic>;
-
-    // Retell web call requires a backend endpoint that calls Retell's /v2/create-web-call API
-    // and returns { access_token: "..." }. Set this to your endpoint URL when ready.
+    // ─── RETELL CONFIG ───────────────────────────────────────────
+    // RETELL_TOKEN_ENDPOINT: your backend endpoint that calls
+    // Retell's POST /v2/create-web-call and returns { access_token }
     const RETELL_TOKEN_ENDPOINT = "YOUR_TOKEN_ENDPOINT"; // e.g. "/api/retell-token"
-    const RETELL_AGENT_ID = "YOUR_RETELL_AGENT_ID"; // from Retell dashboard
+    const RETELL_AGENT_ID = "YOUR_RETELL_AGENT_ID";      // from Retell dashboard
+    // ─────────────────────────────────────────────────────────────
 
-    const DEMO_LEAD = {
-      caller: "Sarah Thompson", phone: "0412 555 018",
-      suburb: "Mount Lawley", issue: "Burst pipe / active leak",
-      urgency: "HIGH", status: "Escalated to team",
-      nextStep: "Priority callback — team notified",
-      notify: "SMS + email sent to Northside Plumbing",
+    const DEMO_LEAD_SUMMARY = {
+      caller: "Sarah Thompson",
+      phone: "0412 555 018",
+      suburb: "Mount Lawley",
+      issue: "Burst pipe / active leak",
+      urgency: "High",
+      status: "Escalated to team",
+      nextStep: "Team notified — priority callback",
+      notify: "SMS + email alert sent to Northside Plumbing",
     };
 
-    function SoundWave() {
+    function SoundWave({ active }) {
+      if (!active) return null;
       return (
-        <div className="flex items-center gap-0.5 h-5">
+        <div className="flex items-center gap-0.5 h-6">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="sound-bar w-1 rounded-full bg-gold-400" style={{ animationDelay: `${i * 0.1}s` }} />
+            <div
+              key={i}
+              className={`sound-bar w-1 rounded-full bg-current`}
+              style={{ animationDelay: `${i * 0.1}s` }}
+            />
           ))}
         </div>
       );
@@ -165,23 +76,27 @@
     function CallTimer({ startTime }) {
       const [elapsed, setElapsed] = useState(0);
       useEffect(() => {
-        const t = setInterval(() => setElapsed(Math.floor((Date.now() - startTime) / 1000)), 1000);
-        return () => clearInterval(t);
+        const interval = setInterval(() => {
+          setElapsed(Math.floor((Date.now() - startTime) / 1000));
+        }, 1000);
+        return () => clearInterval(interval);
       }, [startTime]);
       const m = Math.floor(elapsed / 60).toString().padStart(2, "0");
       const s = (elapsed % 60).toString().padStart(2, "0");
-      return <span className="font-mono text-sm tabular-nums text-white/60">{m}:{s}</span>;
+      return <span className="font-mono text-sm tabular-nums">{m}:{s}</span>;
     }
 
     function VoiceDemo() {
       const retellRef = useRef(null);
-      const transcriptRef = useRef(null);
       const [callState, setCallState] = useState("idle");
+      // idle | connecting | active | ended | mic-denied | error
       const [isSpeaking, setIsSpeaking] = useState(false);
-      const [speakerRole, setSpeakerRole] = useState(null);
+      const [speakerRole, setSpeakerRole] = useState(null); // "assistant" | "user"
       const [transcript, setTranscript] = useState([]);
       const [callStartTime, setCallStartTime] = useState(null);
+      const transcriptRef = useRef(null);
 
+      // Initialise Retell once
       useEffect(() => {
         if (typeof RetellWebClient !== "undefined") {
           retellRef.current = new RetellWebClient();
@@ -211,17 +126,20 @@
 
           r.on("update", (update) => {
             if (update.transcript && update.transcript.length > 0) {
-              const lastMsg = update.transcript[update.transcript.length - 1];
-              setSpeakerRole(lastMsg.role === "agent" ? "assistant" : "user");
-              setTranscript(update.transcript.map((msg, i) => ({
-                role: msg.role === "agent" ? "assistant" : "user",
-                text: msg.content,
-                id: i,
-              })));
+              const last = update.transcript[update.transcript.length - 1];
+              setSpeakerRole(last.role === "agent" ? "assistant" : "user");
+              setTranscript(
+                update.transcript.map((msg, i) => ({
+                  role: msg.role === "agent" ? "assistant" : "user",
+                  text: msg.content,
+                  id: i,
+                }))
+              );
             }
           });
 
           r.on("error", (err) => {
+            console.error("Retell error:", err);
             const msg = err?.message || "";
             if (msg.includes("Permission denied") || msg.includes("NotAllowedError")) {
               setCallState("mic-denied");
@@ -230,28 +148,33 @@
             }
           });
         }
-        return () => { if (retellRef.current) retellRef.current.stopCall(); };
+        return () => {
+          if (retellRef.current) retellRef.current.stopCall();
+        };
       }, []);
 
+      // Auto-scroll transcript
       useEffect(() => {
-        if (transcriptRef.current) transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
+        if (transcriptRef.current) {
+          transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
+        }
       }, [transcript]);
 
       const startCall = useCallback(async () => {
         setCallState("connecting");
         setTranscript([]);
         try {
-          // Fetch a short-lived web call access token from your backend
+          // Backend must call POST /v2/create-web-call on Retell and return { access_token }
           const res = await fetch(RETELL_TOKEN_ENDPOINT, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ agent_id: RETELL_AGENT_ID }),
           });
-          if (!res.ok) throw new Error("Token endpoint error");
+          if (!res.ok) throw new Error(`Token endpoint returned ${res.status}`);
           const { access_token } = await res.json();
           await retellRef.current.startCall({ accessToken: access_token, sampleRate: 24000 });
         } catch (err) {
-          console.error("Retell start error:", err);
+          console.error("Retell startCall error:", err);
           setCallState("error");
         }
       }, []);
@@ -261,614 +184,520 @@
         setCallState("ended");
       }, []);
 
+      const resetDemo = useCallback(() => {
+        setCallState("idle");
+        setTranscript([]);
+        setIsSpeaking(false);
+        setSpeakerRole(null);
+        setCallStartTime(null);
+      }, []);
+
       const retellReady = typeof RetellWebClient !== "undefined" && RETELL_TOKEN_ENDPOINT !== "YOUR_TOKEN_ENDPOINT";
 
       return (
-        <div className="rounded-3xl border border-white/10 bg-navy-800 overflow-hidden">
-          {/* Demo header */}
-          <div className="flex items-center justify-between gap-4 border-b border-white/5 px-6 py-4">
+        <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-5 shadow-sm">
+
+          {/* ── HEADER ── */}
+          <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <div className="text-sm font-semibold text-white">Live voice demo</div>
-              <div className="text-xs text-white/35">Talk to the AI Receptionist · Northside Plumbing</div>
+              <div className="text-sm font-semibold text-slate-900">Live voice demo</div>
+              <div className="text-xs text-slate-500">
+                Talk to the OTW AI Receptionist — powered by Retell + ElevenLabs
+              </div>
             </div>
             <div className="flex items-center gap-2">
               {callState === "active" && (
                 <div className="flex items-center gap-1.5">
                   <span className="relative flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold-400 opacity-75" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-gold-500" />
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
                   </span>
-                  <span className="text-xs font-medium text-gold-400">Live</span>
+                  <span className="text-xs font-medium text-green-700">Live</span>
                 </div>
               )}
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/30">Demo</span>
+              <div className="rounded-full bg-white px-3 py-1 text-xs text-slate-500 shadow-sm">
+                Northside Plumbing demo
+              </div>
             </div>
           </div>
 
-          {/* IDLE */}
+          {/* ── IDLE STATE ── */}
           {callState === "idle" && (
-            <div className="flex flex-col items-center gap-7 px-6 py-12">
+            <div className="flex flex-col items-center gap-6 py-8">
               <div className="text-center">
-                <div className="text-lg font-semibold text-white">Call the AI Receptionist</div>
-                <p className="mt-2 max-w-sm text-sm text-white/40">Use your microphone for a real conversation. Try asking about a burst pipe, a quote, or your service area.</p>
+                <div className="text-base font-semibold text-slate-900">
+                  Call the AI Receptionist
+                </div>
+                <p className="mt-2 max-w-xs text-sm text-slate-500">
+                  Use your microphone to have a real conversation. Try asking about a burst pipe, requesting a quote, or asking about the service area.
+                </p>
               </div>
 
               {retellReady ? (
-                <button onClick={startCall}
-                  className="pulse-ring relative flex h-20 w-20 items-center justify-center rounded-full bg-gold-500 text-white shadow-lg hover:bg-gold-600 transition-colors gold-glow">
+                <button
+                  onClick={startCall}
+                  className="relative flex h-20 w-20 items-center justify-center rounded-full bg-slate-900 text-white shadow-lg transition hover:bg-slate-800 active:scale-95"
+                >
                   <svg className="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                   </svg>
                 </button>
               ) : (
-                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/5 border border-white/10 text-white/20">
-                  <svg className="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-center text-sm text-amber-800 max-w-xs">
+                  Live demo activates once the Retell token endpoint is connected.
+                </div>
+              )}
+
+              <div className="flex items-center gap-4 text-xs text-slate-400">
+                <div className="flex items-center gap-1.5">
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                   </svg>
+                  Microphone required
                 </div>
-              )}
-
-              {!retellReady && (
-                <div className="rounded-2xl border border-gold-500/20 bg-gold-500/5 px-5 py-3 text-center text-xs text-gold-400 max-w-xs">
-                  Live demo activates once the Retell token endpoint is connected
+                <div className="flex items-center gap-1.5">
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  Secure connection
                 </div>
-              )}
-
-              <div className="flex items-center gap-5 text-xs text-white/25">
-                <span className="flex items-center gap-1.5">
-                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
-                  Mic required
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                  Secure
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <div className="flex items-center gap-1.5">
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                   ~2 min demo
-                </span>
+                </div>
               </div>
 
-              <div className="w-full rounded-2xl border border-white/5 bg-white/[0.02] p-4">
-                <div className="text-xs font-semibold uppercase tracking-widest text-white/20 mb-3">Try saying...</div>
+              <div className="w-full rounded-2xl border border-dashed border-slate-300 bg-white p-4">
+                <div className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Try saying...</div>
                 <div className="flex flex-wrap gap-2">
-                  {["I've got a burst pipe", "I need a quote for hot water", "Do you service my area?", "I need to book a plumber"].map((s) => (
-                    <span key={s} className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/40">"{s}"</span>
+                  {[
+                    "I've got a burst pipe",
+                    "I need a quote for hot water",
+                    "Do you service my area?",
+                    "I need to book someone in",
+                  ].map((prompt) => (
+                    <span key={prompt} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-600">
+                      "{prompt}"
+                    </span>
                   ))}
                 </div>
               </div>
             </div>
           )}
 
-          {/* CONNECTING */}
+          {/* ── CONNECTING STATE ── */}
           {callState === "connecting" && (
-            <div className="flex flex-col items-center gap-5 px-6 py-14">
-              <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gold-500 text-white">
-                <div className="absolute inset-0 animate-ping rounded-full bg-gold-400 opacity-25" />
+            <div className="flex flex-col items-center gap-4 py-10">
+              <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-slate-900 text-white">
+                <div className="absolute inset-0 animate-ping rounded-full bg-slate-700 opacity-30" />
                 <svg className="h-8 w-8 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                 </svg>
               </div>
-              <div className="text-sm font-medium text-white">Connecting...</div>
-              <div className="text-xs text-white/35">Allow microphone access when prompted</div>
+              <div className="text-sm font-medium text-slate-700">Connecting to AI Receptionist...</div>
+              <div className="text-xs text-slate-400">Allow microphone access when prompted</div>
             </div>
           )}
 
-          {/* ACTIVE */}
+          {/* ── ACTIVE CALL STATE ── */}
           {callState === "active" && (
-            <div className="flex flex-col gap-4 p-5">
-              <div className="flex items-center justify-between rounded-2xl bg-navy-700 px-4 py-3">
+            <div className="flex flex-col gap-4">
+              {/* Call status bar */}
+              <div className="flex items-center justify-between rounded-2xl bg-slate-900 px-4 py-3 text-white">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gold-500/15 border border-gold-500/30">
-                    <svg className="h-4 w-4 text-gold-400" fill="currentColor" viewBox="0 0 24 24">
+                  <div className="relative flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
+                    <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                     </svg>
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-white">Northside Plumbing</div>
-                    <div className="text-xs text-white/35">OTW AI Receptionist</div>
+                    <div className="text-sm font-semibold">Northside Plumbing</div>
+                    <div className="text-xs text-slate-400">OTW AI Receptionist</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  {isSpeaking && <SoundWave />}
+                  {isSpeaking && <SoundWave active={true} />}
                   {callStartTime && <CallTimer startTime={callStartTime} />}
                 </div>
               </div>
 
-              <div className="flex items-center justify-between px-1 text-xs">
-                <span className={`flex items-center gap-1.5 transition-all ${speakerRole === "assistant" ? "text-gold-400 font-medium" : "text-white/25"}`}>
-                  <span className={`h-1.5 w-1.5 rounded-full ${speakerRole === "assistant" ? "bg-gold-400" : "bg-white/15"}`} />
+              {/* Speaking indicator */}
+              <div className="flex items-center justify-between text-xs text-slate-500 px-1">
+                <div className={`flex items-center gap-1.5 transition-opacity ${speakerRole === "assistant" ? "opacity-100 text-slate-900" : "opacity-40"}`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${speakerRole === "assistant" ? "bg-slate-900" : "bg-slate-300"}`} />
                   Assistant speaking
-                </span>
-                <span className={`flex items-center gap-1.5 transition-all ${speakerRole === "user" ? "text-gold-400 font-medium" : "text-white/25"}`}>
+                </div>
+                <div className={`flex items-center gap-1.5 transition-opacity ${speakerRole === "user" ? "opacity-100 text-slate-900" : "opacity-40"}`}>
                   You speaking
-                  <span className={`h-1.5 w-1.5 rounded-full ${speakerRole === "user" ? "bg-gold-400" : "bg-white/15"}`} />
-                </span>
+                  <span className={`h-1.5 w-1.5 rounded-full ${speakerRole === "user" ? "bg-slate-900" : "bg-slate-300"}`} />
+                </div>
               </div>
 
-              <div ref={transcriptRef} className="space-y-2 rounded-2xl bg-white/[0.02] border border-white/5 p-4 overflow-y-auto" style={{ maxHeight: "200px", minHeight: "100px" }}>
-                {transcript.length === 0 ? (
-                  <div className="flex items-center justify-center h-14 text-sm text-white/25">Listening...</div>
-                ) : transcript.map((msg) => (
-                  <div key={msg.id} className={`rounded-2xl px-3 py-2.5 text-sm ${msg.role === "assistant" ? "bg-white/5 text-white/70" : "ml-auto max-w-[85%] bg-gold-500/15 text-gold-200 border border-gold-500/20"}`}>
-                    <span className="text-xs font-medium opacity-60 mr-1">{msg.role === "assistant" ? "AI:" : "You:"}</span>
+              {/* Live transcript */}
+              <div
+                ref={transcriptRef}
+                className="space-y-2 rounded-3xl bg-white p-4 shadow-sm overflow-y-auto"
+                style={{ maxHeight: "220px", minHeight: "120px" }}
+              >
+                {transcript.length === 0 && (
+                  <div className="flex items-center justify-center h-16 text-sm text-slate-400">
+                    Listening...
+                  </div>
+                )}
+                {transcript.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`rounded-2xl p-3 text-sm ${
+                      msg.role === "assistant"
+                        ? "bg-slate-100 text-slate-700"
+                        : "ml-auto max-w-[85%] bg-slate-900 text-white"
+                    }`}
+                  >
+                    <span className="text-xs font-medium opacity-60 mr-1">
+                      {msg.role === "assistant" ? "Assistant:" : "You:"}
+                    </span>
                     {msg.text}
                   </div>
                 ))}
               </div>
 
-              <button onClick={endCall}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/10 py-3 text-sm font-medium text-red-400 hover:bg-red-500/20 transition-colors">
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a2 2 0 00-2 2v1c0 8.284 6.716 15 15 15h1a2 2 0 002-2v-3.28a1 1 0 00-.684-.948l-4.493-1.498a1 1 0 00-1.21.502l-1.13 2.257a11.042 11.042 0 01-5.516-5.517l2.257-1.128a1 1 0 00.502-1.21L9.228 3.683A1 1 0 008.279 3H5z" /></svg>
+              {/* End call button */}
+              <button
+                onClick={endCall}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-red-600 py-3 text-sm font-medium text-white hover:bg-red-700 transition"
+              >
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M13.414 12l3.293-3.293a1 1 0 00-1.414-1.414L12 10.586 8.707 7.293a1 1 0 00-1.414 1.414L10.586 12l-3.293 3.293a1 1 0 101.414 1.414L12 13.414l3.293 3.293a1 1 0 001.414-1.414L13.414 12z"/>
+                </svg>
                 End call
               </button>
             </div>
           )}
 
-          {/* ENDED */}
+          {/* ── CALL ENDED STATE ── */}
           {callState === "ended" && (
-            <div className="flex flex-col gap-4 p-5">
-              <div className="flex items-center gap-3 rounded-2xl bg-gold-500/10 border border-gold-500/20 px-4 py-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gold-500/20">
-                  <svg className="h-4 w-4 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+            <div className="flex flex-col gap-4">
+              <div className="rounded-2xl bg-slate-900 px-4 py-3 text-white text-sm flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
+                  <svg className="h-4 w-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-white">Call complete</div>
-                  <div className="text-xs text-white/35">Lead captured · Team notified</div>
+                  <div className="font-semibold">Call complete</div>
+                  <div className="text-xs text-slate-400">Lead captured · Team notified</div>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                <div className="text-xs font-semibold uppercase tracking-widest text-white/25 mb-3">Lead summary</div>
-                {Object.entries(DEMO_LEAD).map(([k, v]) => (
-                  <div key={k} className="mt-1.5 flex items-center justify-between rounded-xl bg-white/[0.04] px-3 py-2 text-xs">
-                    <span className="text-white/30 capitalize">{k}</span>
-                    <span className={`font-medium ${k === "urgency" ? "text-gold-400" : "text-white/70"}`}>{v}</span>
-                  </div>
-                ))}
+              {/* Transcript replay (collapsed) */}
+              {transcript.length > 0 && (
+                <div className="space-y-2 rounded-3xl bg-white p-4 shadow-sm overflow-y-auto" style={{ maxHeight: "160px" }}>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Call transcript</div>
+                  {transcript.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`rounded-2xl p-3 text-sm ${
+                        msg.role === "assistant"
+                          ? "bg-slate-100 text-slate-700"
+                          : "ml-auto max-w-[85%] bg-slate-900 text-white"
+                      }`}
+                    >
+                      <span className="text-xs font-medium opacity-60 mr-1">
+                        {msg.role === "assistant" ? "Assistant:" : "You:"}
+                      </span>
+                      {msg.text}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Lead summary */}
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-4">
+                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">
+                  What your business receives
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {Object.entries(DEMO_LEAD_SUMMARY).filter(([k]) => k !== "notify").map(([key, value]) => (
+                    <div key={key} className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2 text-sm">
+                      <span className="text-slate-500 capitalize">{key.replace(/([A-Z])/g, ' $1').toLowerCase()}</span>
+                      <span className="font-medium text-slate-900 text-right ml-2">{value}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 text-xs text-slate-400">{DEMO_LEAD_SUMMARY.notify}</div>
               </div>
 
-              <div className="flex gap-2">
-                <a href="#audit" className="btn-gold flex-1 rounded-full bg-gold-500 py-2.5 text-center text-xs font-semibold text-white hover:bg-gold-600">
-                  Book a free audit
+              {/* CTAs */}
+              <div className="grid gap-2 sm:grid-cols-2">
+                <a
+                  href="#pricing"
+                  className="rounded-2xl bg-slate-900 px-4 py-3 text-center text-sm font-medium text-white hover:bg-slate-800"
+                >
+                  Book an audit
                 </a>
-                <button onClick={() => { setCallState("idle"); setTranscript([]); }}
-                  className="btn-ghost flex-1 rounded-full border border-white/10 py-2.5 text-xs font-medium text-white/50">
-                  Try again
+                <button
+                  onClick={resetDemo}
+                  className="rounded-2xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                >
+                  Call again
                 </button>
               </div>
             </div>
           )}
 
-          {/* ERROR / MIC DENIED */}
-          {(callState === "error" || callState === "mic-denied") && (
-            <div className="flex flex-col items-center gap-4 px-6 py-12 text-center">
-              <div className="text-sm text-white/50">
-                {callState === "mic-denied" ? "Microphone access required for the voice demo." : "Something went wrong connecting the demo."}
+          {/* ── MIC DENIED STATE ── */}
+          {callState === "mic-denied" && (
+            <div className="flex flex-col items-center gap-4 py-8 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-amber-300 bg-amber-50 text-amber-600">
+                <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
               </div>
-              <button onClick={() => setCallState("idle")} className="rounded-full border border-white/15 px-5 py-2 text-xs text-white/50 hover:text-white/80">Try again</button>
+              <div>
+                <div className="text-sm font-semibold text-slate-900">Microphone access needed</div>
+                <p className="mt-2 max-w-xs text-sm text-slate-500">
+                  Allow microphone access in your browser to use the voice demo. Look for the camera/mic icon in your address bar and click "Allow".
+                </p>
+              </div>
+              <button
+                onClick={resetDemo}
+                className="rounded-2xl border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Try again
+              </button>
+            </div>
+          )}
+
+          {/* ── ERROR STATE ── */}
+          {callState === "error" && (
+            <div className="flex flex-col items-center gap-4 py-8 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-red-200 bg-red-50 text-red-500">
+                <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-slate-900">Connection failed</div>
+                <p className="mt-2 max-w-xs text-sm text-slate-500">
+                  Couldn't connect to the demo assistant. This usually means the Retell token endpoint isn't configured yet.
+                </p>
+              </div>
+              <button
+                onClick={resetDemo}
+                className="rounded-2xl border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Try again
+              </button>
             </div>
           )}
         </div>
       );
     }
 
-    function App() {
-      const [scrolled, setScrolled] = useState(false);
-      const [mobileOpen, setMobileOpen] = useState(false);
-      const [openFaq, setOpenFaq] = useState(null);
-      const heroRef = useRef(null);
+    // ─── MAIN PAGE ────────────────────────────────────────────────
 
-      useEffect(() => {
-        const onScroll = () => {
-          const heroBottom = heroRef.current ? heroRef.current.getBoundingClientRect().bottom : 300;
-          setScrolled(heroBottom < 60);
-        };
-        window.addEventListener("scroll", onScroll, { passive: true });
-        return () => window.removeEventListener("scroll", onScroll);
-      }, []);
-
-      // Scroll-triggered section fade via IntersectionObserver
-      useEffect(() => {
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-                observer.unobserve(entry.target);
-              }
-            });
-          },
-          { threshold: 0, rootMargin: '0px 0px -40px 0px' }
-        );
-        const timer = setTimeout(() => {
-          document.querySelectorAll('.section-reveal-950, .section-reveal-900, .section-reveal-800')
-            .forEach(el => observer.observe(el));
-        }, 50);
-        return () => { clearTimeout(timer); observer.disconnect(); };
-      }, []);
-
-      const navBg = scrolled ? "bg-navy-900/95 backdrop-blur border-white/10 shadow-lg shadow-black/20" : "bg-white/95 backdrop-blur border-slate-200";
-      const navLogo = scrolled ? "text-white" : "text-slate-900";
-      const navLogoSub = scrolled ? "text-white/40" : "text-slate-400";
-      const navLink = scrolled ? "text-white/60 hover:text-white" : "text-slate-600 hover:text-slate-900";
+    function OTWAIReceptionistWebsite() {
+      const useCases = [
+        { title: "Plumbers", pain: "Urgent call-outs, leaks, blocked drains, quote requests.", outcome: "Triage urgent jobs, capture lead details, and keep the day moving." },
+        { title: "Electricians", pain: "Site work, emergency faults, booking enquiries.", outcome: "Reduce interruptions while urgent jobs are routed properly." },
+        { title: "Carpenters", pain: "Quote calls, scheduling, follow-up delays.", outcome: "Capture qualified leads and keep callbacks organised." },
+        { title: "Service Businesses", pain: "Small teams lose leads when everyone is busy.", outcome: "Answer more calls without hiring a full-time receptionist." },
+      ];
 
       const features = [
-        { Icon: IconPhone, title: "Answers every call",     body: "24/7, no missed calls, no voicemail — every inbound call is answered and handled to your rules." },
-        { Icon: IconCheck, title: "Qualifies every lead",   body: "Captures name, phone, suburb, job type, and urgency before the call ends." },
-        { Icon: IconBell,  title: "Escalates emergencies",  body: "Detects urgent and emergency situations and transfers the call to your mobile in real time." },
-        { Icon: IconMsg,   title: "Answers your FAQs",      body: "Service area, pricing policy, hours, availability — answered instantly from your approved FAQ list." },
-        { Icon: IconCal,   title: "Books appointments",     body: "Full Service plan: books jobs directly into your calendar during the call. Confirmation sent automatically." },
-        { Icon: IconChart, title: "Monthly reporting",      body: "Call volume, lead quality, urgency breakdown, and estimated job value captured each month." },
+        "Answers inbound calls professionally",
+        "Captures and qualifies leads",
+        "Answers approved FAQs",
+        "Routes urgent jobs properly",
+        "Sends confirmations and notifications",
+        "Books appointments on higher-tier plans",
       ];
 
       const faqs = [
-        { q: "Will callers know they're talking to an AI?", a: "Yes — the assistant is transparent that it's an AI receptionist. It doesn't pretend to be human. Most callers don't care as long as their call is handled quickly and professionally." },
-        { q: "What happens if the AI can't handle a call?", a: "For anything outside its scope, the assistant takes the caller's details, commits to a callback, and notifies you immediately. Nothing is dropped." },
-        { q: "How long does setup take?", a: "Core plan: 48 hours from sale to live. Full Service: 72 hours. We handle all the setup — you just review and approve before anything goes live." },
-        { q: "Can I change the configuration after launch?", a: "Yes. Update requests are handled by OTW, usually within 24 hours. You never have to touch any technical settings." },
-        { q: "Does it work for my industry?", a: "Currently configured for plumbing, electrical, HVAC, and carpentry. Other trades are being onboarded — contact us to check your industry." },
-        { q: "What does it cost?", a: "OTW Receptionist is included in our Basic and Pro plans. View full pricing at otwstudios.com.au — no setup fee, no lock-in contracts." },
+        { q: "How does this work for my business?", a: "We configure the assistant around your services, service area, urgency rules, FAQs, and handoff preferences. OTW handles setup with you rather than leaving you to figure it out alone." },
+        { q: "Will it sound robotic?", a: "Try the live demo above — the voice is powered by ElevenLabs, which produces some of the most natural-sounding AI speech available. We configure the tone around your brand." },
+        { q: "Can it book jobs for me?", a: "Yes, on higher-tier plans where booking rules and calendar access are configured. Tier 1 can still capture, qualify, and notify without direct booking." },
+        { q: "What if a caller has an urgent issue?", a: "Urgent scenarios are routed based on your business rules, including live call transfer, escalation, or priority notification to your phone." },
+        { q: "Do I have to set this up myself?", a: "No. That's the point. It's set up for you, not by you." },
+      ];
+
+      const pricing = [
+        {
+          name: "Essentials",
+          bestFor: "Lead capture and fewer missed opportunities",
+          items: ["Answer inbound calls", "Capture and qualify leads", "Answer approved FAQs", "Send confirmations", "Notify your business", "Transfer specific calls when needed"],
+          cta: "Book an audit",
+          highlight: false,
+        },
+        {
+          name: "Full Service",
+          bestFor: "Businesses that want booking, routing, and deeper automation",
+          items: ["Everything in Essentials", "Direct booking where enabled", "Advanced urgency routing", "Custom voice options", "Deeper workflow automation", "Ongoing optimisation support"],
+          cta: "Get started",
+          highlight: true,
+        },
       ];
 
       return (
-        <div className="min-h-screen bg-white">
-          {/* NAV */}
-          <header className={`fixed top-0 left-0 right-0 z-50 border-b transition-all duration-300 ${navBg}`}>
+        <div className="min-h-screen bg-white text-slate-900">
+
+          {/* HEADER */}
+          <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
             <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-              <a href="index.html" className="flex flex-col leading-tight">
-                <span className={`text-base font-semibold tracking-tight transition-colors duration-300 ${navLogo}`}>OTW Studios</span>
-                <span className={`text-[11px] transition-colors duration-300 ${navLogoSub}`}>Optimise The Workflow</span>
+              <a href="otw_homepage.html" className="flex flex-col">
+                <div className="text-lg font-semibold tracking-tight">OTW Studios</div>
+                <div className="text-xs text-slate-500">Optimise The Workflow</div>
               </a>
-
-              <nav className="hidden gap-7 text-sm md:flex items-center">
-                <div className="relative group">
-                  <button className={`flex items-center gap-1.5 transition-colors duration-300 ${navLink}`}>
-                    Products
-                    <svg className="h-3 w-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                  </button>
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 hidden group-hover:block z-50">
-                    <div className="w-60 rounded-2xl border border-white/10 bg-navy-900 shadow-2xl p-2">
-                      <a href="otw_ai_receptionist.html" className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/5">
-                        <span className="text-sm font-semibold text-white">OTW Receptionist</span>
-                        <span className="text-[10px] font-bold uppercase tracking-wide text-gold-400">You're here</span>
-                      </a>
-                      <a href="otw_triageai.html" className="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/8 transition-colors">
-                        <span className="text-sm font-semibold text-white">OTW TriageAI</span>
-                        <span className="text-[10px] font-bold uppercase tracking-wide text-gold-400">Live</span>
-                      </a>
-                      <div className="my-1.5 border-t border-white/10"/>
-                      <a href="otw_scheduling.html" className="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/5 transition-colors">
-                        <span className="text-sm font-medium text-white/40">OTW Scheduling</span>
-                        <span className="text-[10px] font-medium uppercase tracking-wide text-white/25">Soon</span>
-                      </a>
-                      <a href="otw_debtcollector.html" className="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/5 transition-colors">
-                        <span className="text-sm font-medium text-white/40">OTW DebtCollector</span>
-                        <span className="text-[10px] font-medium uppercase tracking-wide text-white/25">Soon</span>
-                      </a>
-                      <a href="otw_reviewgenius.html" className="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/5 transition-colors">
-                        <span className="text-sm font-medium text-white/40">OTW ReviewGenius</span>
-                        <span className="text-[10px] font-medium uppercase tracking-wide text-white/25">Soon</span>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-                {[["#demo","Demo"],["#features","Features"],["#faq","FAQ"]].map(([href, label]) => (
-                  <a key={href} href={href} className={`transition-colors duration-300 ${navLink}`}>{label}</a>
-                ))}
+              <nav className="hidden gap-6 text-sm md:flex">
+                <a href="#how-it-works" className="text-slate-600 hover:text-slate-900">How it works</a>
+                <a href="#industries" className="text-slate-600 hover:text-slate-900">Industries</a>
+                <a href="#pricing" className="text-slate-600 hover:text-slate-900">Pricing</a>
+                <a href="#faq" className="text-slate-600 hover:text-slate-900">FAQ</a>
               </nav>
-
-              <div className="hidden gap-3 md:flex">
-                <a href="#demo" className={`rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300 ${scrolled ? "border-white/20 text-white/80 hover:border-white/40 hover:text-white" : "border-slate-300 text-slate-700 hover:bg-slate-50"}`}>
+              <div className="flex gap-3">
+                <a href="#demo" className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
                   Try the demo
                 </a>
-                <a href="#audit" className="btn-gold rounded-full bg-gold-500 px-4 py-2 text-sm font-semibold text-white hover:bg-gold-600 shadow-sm">
-                  Book a free audit
+                <a href="#pricing" className="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+                  Book an audit
                 </a>
               </div>
-
-              <button onClick={() => setMobileOpen(!mobileOpen)}
-                className={`rounded-xl border p-2 md:hidden transition-colors duration-300 ${scrolled ? "border-white/20 text-white" : "border-slate-200 text-slate-700"}`}>
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  {mobileOpen ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /> : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />}
-                </svg>
-              </button>
             </div>
           </header>
 
           <main>
-            {/* HERO (LIGHT) */}
-            <section ref={heroRef} className="bg-white pt-28 pb-20 lg:pt-36 lg:pb-24">
-              <div className="mx-auto max-w-7xl px-6">
-
-                {/* 2-col grid */}
-                <div className="grid lg:grid-cols-2 gap-16 items-center mb-16">
-
-                  {/* Left — copy */}
-                  <div>
-                    <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-medium text-slate-500">
-                      <span className="h-1.5 w-1.5 rounded-full bg-gold-500"></span>
-                      Available now for trade businesses · Australia
-                    </div>
-                    <h1 className="text-5xl font-bold tracking-tight text-slate-950 leading-[1.07] sm:text-6xl lg:text-6xl">
-                      Answer every call.<br/>Capture every lead.<br/>
-                      <span className="text-gold-600">Miss nothing.</span>
-                    </h1>
-                    <p className="mt-7 text-lg leading-8 text-slate-500">
-                      Your AI receptionist handles inbound calls 24/7 — qualifies leads, escalates emergencies, books jobs, and sends lead notifications while your team stays focused on the work.
-                    </p>
-                    <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
-                      <a href="#audit" className="btn-dark rounded-full bg-slate-950 px-7 py-3.5 text-sm font-semibold text-white hover:bg-slate-800 shadow-sm">
-                        Book a free audit
-                      </a>
-                      <a href="#demo" className="btn-ghost-light rounded-full border border-slate-300 px-7 py-3.5 text-sm font-medium text-slate-700 flex items-center gap-2">
-                        <svg className="h-4 w-4 text-gold-500" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-                        Hear it live
-                      </a>
-                    </div>
-                    <p className="mt-4 text-xs text-slate-400">Set up in 48 hours · No tech skills required · Fully managed</p>
-                  </div>
-
-                  {/* Right — phone mockup */}
-                  <div className="relative flex justify-center lg:justify-end">
-
-                    {/* Phone frame */}
-                    <div style={{
-                      width: 272, borderRadius: 44, background: '#0F172A',
-                      padding: '10px 8px 14px',
-                      boxShadow: '0 40px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.12)',
-                      position: 'relative', flexShrink: 0,
-                    }}>
-                      {/* Notch */}
-                      <div style={{
-                        position: 'absolute', top: 13, left: '50%', transform: 'translateX(-50%)',
-                        width: 88, height: 7, background: '#1E293B', borderRadius: 4, zIndex: 10,
-                      }}/>
-                      {/* Screen */}
-                      <div style={{ borderRadius: 36, overflow: 'hidden', background: '#F2F5FA' }}>
-
-                        {/* Status bar */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                          padding: '12px 18px 4px', fontSize: 10, fontWeight: 700, color: '#0F172A' }}>
-                          <span>11:47 PM</span>
-                          <span style={{ fontSize: 9, color: 'rgba(15,23,42,0.4)', letterSpacing: 1 }}>●●● ▲</span>
-                        </div>
-
-                        {/* App header */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 7,
-                          padding: '8px 14px 10px', borderBottom: '1px solid rgba(0,0,0,0.07)', background: '#fff' }}>
-                          <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#F59E0B', flexShrink: 0 }}/>
-                          <div>
-                            <div style={{ fontSize: 11, fontWeight: 800, color: '#0F172A', letterSpacing: -0.3, lineHeight: 1.2 }}>OTW Studios</div>
-                            <div style={{ fontSize: 8, fontWeight: 700, color: '#B45309', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Receptionist</div>
-                          </div>
-                        </div>
-
-                        {/* Call — Sarah Thompson — Booked */}
-                        <div style={{ padding: '11px 14px', borderBottom: '1px solid rgba(0,0,0,0.06)', background: '#fff' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: '#0F172A' }}>Sarah Thompson</span>
-                            <span style={{ fontSize: 9, color: 'rgba(15,23,42,0.35)' }}>09:42</span>
-                          </div>
-                          <div style={{ fontSize: 10, color: 'rgba(15,23,42,0.5)', marginBottom: 6 }}>Quote — blocked drain, Bondi</div>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9, fontWeight: 700,
-                            padding: '3px 9px', borderRadius: 20,
-                            background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.28)', color: '#16A34A',
-                            textTransform: 'uppercase', letterSpacing: '0.06em' }}>✓ Booked</span>
-                        </div>
-
-                        {/* Call — Mike Alverez — Qualified */}
-                        <div style={{ padding: '11px 14px', borderBottom: '1px solid rgba(0,0,0,0.06)', background: '#fff' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: '#0F172A' }}>Mike Alverez</span>
-                            <span style={{ fontSize: 9, color: 'rgba(15,23,42,0.35)' }}>10:18</span>
-                          </div>
-                          <div style={{ fontSize: 10, color: 'rgba(15,23,42,0.5)', marginBottom: 6 }}>Hot water — out of hours</div>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9, fontWeight: 700,
-                            padding: '3px 9px', borderRadius: 20,
-                            background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.32)', color: '#B45309',
-                            textTransform: 'uppercase', letterSpacing: '0.06em' }}>⚡ Qualified</span>
-                        </div>
-
-                        {/* Call — Live — Escalating */}
-                        <div style={{ padding: '11px 14px', background: 'rgba(239,68,68,0.03)', borderBottom: '1px solid rgba(239,68,68,0.08)' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: '#0F172A' }}>Live — Dave R.</span>
-                            <span style={{ fontSize: 9, color: '#F59E0B', fontWeight: 700 }}>now</span>
-                          </div>
-                          <div style={{ fontSize: 10, color: 'rgba(15,23,42,0.5)', marginBottom: 6 }}>Burst pipe, Mount Lawley</div>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9, fontWeight: 700,
-                            padding: '3px 9px', borderRadius: 20,
-                            background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', color: '#DC2626',
-                            textTransform: 'uppercase', letterSpacing: '0.06em' }}>● Escalating</span>
-                        </div>
-
-                        {/* Call button row */}
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 14px', background: '#F8FAFC' }}>
-                          <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#F59E0B',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            boxShadow: '0 4px 12px rgba(245,158,11,0.4)' }}>
-                            <svg width="16" height="16" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-                              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.9 10.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012.81 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.25a16 16 0 006.29 6.29l1.61-1.35a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
-                            </svg>
-                          </div>
-                        </div>
-
-                      </div>
-                    </div>
-
-                    {/* Floating badge */}
-                    <div style={{
-                      position: 'absolute', bottom: -16, left: -20,
-                      background: '#0F172A', border: '1px solid rgba(245,158,11,0.22)',
-                      borderRadius: 16, padding: '12px 16px',
-                      boxShadow: '0 12px 32px rgba(0,0,0,0.18)',
-                    }}>
-                      <div style={{ fontSize: 9, fontWeight: 800, color: '#F59E0B',
-                        letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>
-                        Call handled while you slept
-                      </div>
-                      <div style={{ fontSize: 26, fontWeight: 900, color: '#fff', letterSpacing: -0.5, lineHeight: 1.1 }}>+$1,240</div>
-                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>Avg job value from after-hours leads</div>
-                    </div>
-
-                  </div>
-                </div>
-
-                {/* Stats grid — full width below */}
-                <div className="grid gap-px bg-slate-200 sm:grid-cols-2 lg:grid-cols-4 rounded-2xl overflow-hidden border border-slate-200">
-                  {[["24/7","Always answering"],["48 hrs","Setup time"],["< 90s","Emergency escalation"],["0","Tech skills needed"]].map(([v, l]) => (
-                    <div key={l} className="bg-white px-6 py-6">
-                      <div className="text-3xl font-bold tracking-tight text-slate-950">{v}</div>
-                      <div className="mt-1.5 text-sm text-slate-400">{l}</div>
-                    </div>
-                  ))}
-                </div>
-
-              </div>
-            </section>
-
-            {/* PROBLEM (LIGHT → TRANSITION) */}
-            <section className="bg-slate-50 border-t border-slate-200 py-20">
-              <div className="mx-auto max-w-7xl px-6">
-                <div className="max-w-3xl">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">The problem</p>
-                  <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-                    Every missed call is a missed job.
-                  </h2>
-                  <p className="mt-4 text-lg text-slate-500">
-                    Trade businesses run on inbound calls. When you miss one, the caller doesn't wait — they call the next number. OTW AI Receptionist makes sure that never happens.
-                  </p>
-                </div>
-                <div className="mt-10 grid gap-4 md:grid-cols-3">
-                  {[
-                    { title: "Called during a job", body: "You're onsite, hands full. Phone rings. You can't answer. They hang up and call someone else." },
-                    { title: "After-hours enquiry", body: "10pm on a Sunday. Customer has a leak. Your phone is off. OTW answers, qualifies the lead, and alerts you." },
-                    { title: "Emergency you didn't know about", body: "Burst pipe at midnight. Customer needed immediate help. Without OTW, you find out at 8am." },
-                  ].map((c) => (
-                    <div key={c.title} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                      <div className="text-base font-semibold text-slate-900">{c.title}</div>
-                      <p className="mt-3 text-sm leading-6 text-slate-500">{c.body}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-
-            {/* DEMO (DARK) */}
-            <section id="demo" className="section-reveal-900 py-24">
-              <div className="mx-auto max-w-7xl px-6">
-                <div className="flex flex-col gap-12 lg:flex-row lg:items-start lg:gap-16">
-                  <div className="max-w-md lg:sticky lg:top-28">
-                    <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">Live demo</p>
-                    <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                      Hear it handle a real call.
-                    </h2>
-                    <p className="mt-4 text-base leading-7 text-white/50">
-                      This is the actual AI Receptionist — not a recording, not a chatbot. Use your microphone and have a real conversation with the Northside Plumbing demo assistant.
-                    </p>
-                    <p className="mt-4 text-sm text-white/30">Powered by Retell AI · Claude · Deepgram · ElevenLabs</p>
-
-                    <div className="mt-8 space-y-3">
-                      {[
-                        ["Try an emergency", "Tell it you have a burst pipe"],
-                        ["Request a quote", "Ask about hot water system cost"],
-                        ["Check service area", "Ask if they come to your suburb"],
-                      ].map(([title, hint]) => (
-                        <div key={title} className="flex items-start gap-3">
-                          <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold-500" />
-                          <div>
-                            <div className="text-sm font-medium text-white">{title}</div>
-                            <div className="text-xs text-white/35">{hint}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex-1 max-w-md">
-                    <VoiceDemo />
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* FEATURES (DARK) */}
-            <section id="features" className="section-reveal-800 py-24 border-t border-white/5">
-              <div className="mx-auto max-w-7xl px-6">
+            {/* HERO + VOICE DEMO */}
+            <section id="demo" className="relative overflow-hidden border-b border-slate-200">
+              <div className="mx-auto grid max-w-7xl gap-14 px-6 py-20 lg:grid-cols-2 lg:py-28">
                 <div className="max-w-2xl">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">Features</p>
-                  <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                    Everything a receptionist does. None of the overhead.
-                  </h2>
+                  <div className="mb-4 inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
+                    AI Receptionist for service businesses
+                  </div>
+                  <h1 className="text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
+                    Every missed call is a job you didn't book.
+                  </h1>
+                  <p className="mt-6 text-lg leading-8 text-slate-600">
+                    OTW's AI Receptionist answers calls, captures leads, handles common questions, and routes the next step properly — so your business stays responsive while your team keeps working.
+                  </p>
+                  <p className="mt-4 text-sm font-medium text-slate-500">Set up for you, not by you.</p>
+                  <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                    <a href="#pricing" className="rounded-2xl bg-slate-900 px-6 py-3 text-center text-sm font-medium text-white hover:bg-slate-800">Book an audit</a>
+                    <a href="#demo" className="rounded-2xl border border-slate-300 px-6 py-3 text-center text-sm font-medium text-slate-700 hover:bg-slate-50">Try the voice demo</a>
+                  </div>
+                  <div className="mt-8 grid gap-4 text-sm text-slate-600 sm:grid-cols-3">
+                    <div className="rounded-2xl border border-slate-200 p-4"><div className="font-semibold text-slate-900">Answer more calls</div><div className="mt-1">Capture leads while you're on the tools.</div></div>
+                    <div className="rounded-2xl border border-slate-200 p-4"><div className="font-semibold text-slate-900">Reduce admin</div><div className="mt-1">Less interruption, less callback chaos.</div></div>
+                    <div className="rounded-2xl border border-slate-200 p-4"><div className="font-semibold text-slate-900">Stay responsive</div><div className="mt-1">Urgent jobs get handled properly.</div></div>
+                  </div>
                 </div>
-                <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {features.map((f) => (
-                    <div key={f.title} className="card-dark rounded-2xl p-6">
-                      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-gold-500/20 bg-gold-500/8 text-gold-400">
-                        <f.Icon />
-                      </div>
-                      <div className="text-base font-semibold text-white">{f.title}</div>
-                      <p className="mt-2 text-sm leading-6 text-white/50">{f.body}</p>
+
+                {/* VOICE DEMO WIDGET */}
+                <div className="lg:pl-8">
+                  <VoiceDemo />
+                </div>
+              </div>
+            </section>
+
+            {/* PROBLEM */}
+            <section className="border-b border-slate-200 bg-slate-50">
+              <div className="mx-auto max-w-7xl px-6 py-16">
+                <div className="max-w-3xl">
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">The problem</p>
+                  <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
+                    Most small service businesses lose leads for a simple reason: nobody can answer every call.
+                  </h2>
+                  <p className="mt-4 text-lg text-slate-600">When you're driving, onsite, or with a customer, the phone keeps ringing. The first business that responds often wins the job.</p>
+                </div>
+              </div>
+            </section>
+
+            {/* HOW IT WORKS */}
+            <section id="how-it-works" className="border-b border-slate-200 bg-white">
+              <div className="mx-auto max-w-7xl px-6 py-16">
+                <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="max-w-2xl">
+                    <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">How it works</p>
+                    <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">A receptionist system tailored to your workflow.</h2>
+                    <p className="mt-4 text-lg text-slate-600">We configure the assistant around your business rules — your services, your service area, your FAQs, your urgency rules, and your preferred next steps.</p>
+                  </div>
+                  <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 lg:max-w-xl">
+                    <ol className="space-y-5 text-sm text-slate-600">
+                      <li><span className="font-semibold text-slate-900">1. Discovery and setup</span><br />We map your business rules and how calls should be handled.</li>
+                      <li><span className="font-semibold text-slate-900">2. Calls are answered</span><br />The assistant captures and classifies the enquiry in real time.</li>
+                      <li><span className="font-semibold text-slate-900">3. The right next step happens</span><br />Notify, transfer, confirm, or book — depending on your plan and workflow.</li>
+                      <li><span className="font-semibold text-slate-900">4. You get reporting and optimisation</span><br />OTW keeps refining the system based on what's happening in the real world.</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* FEATURES */}
+            <section className="border-b border-slate-200 bg-white">
+              <div className="mx-auto max-w-7xl px-6 py-16">
+                <div className="max-w-2xl">
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">What it helps with</p>
+                  <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">Practical outcomes, not AI theatre.</h2>
+                </div>
+                <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {features.map((feature) => (
+                    <div key={feature} className="rounded-3xl border border-slate-200 p-5">
+                      <div className="text-base font-medium text-slate-900">{feature}</div>
                     </div>
                   ))}
                 </div>
               </div>
             </section>
 
-            {/* HOW IT WORKS (DARK) */}
-            <section className="section-reveal-900 py-24 border-t border-white/5">
-              <div className="mx-auto max-w-7xl px-6">
-                <div className="max-w-2xl mb-12">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">How it works</p>
-                  <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                    Live in 48 hours. Managed forever.
-                  </h2>
+            {/* INDUSTRIES */}
+            <section id="industries" className="border-b border-slate-200 bg-slate-50">
+              <div className="mx-auto max-w-7xl px-6 py-16">
+                <div className="max-w-3xl">
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Industries</p>
+                  <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">Built for service businesses where missed calls cost real money.</h2>
                 </div>
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                  {[
-                    { n: "01", title: "Discovery call", body: "30 minutes. We map your services, service area, escalation contacts, FAQs, and urgency rules." },
-                    { n: "02", title: "OTW configures", body: "We build the system — system prompt, voice profile, call flows, notification pipeline." },
-                    { n: "03", title: "You review and approve", body: "We run QA test calls together. You approve. Nothing goes live without your sign-off." },
-                    { n: "04", title: "Go live", body: "Forward your number to OTW's line. Every call is answered from this point forward." },
-                  ].map((s) => (
-                    <div key={s.n} className="card-dark rounded-2xl p-6">
-                      <div className="text-sm font-bold text-gold-500 mb-3">{s.n}</div>
-                      <div className="text-base font-semibold text-white">{s.title}</div>
-                      <p className="mt-2 text-sm leading-6 text-white/45">{s.body}</p>
+                <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+                  {useCases.map((item) => (
+                    <div key={item.title} className="rounded-3xl border border-slate-200 bg-white p-6">
+                      <div className="text-lg font-semibold text-slate-950">{item.title}</div>
+                      <p className="mt-3 text-sm text-slate-500">{item.pain}</p>
+                      <p className="mt-4 text-sm text-slate-700">{item.outcome}</p>
                     </div>
                   ))}
                 </div>
               </div>
             </section>
 
-            {/* VOICE STACK (DARK) */}
-            <section className="section-reveal-800 py-20 border-t border-white/5">
-              <div className="mx-auto max-w-7xl px-6">
+            {/* VOICE STACK EXPLAINER */}
+            <section className="border-b border-slate-200 bg-white">
+              <div className="mx-auto max-w-7xl px-6 py-16">
                 <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:gap-16">
-                  <div className="max-w-lg">
-                    <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">The technology</p>
-                    <h2 className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                      Best-in-class voice stack, configured for Australian businesses.
+                  <div className="max-w-xl">
+                    <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">The voice stack</p>
+                    <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
+                      Built on the best voice technology available.
                     </h2>
-                    <p className="mt-4 text-sm leading-7 text-white/45">
-                      OTW combines four purpose-built components into a single, managed voice pipeline. You don't interact with any of it — we do.
+                    <p className="mt-4 text-lg text-slate-600">
+                      OTW combines leading AI platforms to deliver a voice that sounds professional, responds quickly, and handles real conversations — not just simple scripts.
                     </p>
                   </div>
-                  <div className="flex-1 grid grid-cols-2 gap-3">
+                  <div className="flex-1 grid gap-4">
                     {[
-                      { name: "Deepgram", role: "Speech recognition", note: "en-AU tuned" },
-                      { name: "Claude", role: "AI reasoning", note: "Anthropic" },
-                      { name: "ElevenLabs / Cartesia", role: "Natural voice", note: "T2 / T1" },
-                      { name: "Retell AI + Twilio", role: "Call infrastructure", note: "AU numbers" },
-                    ].map((t) => (
-                      <div key={t.name} className="card-dark rounded-2xl p-4">
-                        <div className="text-sm font-semibold text-white">{t.name}</div>
-                        <div className="text-xs text-white/40 mt-0.5">{t.role}</div>
-                        <div className="mt-2 inline-block rounded-full bg-gold-500/10 border border-gold-500/20 px-2 py-0.5 text-xs text-gold-400">{t.note}</div>
+                      { label: "Speech recognition", tech: "Deepgram Nova-2", note: "Accurate Australian English transcription, even with background noise." },
+                      { label: "AI reasoning", tech: "Claude (Anthropic)", note: "Understands context, follows your business rules, handles unexpected questions." },
+                      { label: "Voice synthesis", tech: "ElevenLabs", note: "Natural-sounding speech. Custom voice cloning available on Full Service." },
+                      { label: "Call infrastructure", tech: "Retell AI + Twilio", note: "Reliable telephony with Australian phone numbers and call recording built in." },
+                    ].map((item) => (
+                      <div key={item.label} className="flex items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">{item.label}</span>
+                            <span className="rounded-full bg-slate-900 px-2 py-0.5 text-xs font-medium text-white">{item.tech}</span>
+                          </div>
+                          <p className="mt-1 text-sm text-slate-600">{item.note}</p>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -876,66 +705,77 @@
               </div>
             </section>
 
-            {/* PRICING REDIRECT */}
-            <section id="pricing" className="section-reveal-900 py-24 border-t border-white/5">
-              <div className="mx-auto max-w-7xl px-6 text-center">
-                <p className="text-xs font-semibold uppercase tracking-widest text-gold-500 mb-4">Pricing</p>
-                <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl mb-5">Simple, flat monthly plans</h2>
-                <p className="text-white/45 max-w-lg mx-auto mb-10">OTW Receptionist is included in both our Basic and Pro plans. View full plan details and what's included on the OTW Studios homepage.</p>
-                <a href="index.html#pricing" className="btn-gold inline-block rounded-full bg-gold-500 px-9 py-4 text-sm font-bold text-navy-950 gold-glow">
-                  View plans &amp; pricing →
-                </a>
-                <p className="mt-5 text-xs text-white/25">No setup fee. No lock-in. We earn your business every month.</p>
-              </div>
-            </section>
-
-            {/* FAQ (DARK) */}
-            <section id="faq" className="section-reveal-800 py-24 border-t border-white/5">
-              <div className="mx-auto max-w-7xl px-6">
-                <div className="max-w-2xl mb-12">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">FAQ</p>
-                  <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">Common questions</h2>
-                </div>
-                <div className="max-w-2xl space-y-2">
-                  {faqs.map((faq, i) => (
-                    <div key={i} className={`rounded-2xl border overflow-hidden transition-all ${openFaq === i ? "border-gold-500/30 bg-gold-500/5" : "card-dark"}`}>
-                      <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                        className="flex w-full items-center justify-between px-6 py-4 text-left">
-                        <span className="text-sm font-medium text-white pr-4">{faq.q}</span>
-                        <svg className={`h-4 w-4 shrink-0 text-gold-500 transition-transform ${openFaq === i ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
-                      {openFaq === i && <div className="px-6 pb-5 text-sm leading-6 text-white/50">{faq.a}</div>}
+            {/* VALUE PROPS */}
+            <section className="border-b border-slate-200 bg-slate-50">
+              <div className="mx-auto max-w-7xl px-6 py-16">
+                <div className="grid gap-6 lg:grid-cols-3">
+                  {[
+                    { title: "Managed setup", body: "We work with your business rules, call types, FAQs, and escalation logic — then configure it for you." },
+                    { title: "Operational visibility", body: "Lead capture summaries, notifications, and reporting help make the system commercially useful, not just impressive." },
+                    { title: "Built to improve", body: "OTW keeps refining the assistant over time so it stays aligned with how the business actually operates." },
+                  ].map((item) => (
+                    <div key={item.title} className="rounded-3xl border border-slate-200 bg-white p-6">
+                      <div className="text-sm font-semibold text-slate-900">{item.title}</div>
+                      <p className="mt-3 text-sm leading-6 text-slate-600">{item.body}</p>
                     </div>
                   ))}
                 </div>
               </div>
             </section>
 
-            {/* AUDIT CTA (DARKEST) */}
-            <section id="audit" className="section-reveal-950 py-24 border-t border-white/5">
-              <div className="mx-auto max-w-7xl px-6">
-                <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="max-w-2xl">
-                    <p className="text-xs font-semibold uppercase tracking-widest text-gold-500">Start here</p>
-                    <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                      Book a free call audit. See exactly what you're missing.
-                    </h2>
-                    <p className="mt-4 text-base leading-7 text-white/45">
-                      30 minutes. We'll map out exactly how OTW AI Receptionist would be configured for your business — no obligation, no tech knowledge needed. You'll leave with a clear picture of how many calls you're currently missing and what they're worth.
-                    </p>
+            {/* PRICING */}
+            <section id="pricing" className="border-b border-slate-200 bg-white">
+              <div className="mx-auto max-w-7xl px-6 py-16">
+                <div className="max-w-3xl">
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Pricing</p>
+                  <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">Start with the plan that fits your workflow.</h2>
+                  <p className="mt-4 text-lg text-slate-600">OTW handles setup, tailoring, and optimisation. The right plan depends on whether you want lead capture only or deeper booking and workflow automation.</p>
+                </div>
+                <div className="mt-10 grid gap-6 lg:grid-cols-2">
+                  {pricing.map((plan) => (
+                    <div key={plan.name} className={`rounded-[2rem] border p-6 ${plan.highlight ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-slate-50 text-slate-900'}`}>
+                      <div className="text-2xl font-semibold">{plan.name}</div>
+                      <div className={`mt-2 text-sm ${plan.highlight ? 'text-slate-300' : 'text-slate-600'}`}>{plan.bestFor}</div>
+                      <ul className={`mt-6 space-y-3 text-sm ${plan.highlight ? 'text-slate-200' : 'text-slate-700'}`}>
+                        {plan.items.map((item) => (<li key={item}>• {item}</li>))}
+                      </ul>
+                      <button className={`mt-8 rounded-2xl px-5 py-3 text-sm font-medium ${plan.highlight ? 'bg-white text-slate-900 hover:bg-slate-100' : 'bg-slate-900 text-white hover:bg-slate-800'}`}>{plan.cta}</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* FAQ */}
+            <section id="faq" className="border-b border-slate-200 bg-slate-50">
+              <div className="mx-auto max-w-7xl px-6 py-16">
+                <div className="max-w-3xl">
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">FAQ</p>
+                  <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">Questions real business owners ask before they commit.</h2>
+                </div>
+                <div className="mt-10 space-y-4">
+                  {faqs.map((item) => (
+                    <div key={item.q} className="rounded-3xl border border-slate-200 bg-white p-6">
+                      <div className="text-base font-semibold text-slate-950">{item.q}</div>
+                      <p className="mt-3 text-sm leading-6 text-slate-600">{item.a}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* FINAL CTA */}
+            <section className="bg-white">
+              <div className="mx-auto max-w-7xl px-6 py-16">
+                <div className="rounded-[2rem] bg-slate-900 px-8 py-10 text-white sm:px-10 sm:py-12">
+                  <div className="max-w-3xl">
+                    <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-300">Next step</p>
+                    <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Choose the path that fits how ready you are.</h2>
+                    <p className="mt-4 text-lg text-slate-300">Ready to see if this fits your business? Book an audit. Want to hear it first? Try the voice demo above.</p>
                   </div>
-                  <div className="flex shrink-0 flex-col gap-3">
-                    <a href="mailto:andy@otwstudios.com.au?subject=OTW Free Audit Request"
-                      className="btn-gold rounded-full bg-gold-500 px-9 py-4 text-center text-sm font-bold text-white hover:bg-gold-600 gold-glow">
-                      Book free audit
-                    </a>
-                    <a href="#demo"
-                      className="btn-ghost rounded-full border border-white/15 px-9 py-4 text-center text-sm font-medium text-white/50">
-                      Try the demo first
-                    </a>
-                    <p className="text-center text-xs text-white/20">No obligation. No tech knowledge needed.</p>
+                  <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                    <a href="#pricing" className="rounded-2xl bg-white px-6 py-3 text-center text-sm font-medium text-slate-900 hover:bg-slate-100">Book an audit</a>
+                    <a href="#demo" className="rounded-2xl border border-slate-600 px-6 py-3 text-center text-sm font-medium text-white hover:bg-slate-800">Try the voice demo</a>
                   </div>
                 </div>
               </div>
@@ -943,34 +783,18 @@
           </main>
 
           {/* FOOTER */}
-          <footer className="section-reveal-950 border-t border-white/5 py-12">
-            <div className="mx-auto max-w-7xl px-6">
-              <div className="flex flex-col gap-10 md:flex-row md:justify-between">
-                <div>
-                  <div className="text-base font-semibold text-white">OTW Studios</div>
-                  <div className="mt-0.5 text-sm text-white/30">Optimise The Workflow</div>
-                  <p className="mt-4 max-w-xs text-sm leading-6 text-white/25">Managed AI workflow tools for service businesses. Set up for you, not by you.</p>
-                </div>
-                <div className="grid gap-8 text-sm sm:grid-cols-3">
-                  {[
-                    { heading: "Product", links: [["#features","Features"],["#faq","FAQ"],["#demo","Try demo"]] },
-                    { heading: "Company", links: [["index.html","OTW Studios"],["index.html#about","About"],["index.html#industries","Industries"]] },
-                    { heading: "Get started", links: [["#audit","Book an audit"],["#demo","Live demo"],["index.html#contact","Get in touch"]] },
-                  ].map((col) => (
-                    <div key={col.heading}>
-                      <div className="font-semibold text-white/50">{col.heading}</div>
-                      <ul className="mt-3 space-y-2">
-                        {col.links.map(([href, label]) => (
-                          <li key={label}><a href={href} className="text-white/25 hover:text-white/60 transition-colors">{label}</a></li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
+          <footer className="border-t border-slate-200 bg-white">
+            <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-10 text-sm text-slate-500 md:flex-row md:items-center md:justify-between">
+              <div>
+                <div className="font-semibold text-slate-900">OTW Studios</div>
+                <div className="mt-1">AI receptionist systems for service businesses.</div>
               </div>
-              <div className="mt-10 flex flex-col gap-2 border-t border-white/5 pt-6 text-xs text-white/15 sm:flex-row sm:justify-between">
-                <span>© {new Date().getFullYear()} OTW Studios. All rights reserved.</span>
-                <span>Optimise The Workflow</span>
+              <div className="flex flex-wrap gap-5">
+                <a href="#how-it-works" className="hover:text-slate-900">How it works</a>
+                <a href="#industries" className="hover:text-slate-900">Industries</a>
+                <a href="#pricing" className="hover:text-slate-900">Pricing</a>
+                <a href="#faq" className="hover:text-slate-900">FAQ</a>
+                <a href="otw_homepage.html" className="hover:text-slate-900">← OTW Studios</a>
               </div>
             </div>
           </footer>
@@ -978,7 +802,8 @@
       );
     }
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<OTWAIReceptionistWebsite />);
   </script>
 </body>
 </html>
