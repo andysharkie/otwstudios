@@ -275,13 +275,71 @@ textarea, input, select { font-family: inherit; }
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useEffect, useCallback } = React;
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
 
-/* ════════════════════════════════════════════════
-   DEMO DATA
-════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════
+   API HELPERS
+═══════════════════════════════════════════════════════════ */
+const api = {
+  async get(path) {
+    const r = await fetch(path, { credentials: 'include' });
+    if (!r.ok) { const e = new Error(r.statusText); e.status = r.status; throw e; }
+    return r.json();
+  },
+  async post(path, body) {
+    const r = await fetch(path, {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) { const e = new Error(r.statusText); e.status = r.status; throw e; }
+    return r.json();
+  },
+};
 
-const BUSINESS = {
+/* ═══════════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════════ */
+const getInitials = name => name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+const AVATAR_COLORS = ['#7C3AED','#0EA5E9','#059669','#DC2626','#9333EA','#0284C7','#BE185D','#B45309','#0F766E','#1D4ED8'];
+const avatarColor = email => AVATAR_COLORS[(email||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0) % AVATAR_COLORS.length];
+
+function formatEmailTime(isoStr) {
+  if (!isoStr) return '';
+  const d = new Date(isoStr);
+  const diff = Math.floor((Date.now() - d) / 86400000);
+  if (diff === 0) return d.toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit', hour12:true });
+  if (diff === 1) return 'Yesterday';
+  if (diff < 7) return d.toLocaleDateString('en-AU', { weekday:'long' });
+  return d.toLocaleDateString('en-AU', { day:'numeric', month:'short' });
+}
+
+function mapDbEmail(row) {
+  return {
+    id:        row.id,
+    gmailId:   row.gmail_message_id,
+    threadId:  row.thread_id,
+    category:  row.category || 'inbox',
+    from:      row.from_name || row.from_email || 'Unknown',
+    email:     row.from_email || '',
+    avatarBg:  avatarColor(row.from_email || ''),
+    subject:   row.subject || '(no subject)',
+    preview:   row.snippet || (row.body || '').slice(0, 80),
+    body:      row.body || '',
+    time:      formatEmailTime(row.received_at),
+    date:      formatEmailTime(row.received_at),
+    unread:    !row.approved,
+    draft:     row.draft || '',
+    approved:  row.approved || false,
+    hasInvoice: false,
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DEMO DATA — used when not authenticated (marketing view)
+═══════════════════════════════════════════════════════════ */
+const DEMO_BUSINESS = {
   name: 'OTW Plumbing & Gas',
   owner: 'Jake Mitchell',
   phone: '0412 888 777',
@@ -294,304 +352,128 @@ const BUSINESS = {
   signature: 'Cheers,\nJake Mitchell\nOTW Plumbing & Gas  |  0412 888 777\nFully licensed & insured  |  otwplumbing.com.au',
 };
 
-const EMAILS = [
+const _sig = DEMO_BUSINESS.signature;
+const DEMO_EMAILS = [
   {
-    id: 1,
-    category: 'urgent',
-    from: 'Sarah Chen',
-    email: 'sarah.chen@gmail.com',
-    avatarBg: '#7C3AED',
-    subject: 'URGENT — burst pipe, flooding under floorboards',
-    preview: 'Our main bathroom pipe just burst about 20 minutes ago...',
-    body: `Hi,
-
-Our main bathroom pipe just burst about 20 minutes ago and water is flooding under the floorboards. We've turned off the mains but there's already a lot of damage spreading into the hallway.
-
-We're at 14 Rosella Street, Northcote. Can someone please come out as soon as possible?
-
-We're in a bit of a panic.
-
-Sarah Chen
-0423 111 222`,
-    time: '8:42 AM',
-    date: 'Today',
-    unread: true,
-    draft: `Hi Sarah,
-
-We're on our way — expect us between 9:30–10:00 AM.
-
-In the meantime:
-• Keep the mains turned off
-• Place towels along the water line to limit spread
-• Move any electronics or valuables out of the affected area
-• Don't use any electrical appliances near the water
-
-We'll assess the full extent when we arrive and walk you through the work and cost before we start anything. Our call-out is $95 and any work after that we'll quote on-site.
-
-Hang tight — we'll be there shortly.
-
-${BUSINESS.signature}`,
-    hasInvoice: false,
+    id:1, category:'urgent', from:'Sarah Chen', email:'sarah.chen@gmail.com', avatarBg:'#7C3AED',
+    subject:'URGENT — burst pipe, flooding under floorboards',
+    preview:'Our main bathroom pipe just burst about 20 minutes ago...',
+    body:`Hi,\n\nOur main bathroom pipe just burst about 20 minutes ago and water is flooding under the floorboards. We've turned off the mains but there's already a lot of damage spreading into the hallway.\n\nWe're at 14 Rosella Street, Northcote. Can someone please come out as soon as possible?\n\nWe're in a bit of a panic.\n\nSarah Chen\n0423 111 222`,
+    time:'8:42 AM', date:'Today', unread:true, hasInvoice:false,
+    draft:`Hi Sarah,\n\nWe're on our way — expect us between 9:30–10:00 AM.\n\nIn the meantime:\n• Keep the mains turned off\n• Place towels along the water line to limit spread\n• Move any electronics or valuables out of the affected area\n• Don't use any electrical appliances near the water\n\nWe'll assess the full extent when we arrive and walk you through the work and cost before we start anything. Our call-out is $95 and any work after that we'll quote on-site.\n\nHang tight — we'll be there shortly.\n\n${_sig}`,
   },
   {
-    id: 2,
-    category: 'work',
-    from: 'Dave Thompson',
-    email: 'd.thompson@icloud.com',
-    avatarBg: '#0EA5E9',
-    subject: 'Quote request — hot water system replacement',
-    preview: 'Our Rheem system is about 14 years old and has been playing up...',
-    body: `Hi there,
-
-Our Rheem hot water system is about 14 years old and has been playing up lately — slow to heat, and I think there might be a slow leak at the base.
-
-We're a family of 4 and we're interested in replacing it with a gas continuous flow. We're at 7 Elm Street, Thornbury.
-
-Could you give us a quote? Happy to have someone come and take a look.
-
-Thanks,
-Dave Thompson`,
-    time: '7:15 AM',
-    date: 'Today',
-    unread: true,
-    draft: `Hi Dave,
-
-Thanks for reaching out — a 14-year-old Rheem has had a solid run. Based on what you've described (slow heating + possible base leak), it's likely at end-of-life rather than worth repairing.
-
-For a family of 4 on continuous flow, we'd typically recommend a Rinnai 26L or Rinnai B26 — reliable, gas-efficient, and excellent pressure. All-in installed, you're generally looking at $2,100–$2,600 depending on the complexity of the run and whether the gas line needs extending.
-
-I'd like to pop out and take a look before we lock anything in — no charge for the site visit. Are you free this week, or would Saturday morning work?
-
-${BUSINESS.signature}`,
-    hasInvoice: true,
+    id:2, category:'work', from:'Dave Thompson', email:'d.thompson@icloud.com', avatarBg:'#0EA5E9',
+    subject:'Quote request — hot water system replacement',
+    preview:'Our Rheem system is about 14 years old and has been playing up...',
+    body:`Hi there,\n\nOur Rheem hot water system is about 14 years old and has been playing up lately — slow to heat, and I think there might be a slow leak at the base.\n\nWe're a family of 4 and we're interested in replacing it with a gas continuous flow. We're at 7 Elm Street, Thornbury.\n\nCould you give us a quote? Happy to have someone come and take a look.\n\nThanks,\nDave Thompson`,
+    time:'7:15 AM', date:'Today', unread:true, hasInvoice:true,
+    draft:`Hi Dave,\n\nThanks for reaching out — a 14-year-old Rheem has had a solid run. Based on what you've described (slow heating + possible base leak), it's likely at end-of-life rather than worth repairing.\n\nFor a family of 4 on continuous flow, we'd typically recommend a Rinnai 26L or Rinnai B26 — reliable, gas-efficient, and excellent pressure. All-in installed, you're generally looking at $2,100–$2,600 depending on the complexity of the run and whether the gas line needs extending.\n\nI'd like to pop out and take a look before we lock anything in — no charge for the site visit. Are you free this week, or would Saturday morning work?\n\n${_sig}`,
     invoiceData: {
-      number: 'QTE-2026-0041',
-      date: '16 Apr 2026',
-      to: 'Dave Thompson',
-      address: '7 Elm Street, Thornbury VIC 3071',
-      items: [
-        { desc: 'Rinnai 26L Continuous Flow Gas Hot Water System (B26 — supply & install)', qty: 1, rate: 1850, amount: 1850 },
-        { desc: 'Removal & disposal of existing Rheem storage unit', qty: 1, rate: 185, amount: 185 },
-        { desc: 'Gas line inspection, pressure test & connection', qty: 1, rate: 160, amount: 160 },
-        { desc: 'Certificate of compliance (gas work)', qty: 1, rate: 95, amount: 95 },
+      number:'QTE-2026-0041', date:'16 Apr 2026', to:'Dave Thompson', address:'7 Elm Street, Thornbury VIC 3071',
+      items:[
+        {desc:'Rinnai 26L Continuous Flow Gas Hot Water System (B26 — supply & install)',qty:1,rate:1850,amount:1850},
+        {desc:'Removal & disposal of existing Rheem storage unit',qty:1,rate:185,amount:185},
+        {desc:'Gas line inspection, pressure test & connection',qty:1,rate:160,amount:160},
+        {desc:'Certificate of compliance (gas work)',qty:1,rate:95,amount:95},
       ],
-      subtotal: 2290,
-      gst: 229,
-      total: 2519,
+      subtotal:2290, gst:229, total:2519,
     }
   },
   {
-    id: 3,
-    category: 'work',
-    from: 'Marcus Reid',
-    email: 'marcus@reidbuilds.com.au',
-    avatarBg: '#059669',
-    subject: 'Rough-in quote — 4-bed townhouse, Coburg North',
-    preview: 'Hi Jake, Marcus here from Reid Builds. We\'ve got a 4-bedroom...',
-    body: `Hi Jake,
-
-Marcus here from Reid Builds. We've got a 4-bedroom townhouse going up on Smith Street, Coburg North — slab pour is in 3 weeks so we need a rough-in quote sorted ASAP.
-
-Spec sheet attached (3 bathrooms + ensuite, laundry, kitchen, outdoor entertaining area with sink). We use copper throughout, no shortcuts.
-
-Let me know if you want to do a site visit before quoting. We've worked with you before on the Alphington project and the quality was excellent.
-
-Marcus
-Reid Builds | 0412 999 333`,
-    time: 'Yesterday',
-    date: 'Yesterday',
-    unread: false,
-    draft: `Hi Marcus,
-
-Great to hear from you — glad the Alphington job worked out well, the team enjoyed that one.
-
-We've got capacity starting next month so the timing lines up well. A site visit before the slab is the right call — saves headaches later, especially with 4 wet areas and an outdoor run.
-
-Are you free Thursday afternoon, say 1:30–2pm? I can walk the plans with you on-site and get you a firm number by end of week. For a 4-bed, 3.5-bath copper rough-in you're typically looking at $16k–$22k depending on run distances and fitting spec, but I'll nail that down after the site visit.
-
-${BUSINESS.signature}`,
-    hasInvoice: false,
+    id:3, category:'work', from:'Marcus Reid', email:'marcus@reidbuilds.com.au', avatarBg:'#059669',
+    subject:"Rough-in quote — 4-bed townhouse, Coburg North",
+    preview:"Hi Jake, Marcus here from Reid Builds. We've got a 4-bedroom...",
+    body:`Hi Jake,\n\nMarcus here from Reid Builds. We've got a 4-bedroom townhouse going up on Smith Street, Coburg North — slab pour is in 3 weeks so we need a rough-in quote sorted ASAP.\n\nSpec sheet attached (3 bathrooms + ensuite, laundry, kitchen, outdoor entertaining area with sink). We use copper throughout, no shortcuts.\n\nLet me know if you want to do a site visit before quoting. We've worked with you before on the Alphington project and the quality was excellent.\n\nMarcus\nReid Builds | 0412 999 333`,
+    time:'Yesterday', date:'Yesterday', unread:false, hasInvoice:false,
+    draft:`Hi Marcus,\n\nGreat to hear from you — glad the Alphington job worked out well, the team enjoyed that one.\n\nWe've got capacity starting next month so the timing lines up well. A site visit before the slab is the right call — saves headaches later, especially with 4 wet areas and an outdoor run.\n\nAre you free Thursday afternoon, say 1:30–2pm? I can walk the plans with you on-site and get you a firm number by end of week. For a 4-bed, 3.5-bath copper rough-in you're typically looking at $16k–$22k depending on run distances and fitting spec, but I'll nail that down after the site visit.\n\n${_sig}`,
   },
   {
-    id: 4,
-    category: 'inbox',
-    from: 'Tony Caruso',
-    email: 'tcaruso@tonysbistro.com.au',
-    avatarBg: '#DC2626',
-    subject: 'Invoice #1089 — can you resend?',
-    preview: 'Could you resend invoice #1089 for the grease trap work...',
-    body: `Hi,
-
-Could you resend invoice #1089 for the grease trap work you did on the 3rd? Our accounts person can't find the original email and the due date is coming up.
-
-No urgency — just when you get a chance.
-
-Cheers,
-Tony
-Tony's Bistro`,
-    time: '2 days ago',
-    date: 'Tuesday',
-    unread: false,
-    draft: `Hi Tony,
-
-No worries — I'll have our accounts team resend invoice #1089 to your address this afternoon. If it ends up in spam, check your junk folder, or let me know if you'd prefer it sent to a different email address.
-
-${BUSINESS.signature}`,
-    hasInvoice: false,
+    id:4, category:'inbox', from:'Tony Caruso', email:'tcaruso@tonysbistro.com.au', avatarBg:'#DC2626',
+    subject:'Invoice #1089 — can you resend?',
+    preview:'Could you resend invoice #1089 for the grease trap work...',
+    body:`Hi,\n\nCould you resend invoice #1089 for the grease trap work you did on the 3rd? Our accounts person can't find the original email and the due date is coming up.\n\nNo urgency — just when you get a chance.\n\nCheers,\nTony\nTony's Bistro`,
+    time:'2 days ago', date:'Tuesday', unread:false, hasInvoice:false,
+    draft:`Hi Tony,\n\nNo worries — I'll have our accounts team resend invoice #1089 to your address this afternoon. If it ends up in spam, check your junk folder, or let me know if you'd prefer it sent to a different email address.\n\n${_sig}`,
   },
   {
-    id: 5,
-    category: 'inbox',
-    from: 'Priya Sharma',
-    email: 'priya.sharma@gmail.com',
-    avatarBg: '#9333EA',
-    subject: '5 stars — best plumber we\'ve ever used',
-    preview: 'Just wanted to say the team was absolutely fantastic yesterday...',
-    body: `Hi Jake,
-
-Just wanted to say the team were absolutely fantastic yesterday. They arrived on time, explained everything clearly before starting, left the place completely spotless, and the price was exactly what you quoted — no surprises.
-
-We've already recommended you to our neighbours at number 12. I'm going to leave you a Google review right now.
-
-Thanks again,
-Priya`,
-    time: '3 days ago',
-    date: 'Monday',
-    unread: false,
-    draft: `Hi Priya,
-
-That genuinely made our day — thank you so much! The lads will be chuffed to hear it.
-
-A Google review means the world to a small business like ours — it really does help people find us when they need a plumber in a pinch. Here's the direct link if it's handy: https://g.page/otwplumbing/review
-
-And thanks for the recommendation to number 12 — we'll take great care of them.
-
-${BUSINESS.signature}`,
-    hasInvoice: false,
+    id:5, category:'inbox', from:'Priya Sharma', email:'priya.sharma@gmail.com', avatarBg:'#9333EA',
+    subject:"5 stars — best plumber we've ever used",
+    preview:'Just wanted to say the team was absolutely fantastic yesterday...',
+    body:`Hi Jake,\n\nJust wanted to say the team were absolutely fantastic yesterday. They arrived on time, explained everything clearly before starting, left the place completely spotless, and the price was exactly what you quoted — no surprises.\n\nWe've already recommended you to our neighbours at number 12. I'm going to leave you a Google review right now.\n\nThanks again,\nPriya`,
+    time:'3 days ago', date:'Monday', unread:false, hasInvoice:false,
+    draft:`Hi Priya,\n\nThat genuinely made our day — thank you so much! The lads will be chuffed to hear it.\n\nA Google review means the world to a small business like ours — it really does help people find us when they need a plumber in a pinch.\n\nAnd thanks for the recommendation to number 12 — we'll take great care of them.\n\n${_sig}`,
   },
 ];
 
-const INITIAL_LEARNING = [
-  {
-    id: 1,
-    rule: 'Always include specific product model recommendations (Rinnai, Rheem, etc.) in hot water quotes — not just generic descriptions',
-    source: 'Edited draft for Dave Thompson',
-    timestamp: '2 days ago',
-    applied: 14,
-  },
-  {
-    id: 2,
-    rule: 'Sign off as "Cheers, Jake" — not "Kind regards" or "Best"',
-    source: 'Pattern detected across 12 approved drafts',
-    timestamp: '1 week ago',
-    applied: 31,
-  },
-  {
-    id: 3,
-    rule: 'For urgent jobs, include an arrival ETA and 3–4 bullet-point safety instructions before any other content',
-    source: 'Edited draft for Sarah Chen',
-    timestamp: 'Today',
-    applied: 3,
-  },
-  {
-    id: 4,
-    rule: 'When quoting builders, always reference a previous job together to reinforce the relationship',
-    source: 'Edited draft for Marcus Reid',
-    timestamp: '3 days ago',
-    applied: 7,
-  },
+const DEMO_LEARNING = [
+  {id:1,rule:'Always include specific product model recommendations (Rinnai, Rheem, etc.) in hot water quotes',source:'Edited draft for Dave Thompson',timestamp:'2 days ago',applied:14},
+  {id:2,rule:'Sign off as "Cheers, Jake" — not "Kind regards" or "Best"',source:'Pattern detected across 12 approved drafts',timestamp:'1 week ago',applied:31},
+  {id:3,rule:'For urgent jobs, include an arrival ETA and 3–4 bullet-point safety instructions before any other content',source:'Edited draft for Sarah Chen',timestamp:'Today',applied:3},
+  {id:4,rule:'When quoting builders, always reference a previous job together to reinforce the relationship',source:'Edited draft for Marcus Reid',timestamp:'3 days ago',applied:7},
 ];
 
-const INVOICE_LIST = [
-  { id: 'INV-2026-0038', to: 'Liam Walsh', desc: 'Bathroom leak repair + pipe reline', amount: 1240, status: 'sent', date: '12 Apr 2026' },
-  { id: 'INV-2026-0039', to: "Tony's Bistro", desc: 'Grease trap service & clean', amount: 580, status: 'sent', date: '3 Apr 2026' },
-  { id: 'QTE-2026-0041', to: 'Dave Thompson', desc: 'Rinnai 26L continuous flow supply & install', amount: 2519, status: 'pending', date: '16 Apr 2026' },
-  { id: 'QTE-2026-0040', to: 'Marcus Reid (Reid Builds)', desc: 'Rough-in quote — Smith St townhouse', amount: null, status: 'draft', date: '15 Apr 2026' },
+const DEMO_INVOICE_LIST = [
+  {id:'INV-2026-0038',to:'Liam Walsh',desc:'Bathroom leak repair + pipe reline',amount:1240,status:'sent',date:'12 Apr 2026'},
+  {id:'INV-2026-0039',to:"Tony's Bistro",desc:'Grease trap service & clean',amount:580,status:'sent',date:'3 Apr 2026'},
+  {id:'QTE-2026-0041',to:'Dave Thompson',desc:'Rinnai 26L continuous flow supply & install',amount:2519,status:'pending',date:'16 Apr 2026'},
+  {id:'QTE-2026-0040',to:'Marcus Reid (Reid Builds)',desc:'Rough-in quote — Smith St townhouse',amount:null,status:'draft',date:'15 Apr 2026'},
 ];
 
-/* ════════════════════════════════════════════════
-   HELPERS
-════════════════════════════════════════════════ */
-const getInitials = name => name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+const DEMO_EMAIL_A = {
+  id:10, category:'work', from:'Chloe Bartlett', email:'chloe.b@outlook.com', avatarBg:'#BE185D',
+  subject:'No hot water since yesterday — Reservoir',
+  preview:"Hi, we've had no hot water since yesterday morning and we're a family of 3...",
+  body:`Hi,\n\nWe've had no hot water since yesterday morning. We're a family of 3 and starting to struggle. Not sure if it's the element or the whole system — it's about 8 years old.\n\nWe're at 22 Station Street, Reservoir. Can you come take a look?\n\nThanks,\nChloe\n0411 888 999`,
+  time:'Just now', date:'Today', unread:true, hasInvoice:false,
+  draft:`Hi Chloe,\n\nNo hot water with a young family is no fun — let's get this sorted quickly.\n\nBased on what you've described it could be a faulty element, thermostat, or end-of-life unit at 8 years. Worth a look before we call it.\n\nI can have someone out tomorrow morning — does 8–9am work? We'll diagnose on-site and give you a clear quote before touching anything.\n\nCheers,\nJake\nJake's Plumbing · 0400 123 456`,
+};
+const DEMO_EMAIL_B = {
+  id:11, category:'work', from:'Tom Nguyen', email:'tom.nguyen@gmail.com', avatarBg:'#0284C7',
+  subject:'Quote — full bathroom reno, Preston',
+  preview:"Hi, we're planning a complete bathroom renovation starting next month...",
+  body:`Hi,\n\nWe're planning a full bathroom renovation starting next month. Complete strip-out — new shower, freestanding bath, double vanity, and the toilet needs to move about 400mm to the left for the new layout.\n\nProperty is at 8 Oakton Ave, Preston. We have a builder for tiling and fitout — just need a plumber for rough-in and final connections.\n\nCan you quote? Happy to do a site visit.\n\nThanks,\nTom\n0422 777 888`,
+  time:'Just now', date:'Today', unread:true, hasInvoice:false,
+  draft:`Hi Tom,\n\nThanks for reaching out — a full bathroom reno is a great project and the timing works well on our end.\n\nMoving a toilet 400mm is very doable; just depends on slab vs suspended floor, but nothing unusual for Preston homes.\n\nFor a full rough-in (shower, freestanding bath, double vanity, toilet relocation) plus final connections, you're typically looking at $3,200–$4,800 all-in — but I'd like to walk the space before locking in a number.\n\nAre you free for a quick site visit this week? Thursday afternoon or Friday morning work well for me. I can have a written quote to you within 24 hours of the visit.\n\nCheers,\nJake\nJake's Plumbing · 0400 123 456`,
+};
 
-/* OTW line-art SVG icons — matches homepage style: 1.5px stroke, round caps */
+/* ═══════════════════════════════════════════════════════════
+   SVG ICONS
+═══════════════════════════════════════════════════════════ */
 const s = { fill:'none', stroke:'currentColor', strokeWidth:'1.5', strokeLinecap:'round', strokeLinejoin:'round' };
 
 function NavIcon({ id }) {
   const icons = {
-    triage: (
-      <svg width="16" height="16" viewBox="0 0 24 24" {...s}>
-        <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
-        <path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/>
-      </svg>
-    ),
-    drafts: (
-      <svg width="16" height="16" viewBox="0 0 24 24" {...s}>
-        <path d="M12 20h9"/>
-        <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
-      </svg>
-    ),
-    invoices: (
-      <svg width="16" height="16" viewBox="0 0 24 24" {...s}>
-        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-        <polyline points="14 2 14 8 20 8"/>
-        <line x1="16" y1="13" x2="8" y2="13"/>
-        <line x1="16" y1="17" x2="8" y2="17"/>
-        <line x1="10" y1="9" x2="8" y2="9"/>
-      </svg>
-    ),
-    learning: (
-      <svg width="16" height="16" viewBox="0 0 24 24" {...s}>
-        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/>
-      </svg>
-    ),
-    settings: (
-      <svg width="16" height="16" viewBox="0 0 24 24" {...s}>
-        <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
-        <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
-        <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
-        <line x1="1" y1="14" x2="7" y2="14"/>
-        <line x1="9" y1="8" x2="15" y2="8"/>
-        <line x1="17" y1="16" x2="23" y2="16"/>
-      </svg>
-    ),
+    triage: (<svg width="16" height="16" viewBox="0 0 24 24" {...s}><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>),
+    drafts: (<svg width="16" height="16" viewBox="0 0 24 24" {...s}><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>),
+    invoices: (<svg width="16" height="16" viewBox="0 0 24 24" {...s}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>),
+    learning: (<svg width="16" height="16" viewBox="0 0 24 24" {...s}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>),
+    settings: (<svg width="16" height="16" viewBox="0 0 24 24" {...s}><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>),
   };
   return icons[id] || null;
 }
 
 function CatIcon({ cat }) {
   const icons = {
-    urgent: (
-      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline-block',verticalAlign:'middle',marginRight:3}}>
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-    ),
-    work: (
-      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline-block',verticalAlign:'middle',marginRight:3}}>
-        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/>
-      </svg>
-    ),
-    inbox: (
-      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline-block',verticalAlign:'middle',marginRight:3}}>
-        <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
-        <path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/>
-      </svg>
-    ),
+    urgent: (<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline-block',verticalAlign:'middle',marginRight:3}}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>),
+    work: (<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline-block',verticalAlign:'middle',marginRight:3}}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>),
+    inbox: (<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline-block',verticalAlign:'middle',marginRight:3}}><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>),
   };
   return icons[cat] || null;
 }
 
-function CatPill({ cat, size = 'sm' }) {
+function CatPill({ cat, size='sm' }) {
   const cls = size === 'lg' ? 'cat-pill-big' : 'cat-pill';
-  const labels = { urgent: 'Urgent', work: 'Work', inbox: 'Inbox' };
+  const labels = { urgent:'Urgent', work:'Work', inbox:'Inbox' };
   return <span className={`${cls} ${cat}`}><CatIcon cat={cat}/>{labels[cat]}</span>;
 }
 
-/* ════════════════════════════════════════════════
-   INVOICE PANEL
-════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════
+   INVOICE PANEL (demo only — real invoice sending is future)
+═══════════════════════════════════════════════════════════ */
 function InvoicePanel({ email, onApprove, approved }) {
   const d = email.invoiceData;
+  if (!d) return null;
   return (
     <div className="invoice-wrap">
       <div className="draft-eyebrow" style={{marginBottom:16}}>
@@ -599,89 +481,58 @@ function InvoicePanel({ email, onApprove, approved }) {
         <div className="draft-divider-line"/>
         <span className="learning-indicator"><span className="learning-dot"/>Extracted from email</span>
       </div>
-
       <div className="invoice-card">
         <div className="inv-header">
           <div>
-            <div className="inv-logo-name">{BUSINESS.name}</div>
-            <div className="inv-logo-sub">{BUSINESS.phone}  ·  {BUSINESS.email}</div>
+            <div className="inv-logo-name">{DEMO_BUSINESS.name}</div>
+            <div className="inv-logo-sub">{DEMO_BUSINESS.phone}  ·  {DEMO_BUSINESS.email}</div>
           </div>
           <div className="inv-title-block">
             <div className="inv-title">QUOTE</div>
             <div className="inv-num">{d.number} · {d.date}</div>
           </div>
         </div>
-
         <div className="inv-body">
           <div className="inv-meta">
-            <div>
-              <div className="inv-meta-label">Prepared for</div>
-              <div className="inv-meta-val">{d.to}</div>
-              <div className="inv-meta-val-sub">{d.address}</div>
-            </div>
-            <div>
-              <div className="inv-meta-label">Valid for</div>
-              <div className="inv-meta-val">30 days</div>
-              <div className="inv-meta-val-sub">Prices include GST</div>
-            </div>
+            <div><div className="inv-meta-label">Prepared for</div><div className="inv-meta-val">{d.to}</div><div className="inv-meta-val-sub">{d.address}</div></div>
+            <div><div className="inv-meta-label">Valid for</div><div className="inv-meta-val">30 days</div><div className="inv-meta-val-sub">Prices include GST</div></div>
           </div>
-
           <table className="inv-table">
-            <thead>
-              <tr>
-                <th style={{width:'55%'}}>Description</th>
-                <th style={{textAlign:'center'}}>Qty</th>
-                <th style={{textAlign:'right'}}>Rate</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {d.items.map((item, i) => (
-                <tr key={i}>
-                  <td>{item.desc}</td>
-                  <td style={{textAlign:'center',color:'#666'}}>{item.qty}</td>
-                  <td style={{textAlign:'right',color:'#666'}}>${item.rate.toLocaleString()}</td>
-                  <td>${item.amount.toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
+            <thead><tr><th style={{width:'55%'}}>Description</th><th style={{textAlign:'center'}}>Qty</th><th style={{textAlign:'right'}}>Rate</th><th>Amount</th></tr></thead>
+            <tbody>{d.items.map((item,i)=>(
+              <tr key={i}><td>{item.desc}</td><td style={{textAlign:'center',color:'#666'}}>{item.qty}</td><td style={{textAlign:'right',color:'#666'}}>${item.rate.toLocaleString()}</td><td>${item.amount.toLocaleString()}</td></tr>
+            ))}</tbody>
           </table>
-
           <div className="inv-totals">
             <div className="inv-total-row"><span className="inv-total-label">Subtotal</span><span className="inv-total-val">${d.subtotal.toLocaleString()}</span></div>
             <div className="inv-total-row"><span className="inv-total-label">GST (10%)</span><span className="inv-total-val">${d.gst.toLocaleString()}</span></div>
             <div className="inv-total-row grand"><span className="inv-total-label">Total (AUD)</span><span className="inv-total-val">${d.total.toLocaleString()}</span></div>
           </div>
         </div>
-
-        <div className="inv-footer">
-          <span>12-month workmanship guarantee  ·  All work fully insured</span>
-          <span>ABN: XX XXX XXX XXX</span>
-        </div>
+        <div className="inv-footer"><span>12-month workmanship guarantee  ·  All work fully insured</span><span>ABN: XX XXX XXX XXX</span></div>
       </div>
-
       <div className="inv-actions">
         {approved
           ? <div className="sent-banner" style={{flex:1}}><span className="sent-banner-icon">✓</span><div><div className="sent-banner-text">Quote sent to {email.from}</div><div className="sent-banner-sub">Sent along with your reply email</div></div></div>
-          : <>
-              <button className="btn-inv-approve" onClick={onApprove}>✓ Approve & Send Quote</button>
-              <button className="btn-inv-ghost">✏ Edit Quote</button>
-              <button className="btn-inv-ghost">⬇ Download PDF</button>
-            </>
+          : <><button className="btn-inv-approve" onClick={onApprove}>✓ Approve & Send Quote</button><button className="btn-inv-ghost">✏ Edit Quote</button><button className="btn-inv-ghost">⬇ Download PDF</button></>
         }
       </div>
     </div>
   );
 }
 
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    DRAFT PANEL
-════════════════════════════════════════════════ */
+═══════════════════════════════════════════════════════════ */
 function DraftPanel({ email, onApprove, onLearn, approved, learningCount, typingDraft, isTypingDraft, draftReady }) {
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(email.draft);
   const [regen, setRegen] = useState(false);
+  const [sending, setSending] = useState(false);
   const isLiveDraft = (isTypingDraft || draftReady) && email.id === 11;
+
+  // Reset text when email changes
+  useEffect(() => { setText(email.draft); setEditing(false); }, [email.id, email.draft]);
 
   const handleRegen = () => {
     setRegen(true);
@@ -693,19 +544,22 @@ function DraftPanel({ email, onApprove, onLearn, approved, learningCount, typing
     setEditing(false);
   };
 
+  const handleApprove = async () => {
+    setSending(true);
+    try {
+      await onApprove(email.id, text);
+    } finally {
+      setSending(false);
+    }
+  };
+
   if (approved) {
     return (
       <div className="draft-panel">
-        <div className="draft-eyebrow">
-          <span className="draft-eyebrow-label">AI Draft</span>
-          <div className="draft-divider-line"/>
-        </div>
+        <div className="draft-eyebrow"><span className="draft-eyebrow-label">AI Draft</span><div className="draft-divider-line"/></div>
         <div className="sent-banner">
           <span className="sent-banner-icon">✅</span>
-          <div>
-            <div className="sent-banner-text">Reply sent to {email.from}</div>
-            <div className="sent-banner-sub">Draft approved and sent via Gmail · {email.time}</div>
-          </div>
+          <div><div className="sent-banner-text">Reply sent to {email.from}</div><div className="sent-banner-sub">Draft approved and sent via Gmail · {email.time}</div></div>
         </div>
       </div>
     );
@@ -721,10 +575,7 @@ function DraftPanel({ email, onApprove, onLearn, approved, learningCount, typing
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>
               Writing <span className="ai-dot"/> <span className="ai-dot"/> <span className="ai-dot"/>
             </span>
-          : <div className="learning-indicator">
-              <span className="learning-dot"/><span className="learning-dot" style={{opacity:0.5}}/><span className="learning-dot" style={{opacity:0.25}}/>
-              &nbsp;{learningCount} adaptations applied
-            </div>
+          : <div className="learning-indicator"><span className="learning-dot"/><span className="learning-dot" style={{opacity:0.5}}/><span className="learning-dot" style={{opacity:0.25}}/>&nbsp;{learningCount} adaptations applied</div>
         }
       </div>
 
@@ -733,34 +584,31 @@ function DraftPanel({ email, onApprove, onLearn, approved, learningCount, typing
             {isTypingDraft ? typingDraft : text}
             {isTypingDraft && <span className="cursor-blink"/>}
           </div>
-        : <textarea
-            className="draft-text"
-            value={regen ? '✦  Rewriting draft...' : text}
-            onChange={e => setText(e.target.value)}
-            readOnly={!editing || regen}
-            rows={10}
-            style={regen ? {color:'var(--t3)',fontStyle:'italic'} : {}}
-          />
+        : <textarea className="draft-text" value={regen ? '✦  Rewriting draft...' : text} onChange={e=>setText(e.target.value)} readOnly={!editing || regen} rows={10} style={regen?{color:'var(--t3)',fontStyle:'italic'}:{}}/>
       }
 
       <div className="draft-actions">
         {isTypingDraft && email.id===11
           ? <button className="btn-approve" style={{opacity:0.4,cursor:'not-allowed'}} disabled>✓ Approve & Send</button>
           : !editing ? (
-          <>
-            <button className={`btn-approve ${draftReady && email.id===11 ? 'approve-pulse' : ''}`} onClick={() => onApprove(email.id)}>✓ Approve & Send</button>
-            <button className="btn-ghost" onClick={() => setEditing(true)}>✏ Edit Draft</button>
-            <button className="btn-ghost" onClick={handleRegen}>
-              <span className={regen ? 'regen-spin' : ''}>↺</span> Regenerate
-            </button>
-          </>
-        ) : (
-          <>
-            <button className="btn-teach" onClick={handleSaveLearn}>⚡ Save + Teach AI</button>
-
-            <button className="btn-ghost" onClick={() => { setEditing(false); setText(email.draft); }}>Cancel</button>
-          </>
-        )}
+            <>
+              <button
+                className={`btn-approve ${draftReady && email.id===11 ? 'approve-pulse' : ''} ${sending ? 'sent' : ''}`}
+                onClick={handleApprove}
+                disabled={sending}
+              >
+                {sending ? '⏳ Sending…' : '✓ Approve & Send'}
+              </button>
+              <button className="btn-ghost" onClick={()=>setEditing(true)}>✏ Edit Draft</button>
+              <button className="btn-ghost" onClick={handleRegen}><span className={regen?'regen-spin':''}>↺</span> Regenerate</button>
+            </>
+          ) : (
+            <>
+              <button className="btn-teach" onClick={handleSaveLearn}>⚡ Save + Teach AI</button>
+              <button className="btn-ghost" onClick={()=>{ setEditing(false); setText(email.draft); }}>Cancel</button>
+            </>
+          )
+        }
       </div>
 
       {editing && (
@@ -772,13 +620,15 @@ function DraftPanel({ email, onApprove, onLearn, approved, learningCount, typing
   );
 }
 
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    DETAIL PANE
-════════════════════════════════════════════════ */
+═══════════════════════════════════════════════════════════ */
 function DetailPane({ email, approvedIds, approvedInvoices, onApprove, onApproveInvoice, onLearn, learningCount, typingDraft, isTypingDraft, draftReady }) {
   const [tab, setTab] = useState('email');
   const approved = approvedIds.has(email.id);
   const invApproved = approvedInvoices.has(email.id);
+
+  useEffect(() => setTab('email'), [email.id]);
 
   return (
     <div className="detail-pane">
@@ -786,7 +636,6 @@ function DetailPane({ email, approvedIds, approvedInvoices, onApprove, onApprove
         <button className={`detail-tab ${tab==='email'?'active':''}`} onClick={()=>setTab('email')}>Email & Reply</button>
         {email.hasInvoice && <button className={`detail-tab ${tab==='invoice'?'active':''}`} onClick={()=>setTab('invoice')}>📋 Quote / Invoice</button>}
       </div>
-
       <div className="detail-scroll">
         {tab === 'email' && (
           <>
@@ -796,9 +645,7 @@ function DetailPane({ email, approvedIds, approvedInvoices, onApprove, onApprove
                 <CatPill cat={email.category} size="lg"/>
               </div>
               <div className="sender-row">
-                <div className="sender-avatar" style={{background: email.avatarBg}}>
-                  {getInitials(email.from)}
-                </div>
+                <div className="sender-avatar" style={{background:email.avatarBg}}>{getInitials(email.from)}</div>
                 <div className="sender-info">
                   <div className="sender-name">{email.from}</div>
                   <div className="sender-email">{email.email}</div>
@@ -806,11 +653,9 @@ function DetailPane({ email, approvedIds, approvedInvoices, onApprove, onApprove
                 <div className="email-date">{email.date} · {email.time}</div>
               </div>
             </div>
-
             <div className="email-body">
               <div className="email-body-text">{email.body}</div>
             </div>
-
             <DraftPanel
               email={email}
               onApprove={onApprove}
@@ -823,29 +668,36 @@ function DetailPane({ email, approvedIds, approvedInvoices, onApprove, onApprove
             />
           </>
         )}
-
         {tab === 'invoice' && email.hasInvoice && (
-          <InvoicePanel email={email} onApprove={() => onApproveInvoice(email.id)} approved={invApproved}/>
+          <InvoicePanel email={email} onApprove={()=>onApproveInvoice(email.id)} approved={invApproved}/>
         )}
       </div>
     </div>
   );
 }
 
-/* ════════════════════════════════════════════════
-   EMAIL LIST
-════════════════════════════════════════════════ */
-function EmailListPane({ emails, selectedId, onSelect, filter, setFilter, approvedIds, aiReadingId, arrivingId }) {
-  const filtered = filter === 'all' ? emails : emails.filter(e => e.category === filter);
-  const counts = { urgent: emails.filter(e=>e.category==='urgent').length, work: emails.filter(e=>e.category==='work').length, inbox: emails.filter(e=>e.category==='inbox').length };
-  const unreadCount = emails.filter(e => e.unread && !approvedIds.has(e.id)).length;
+/* ═══════════════════════════════════════════════════════════
+   EMAIL LIST PANE
+═══════════════════════════════════════════════════════════ */
+function EmailListPane({ emails, selectedId, onSelect, filter, setFilter, approvedIds, aiReadingId, arrivingId, isSyncing, onSync }) {
+  const filtered = filter === 'all' ? emails : emails.filter(e=>e.category===filter);
+  const counts = { urgent:emails.filter(e=>e.category==='urgent').length, work:emails.filter(e=>e.category==='work').length, inbox:emails.filter(e=>e.category==='inbox').length };
+  const unreadCount = emails.filter(e=>e.unread && !approvedIds.has(e.id)).length;
 
   return (
     <div className="email-list-pane">
       <div className="list-header">
-        <div className="list-title" style={{display:'flex',alignItems:'center',gap:8}}>
-          Triage Queue
-          {unreadCount > 0 && <span className="nav-badge">{unreadCount}</span>}
+        <div className="list-title" style={{display:'flex',alignItems:'center',gap:8,justifyContent:'space-between'}}>
+          <span style={{display:'flex',alignItems:'center',gap:8}}>
+            Triage Queue
+            {unreadCount > 0 && <span className="nav-badge">{unreadCount}</span>}
+          </span>
+          {onSync && (
+            <button onClick={onSync} disabled={isSyncing} style={{background:'none',border:'1px solid var(--border2)',borderRadius:6,padding:'3px 8px',fontSize:10,fontWeight:600,color:isSyncing?'var(--t4)':'var(--t3)',cursor:isSyncing?'not-allowed':'pointer',display:'flex',alignItems:'center',gap:4}}>
+              <span style={isSyncing?{display:'inline-block',animation:'spin 1s linear infinite'}:{}}>↺</span>
+              {isSyncing?'Syncing':'Sync'}
+            </button>
+          )}
         </div>
         <div className="filter-row">
           <button className={`filter-pill ${filter==='all'?'active':''}`} onClick={()=>setFilter('all')}>All {emails.length}</button>
@@ -854,19 +706,18 @@ function EmailListPane({ emails, selectedId, onSelect, filter, setFilter, approv
           <button className={`filter-pill ${filter==='inbox'?'active':''}`} onClick={()=>setFilter('inbox')}>Inbox {counts.inbox}</button>
         </div>
       </div>
-
       <div className="email-list">
+        {filtered.length === 0 && !isSyncing && (
+          <div style={{padding:'32px 16px',textAlign:'center',color:'var(--t3)',fontSize:12}}>
+            {filter === 'all' ? 'No emails yet. Hit Sync to fetch.' : `No ${filter} emails.`}
+          </div>
+        )}
         {filtered.map(email => {
           const isApproved = approvedIds.has(email.id);
           const isUnread = email.unread && !isApproved;
           return (
-            <div
-              key={email.id}
-              className={`email-row ${selectedId === email.id ? 'selected' : ''} ${!isUnread ? 'read' : ''} ${arrivingId === email.id ? 'email-arriving' : ''}`}
-              style={{position:'relative', overflow:'hidden'}}
-              onClick={() => onSelect(email.id)}
-            >
-              <div className={`email-unread-dot ${isUnread ? email.category : 'read'}`}/>
+            <div key={email.id} className={`email-row ${selectedId===email.id?'selected':''} ${!isUnread?'read':''} ${arrivingId===email.id?'email-arriving':''}`} style={{position:'relative',overflow:'hidden'}} onClick={()=>onSelect(email.id)}>
+              <div className={`email-unread-dot ${isUnread?email.category:'read'}`}/>
               <div className="email-row-main">
                 <div className="email-row-top">
                   <span className="email-sender">{email.from}</span>
@@ -875,18 +726,17 @@ function EmailListPane({ emails, selectedId, onSelect, filter, setFilter, approv
                 <div className="email-subject">{email.subject}</div>
                 <div className="email-preview">{email.preview}</div>
                 <div style={{marginTop:4}}>
-                  {aiReadingId === email.id
+                  {aiReadingId===email.id
                     ? <span style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:9,fontWeight:700,color:'var(--gold)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{color:'var(--gold)'}}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>
                         AI reading <span className="ai-dot"/> <span className="ai-dot"/> <span className="ai-dot"/>
                       </span>
-                    : isApproved
-                      ? <span className="approved-check">✓ Sent</span>
-                      : <CatPill cat={email.category}/>
+                    : isApproved ? <span className="approved-check">✓ Sent</span>
+                    : <CatPill cat={email.category}/>
                   }
                 </div>
               </div>
-              {aiReadingId === email.id && <div className="ai-scan-line"/>}
+              {aiReadingId===email.id && <div className="ai-scan-line"/>}
             </div>
           );
         })}
@@ -895,10 +745,11 @@ function EmailListPane({ emails, selectedId, onSelect, filter, setFilter, approv
   );
 }
 
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    LEARNING VIEW
-════════════════════════════════════════════════ */
+═══════════════════════════════════════════════════════════ */
 function LearningView({ history, newItems }) {
+  const totalApplied = history.reduce((s,h)=>s+(h.applied||1),0);
   return (
     <div className="full-view">
       <div className="view-header">
@@ -906,14 +757,12 @@ function LearningView({ history, newItems }) {
         <div className="view-title">Smart Triage Adaptations</div>
         <div className="view-desc">Every time you edit or approve a draft, OTW TriageAI learns your preferences and applies them automatically to future replies. This is your AI getting smarter every day.</div>
       </div>
-
       {newItems.length > 0 && (
         <div className="new-learning-banner">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>
           <div className="nlb-text">New: {newItems[newItems.length-1].rule}</div>
         </div>
       )}
-
       <div style={{display:'flex',gap:16,marginBottom:24}}>
         <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:12,padding:'16px 20px',flex:1}}>
           <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em',color:'var(--t3)',marginBottom:6}}>Total Adaptations</div>
@@ -921,59 +770,53 @@ function LearningView({ history, newItems }) {
         </div>
         <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:12,padding:'16px 20px',flex:1}}>
           <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em',color:'var(--t3)',marginBottom:6}}>Times Applied</div>
-          <div style={{fontSize:28,fontWeight:900,color:'var(--gold)'}}>{history.reduce((s,h)=>s+h.applied,0)}</div>
+          <div style={{fontSize:28,fontWeight:900,color:'var(--gold)'}}>{totalApplied}</div>
         </div>
         <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:12,padding:'16px 20px',flex:1}}>
           <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em',color:'var(--t3)',marginBottom:6}}>Avg. Draft Time</div>
           <div style={{fontSize:28,fontWeight:900,color:'var(--gold)'}}>2.4<span style={{fontSize:14,color:'var(--t3)',fontWeight:400}}> sec</span></div>
         </div>
       </div>
-
-      {[...history].reverse().map(item => (
+      {[...history].reverse().map(item=>(
         <div key={item.id} className="learning-card">
           <div className="lc-header">
             <div className="lc-rule">"{item.rule}"</div>
-            <div className="lc-applied">Applied {item.applied}×</div>
+            <div className="lc-applied">Applied {item.applied||1}×</div>
           </div>
-          <div className="lc-meta">
-            <span className="lc-source">Learned from: {item.source}</span>
-            &nbsp;·&nbsp;{item.timestamp}
-          </div>
+          <div className="lc-meta"><span className="lc-source">Learned from: {item.source}</span>&nbsp;·&nbsp;{item.timestamp}</div>
         </div>
       ))}
     </div>
   );
 }
 
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    DRAFTS VIEW
-════════════════════════════════════════════════ */
+═══════════════════════════════════════════════════════════ */
 function DraftsView({ emails, approvedIds, onSelectEmail }) {
-  const pending = emails.filter(e => !approvedIds.has(e.id));
+  const pending = emails.filter(e=>!approvedIds.has(e.id));
   return (
     <div className="full-view">
       <div className="view-header">
         <div className="view-eyebrow">Pending Approval</div>
         <div className="view-title">AI Drafts</div>
-        <div className="view-desc">{pending.length} draft{pending.length !== 1 ? 's' : ''} waiting for your approval. Review, edit if needed, then approve to send.</div>
+        <div className="view-desc">{pending.length} draft{pending.length!==1?'s':''} waiting for your approval. Review, edit if needed, then approve to send.</div>
       </div>
-      {pending.length === 0
+      {pending.length===0
         ? <div style={{textAlign:'center',padding:'60px 0',color:'var(--t3)'}}>
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{margin:'0 auto 12px',display:'block',opacity:0.7}}><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             <div style={{fontWeight:600,marginBottom:4}}>All drafts approved</div>
             <div style={{fontSize:12}}>Nothing waiting in the queue.</div>
           </div>
-        : pending.map(email => (
-          <div key={email.id} className="dt-row" onClick={() => onSelectEmail(email.id)}>
+        : pending.map(email=>(
+          <div key={email.id} className="dt-row" onClick={()=>onSelectEmail(email.id)}>
             <div className="dt-cat"><CatPill cat={email.category}/></div>
             <div className="dt-main">
               <div className="dt-sender">{email.from}</div>
               <div className="dt-subject">{email.subject}</div>
-              <div className="dt-preview">{email.draft.slice(0, 100)}...</div>
+              <div className="dt-preview">{(email.draft||'').slice(0,100)}...</div>
             </div>
-            <div className="dt-action">
-              <button className="btn-ghost" style={{fontSize:12,padding:'7px 14px'}}>Review →</button>
-            </div>
+            <div className="dt-action"><button className="btn-ghost" style={{fontSize:12,padding:'7px 14px'}}>Review →</button></div>
           </div>
         ))
       }
@@ -981,16 +824,14 @@ function DraftsView({ emails, approvedIds, onSelectEmail }) {
   );
 }
 
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    INVOICES VIEW
-════════════════════════════════════════════════ */
-function InvoicesView({ approvedInvoices }) {
-  const list = INVOICE_LIST.map(inv =>
-    inv.id === 'QTE-2026-0041' && approvedInvoices.has(2)
-      ? { ...inv, status: 'sent' }
-      : inv
-  );
-  const totalPending = list.filter(i => i.status === 'pending').reduce((s,i) => s + (i.amount||0), 0);
+═══════════════════════════════════════════════════════════ */
+function InvoicesView({ approvedInvoices, isDemo }) {
+  const list = isDemo ? DEMO_INVOICE_LIST.map(inv=>
+    inv.id==='QTE-2026-0041' && approvedInvoices.has(2) ? {...inv,status:'sent'} : inv
+  ) : [];
+  const totalPending = list.filter(i=>i.status==='pending').reduce((s,i)=>s+(i.amount||0),0);
 
   return (
     <div className="full-view">
@@ -999,23 +840,26 @@ function InvoicesView({ approvedInvoices }) {
         <div className="view-title">Quotes & Invoices</div>
         <div className="view-desc">AI extracts job details from email conversations and generates professional quotes ready for your approval.</div>
       </div>
-
+      {!isDemo && (
+        <div style={{background:'var(--gold-dim)',border:'1px solid var(--gold-border)',borderRadius:10,padding:'14px 18px',marginBottom:24,fontSize:13,color:'var(--gold)',fontWeight:600}}>
+          ✦ Invoice automation coming soon — AI-generated quotes will appear here.
+        </div>
+      )}
       <div style={{display:'flex',gap:16,marginBottom:24}}>
         <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:12,padding:'16px 20px',flex:1}}>
           <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em',color:'var(--t3)',marginBottom:6}}>Pending approval</div>
-          <div style={{fontSize:24,fontWeight:900,color:'var(--gold)'}}>${totalPending.toLocaleString()}</div>
+          <div style={{fontSize:24,fontWeight:900,color:'var(--gold)'}}>{isDemo?`$${totalPending.toLocaleString()}`:'—'}</div>
         </div>
         <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:12,padding:'16px 20px',flex:1}}>
           <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em',color:'var(--t3)',marginBottom:6}}>Sent this month</div>
-          <div style={{fontSize:24,fontWeight:900,color:'var(--green)'}}>$1,820</div>
+          <div style={{fontSize:24,fontWeight:900,color:'var(--green)'}}>{isDemo?'$1,820':'—'}</div>
         </div>
         <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:12,padding:'16px 20px',flex:1}}>
           <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em',color:'var(--t3)',marginBottom:6}}>Total generated</div>
-          <div style={{fontSize:24,fontWeight:900,color:'var(--t1)'}}>{list.length}</div>
+          <div style={{fontSize:24,fontWeight:900,color:'var(--t1)'}}>{isDemo?list.length:'—'}</div>
         </div>
       </div>
-
-      {list.map(inv => (
+      {list.map(inv=>(
         <div key={inv.id} className="inv-list-row">
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:13,fontWeight:700,color:'var(--t1)',marginBottom:2}}>{inv.to}</div>
@@ -1023,7 +867,7 @@ function InvoicesView({ approvedInvoices }) {
             <div style={{fontSize:10,color:'var(--t3)',marginTop:3}}>{inv.id}  ·  {inv.date}</div>
           </div>
           <div style={{textAlign:'right',flexShrink:0}}>
-            <div className="inv-amount">{inv.amount ? '$'+inv.amount.toLocaleString() : <span style={{color:'var(--t3)',fontSize:14}}>TBC</span>}</div>
+            <div className="inv-amount">{inv.amount?'$'+inv.amount.toLocaleString():<span style={{color:'var(--t3)',fontSize:14}}>TBC</span>}</div>
             <div style={{marginTop:4}}><span className={`inv-status ${inv.status}`}>{inv.status}</span></div>
           </div>
         </div>
@@ -1032,14 +876,30 @@ function InvoicesView({ approvedInvoices }) {
   );
 }
 
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    SETTINGS VIEW
-════════════════════════════════════════════════ */
-function SettingsView() {
-  const [profile, setProfile] = useState(BUSINESS);
+═══════════════════════════════════════════════════════════ */
+function SettingsView({ business: initialBusiness, onSave, isDemo }) {
+  const [profile, setProfile] = useState(initialBusiness || DEMO_BUSINESS);
   const [saved, setSaved] = useState(false);
-  const set = (k, v) => setProfile(p => ({ ...p, [k]: v }));
-  const handleSave = () => { setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => { setProfile(initialBusiness || DEMO_BUSINESS); }, [JSON.stringify(initialBusiness)]);
+
+  const set = (k,v) => setProfile(p=>({...p,[k]:v}));
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await onSave(profile);
+      setSaved(true);
+      setTimeout(()=>setSaved(false), 2500);
+    } catch(e) {
+      alert('Failed to save. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="full-view" style={{maxWidth:720}}>
@@ -1048,178 +908,190 @@ function SettingsView() {
         <div className="view-title">Business Profile</div>
         <div className="view-desc">This is what the AI knows about your business. It uses this profile to draft replies, generate quotes, and match your tone of voice.</div>
       </div>
-
+      {isDemo && (
+        <div style={{background:'var(--gold-dim)',border:'1px solid var(--gold-border)',borderRadius:10,padding:'12px 16px',marginBottom:20,fontSize:12,color:'var(--gold)',fontWeight:600}}>
+          Demo mode — <a href="/api/auth/gmail" style={{color:'var(--gold)'}}>Connect your Gmail</a> to save a real profile.
+        </div>
+      )}
       <div className="settings-card">
         <div className="settings-card-title">Business Identity</div>
         <div className="settings-row">
-          <div className="field"><label>Business name</label><input value={profile.name} onChange={e=>set('name',e.target.value)}/></div>
-          <div className="field"><label>Owner name</label><input value={profile.owner} onChange={e=>set('owner',e.target.value)}/></div>
+          <div className="field"><label>Business name</label><input value={profile.name||''} onChange={e=>set('name',e.target.value)}/></div>
+          <div className="field"><label>Owner name</label><input value={profile.owner||''} onChange={e=>set('owner',e.target.value)}/></div>
         </div>
         <div className="settings-row">
-          <div className="field"><label>Phone</label><input value={profile.phone} onChange={e=>set('phone',e.target.value)}/></div>
-          <div className="field"><label>Email</label><input value={profile.email} onChange={e=>set('email',e.target.value)}/></div>
+          <div className="field"><label>Phone</label><input value={profile.phone||''} onChange={e=>set('phone',e.target.value)}/></div>
+          <div className="field"><label>Email</label><input value={profile.email||''} onChange={e=>set('email',e.target.value)}/></div>
         </div>
-        <div className="field"><label>Service area</label><input value={profile.serviceArea} onChange={e=>set('serviceArea',e.target.value)}/></div>
+        <div className="field"><label>Service area</label><input value={profile.serviceArea||''} onChange={e=>set('serviceArea',e.target.value)}/></div>
       </div>
-
       <div className="settings-card">
         <div className="settings-card-title">Services & Pricing</div>
-        <div className="field"><label>Services offered</label><textarea value={profile.services} onChange={e=>set('services',e.target.value)} rows={3}/></div>
+        <div className="field"><label>Services offered</label><textarea value={profile.services||''} onChange={e=>set('services',e.target.value)} rows={3}/></div>
         <div className="settings-row">
-          <div className="field"><label>Hourly rate ($/hr)</label><input type="number" value={profile.hourlyRate} onChange={e=>set('hourlyRate',e.target.value)}/></div>
-          <div className="field"><label>Call-out fee ($)</label><input type="number" value={profile.callOutFee} onChange={e=>set('callOutFee',e.target.value)}/></div>
+          <div className="field"><label>Hourly rate ($/hr)</label><input type="number" value={profile.hourlyRate||''} onChange={e=>set('hourlyRate',e.target.value)}/></div>
+          <div className="field"><label>Call-out fee ($)</label><input type="number" value={profile.callOutFee||''} onChange={e=>set('callOutFee',e.target.value)}/></div>
         </div>
       </div>
-
       <div className="settings-card">
         <div className="settings-card-title">Tone & Voice</div>
-        <div className="field"><label>Desired tone</label><textarea value={profile.tone} onChange={e=>set('tone',e.target.value)} rows={2} placeholder="e.g. Professional but approachable. Always mention our guarantee."/></div>
-        <div className="field"><label>Email signature</label><textarea value={profile.signature} onChange={e=>set('signature',e.target.value)} rows={4}/></div>
+        <div className="field"><label>Desired tone</label><textarea value={profile.tone||''} onChange={e=>set('tone',e.target.value)} rows={2} placeholder="e.g. Professional but approachable. Always mention our guarantee."/></div>
+        <div className="field"><label>Email signature</label><textarea value={profile.signature||''} onChange={e=>set('signature',e.target.value)} rows={4}/></div>
       </div>
-
-      <button className="btn-save" onClick={handleSave}>
-        {saved ? '✓ Saved' : 'Save Profile'}
+      <button className="btn-save" onClick={handleSave} disabled={saving||isDemo}>
+        {saving?'Saving…':saved?'✓ Saved':'Save Profile'}
       </button>
       {saved && <span style={{fontSize:12,color:'var(--green)',marginLeft:12}}>AI will use these settings on your next draft.</span>}
     </div>
   );
 }
 
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    SIDEBAR
-════════════════════════════════════════════════ */
-function Sidebar({ view, setView, unreadCount, pendingDraftCount, pendingInvoiceCount }) {
+═══════════════════════════════════════════════════════════ */
+function Sidebar({ view, setView, unreadCount, pendingDraftCount, business, gmailEmail, isDemo, isSyncing, onSync }) {
   const navItems = [
-    { id: 'triage',   label: 'Triage Queue',    badge: unreadCount,      badgeType: 'red' },
-    { id: 'drafts',   label: 'AI Drafts',        badge: pendingDraftCount, badgeType: 'gold' },
-    { id: 'invoices', label: 'Invoices',          badge: null },
-    { id: 'learning', label: 'Learning Log',      badge: null },
-    { id: 'settings', label: 'Business Profile',  badge: null },
+    { id:'triage',   label:'Triage Queue',   badge:unreadCount,       badgeType:'red' },
+    { id:'drafts',   label:'AI Drafts',       badge:pendingDraftCount, badgeType:'gold' },
+    { id:'invoices', label:'Invoices',         badge:null },
+    { id:'learning', label:'Learning Log',     badge:null },
+    { id:'settings', label:'Business Profile', badge:null },
   ];
+
+  const displayName = business?.name || (gmailEmail ? gmailEmail.split('@')[0] : 'Your Business');
+  const displaySub  = business?.owner || gmailEmail || '';
 
   return (
     <div className="sidebar">
       <div className="sb-logo">
-        <a href="index.html" style={{textDecoration:'none', display:'block'}}>
-          <div className="sb-logo-row">
-            <div className="sb-dot"/>
-            <div className="sb-name">OTW Studios</div>
-          </div>
+        <a href="index.html" style={{textDecoration:'none',display:'block'}}>
+          <div className="sb-logo-row"><div className="sb-dot"/><div className="sb-name">OTW Studios</div></div>
           <div className="sb-product">TriageAI</div>
         </a>
-        <div className="demo-badge">
-          <div className="demo-dot"/>
-          <span className="demo-text">Demo Mode</span>
-        </div>
-        <a href="otw_audit.html" style={{
-          display:'block', marginTop:'12px',
-          background:'#F59E0B', color:'#04080F',
-          borderRadius:'50px', padding:'7px 12px',
-          fontSize:'10px', fontWeight:'800',
-          textAlign:'center', textDecoration:'none',
-          letterSpacing:'0.04em', textTransform:'uppercase',
-        }}>Start free audit</a>
+        {isDemo
+          ? <div className="demo-badge"><div className="demo-dot"/><span className="demo-text">Demo Mode</span></div>
+          : <div className="demo-badge" style={{background:'rgba(34,197,94,0.08)',borderColor:'rgba(34,197,94,0.25)'}}>
+              <div className="demo-dot" style={{background:'var(--green)',boxShadow:'0 0 6px rgba(34,197,94,0.5)'}}/>
+              <span className="demo-text" style={{color:'var(--green)'}}>Gmail Connected</span>
+            </div>
+        }
+        {isDemo
+          ? <a href="/api/auth/gmail" style={{display:'block',marginTop:'12px',background:'#F59E0B',color:'#04080F',borderRadius:'50px',padding:'7px 12px',fontSize:'10px',fontWeight:'800',textAlign:'center',textDecoration:'none',letterSpacing:'0.04em',textTransform:'uppercase'}}>Connect Gmail</a>
+          : <a href="otw_audit.html" style={{display:'block',marginTop:'12px',background:'#F59E0B',color:'#04080F',borderRadius:'50px',padding:'7px 12px',fontSize:'10px',fontWeight:'800',textAlign:'center',textDecoration:'none',letterSpacing:'0.04em',textTransform:'uppercase'}}>Start free audit</a>
+        }
       </div>
 
       <div className="sb-nav">
         <div className="sb-section">
           <div className="sb-section-label">Workflow</div>
-          {navItems.map(item => (
-            <div key={item.id} className={`nav-item ${view === item.id ? 'active' : ''}`} onClick={() => setView(item.id)}>
-              <span className="nav-icon" style={{color: view === item.id ? 'var(--gold)' : 'var(--t3)', display:'flex', alignItems:'center'}}>
-                <NavIcon id={item.id}/>
-              </span>
+          {navItems.map(item=>(
+            <div key={item.id} className={`nav-item ${view===item.id?'active':''}`} onClick={()=>setView(item.id)}>
+              <span className="nav-icon" style={{color:view===item.id?'var(--gold)':'var(--t3)',display:'flex',alignItems:'center'}}><NavIcon id={item.id}/></span>
               <span className="nav-label">{item.label}</span>
-              {item.badge > 0 && (
-                <span className={`nav-badge ${item.badgeType === 'gold' ? 'gold' : ''}`}>{item.badge}</span>
-              )}
+              {item.badge>0 && <span className={`nav-badge ${item.badgeType==='gold'?'gold':''}`}>{item.badge}</span>}
             </div>
           ))}
         </div>
       </div>
 
       <div className="sb-profile">
-        <div className="sb-profile-name">{BUSINESS.name}</div>
-        <div className="sb-profile-sub">{BUSINESS.owner}</div>
+        <div className="sb-profile-name">{displayName}</div>
+        {displaySub && <div className="sb-profile-sub">{displaySub}</div>}
         <div className="connection-pill">
-          <svg width="6" height="6" viewBox="0 0 6 6" fill="#16A34A"><circle cx="3" cy="3" r="3"/></svg>
-          Demo Connected
+          <svg width="6" height="6" viewBox="0 0 6 6" fill={isDemo?'#F59E0B':'#16A34A'}><circle cx="3" cy="3" r="3"/></svg>
+          {isDemo ? 'Demo Mode' : gmailEmail}
         </div>
       </div>
     </div>
   );
 }
 
-/* ════════════════════════════════════════════════
-   LIVE DEMO — AUTO-ARRIVING EMAILS
-════════════════════════════════════════════════ */
-const DEMO_EMAIL_A = {
-  id: 10, category: 'work', from: 'Chloe Bartlett', email: 'chloe.b@outlook.com', avatarBg: '#BE185D',
-  subject: 'No hot water since yesterday — Reservoir',
-  preview: "Hi, we've had no hot water since yesterday morning and we're a family of 3...",
-  body: `Hi,\n\nWe've had no hot water since yesterday morning. We're a family of 3 and starting to struggle. Not sure if it's the element or the whole system — it's about 8 years old.\n\nWe're at 22 Station Street, Reservoir. Can you come take a look?\n\nThanks,\nChloe\n0411 888 999`,
-  time: 'Just now', date: 'Today', unread: true, hasInvoice: false,
-  draft: `Hi Chloe,\n\nNo hot water with a young family is no fun — let's get this sorted quickly.\n\nBased on what you've described it could be a faulty element, thermostat, or end-of-life unit at 8 years. Worth a look before we call it.\n\nI can have someone out tomorrow morning — does 8–9am work? We'll diagnose on-site and give you a clear quote before touching anything.\n\nCheers,\nJake\nJake's Plumbing · 0400 123 456`,
-};
-const DEMO_EMAIL_B = {
-  id: 11, category: 'work', from: 'Tom Nguyen', email: 'tom.nguyen@gmail.com', avatarBg: '#0284C7',
-  subject: 'Quote — full bathroom reno, Preston',
-  preview: "Hi, we're planning a complete bathroom renovation starting next month...",
-  body: `Hi,\n\nWe're planning a full bathroom renovation starting next month. Complete strip-out — new shower, freestanding bath, double vanity, and the toilet needs to move about 400mm to the left for the new layout.\n\nProperty is at 8 Oakton Ave, Preston. We have a builder for tiling and fitout — just need a plumber for rough-in and final connections.\n\nCan you quote? Happy to do a site visit.\n\nThanks,\nTom\n0422 777 888`,
-  time: 'Just now', date: 'Today', unread: true, hasInvoice: false,
-  draft: `Hi Tom,\n\nThanks for reaching out — a full bathroom reno is a great project and the timing works well on our end.\n\nMoving a toilet 400mm is very doable; just depends on slab vs suspended floor, but nothing unusual for Preston homes.\n\nFor a full rough-in (shower, freestanding bath, double vanity, toilet relocation) plus final connections, you're typically looking at $3,200–$4,800 all-in — but I'd like to walk the space before locking in a number.\n\nAre you free for a quick site visit this week? Thursday afternoon or Friday morning work well for me. I can have a written quote to you within 24 hours of the visit.\n\nCheers,\nJake\nJake's Plumbing · 0400 123 456`,
-};
+/* ═══════════════════════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════════════════════ */
+// (CSS animations are defined in the stylesheet above)
 
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    APP ROOT
-════════════════════════════════════════════════ */
+═══════════════════════════════════════════════════════════ */
 function App() {
+  // Auth: 'loading' | 'demo' | 'connected'
+  const [authState, setAuthState] = useState('loading');
+  const [gmailEmail, setGmailEmail] = useState('');
+  const [business, setBusiness] = useState({});
+
+  // Email state
+  const [emails, setEmails] = useState([]);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  // Learning
+  const [learningHistory, setLearningHistory] = useState([]);
+  const [newLearningItems, setNewLearningItems] = useState([]);
+
+  // UI
   const [view, setView] = useState('triage');
   const [selectedId, setSelectedId] = useState(null);
   const [filter, setFilter] = useState('all');
   const [approvedIds, setApprovedIds] = useState(new Set());
   const [approvedInvoices, setApprovedInvoices] = useState(new Set());
-  const [learningHistory, setLearningHistory] = useState(INITIAL_LEARNING);
-  const [newLearningItems, setNewLearningItems] = useState([]);
-
-  // Live demo state
-  const [liveEmails, setLiveEmails] = useState(EMAILS.slice(1)); // Start without email 1
-  const [aiReadingId, setAiReadingId] = useState(null);
-  const [arrivingId, setArrivingId] = useState(null);
   const [showToast, setShowToast] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
+
+  // Demo animation state
+  const [liveEmails, setLiveEmails] = useState(DEMO_EMAILS.slice(1));
+  const [aiReadingId, setAiReadingId] = useState(null);
+  const [arrivingId, setArrivingId] = useState(null);
   const [typingDraft, setTypingDraft] = useState('');
   const [isTypingDraft, setIsTypingDraft] = useState(false);
   const [draftReady, setDraftReady] = useState(false);
-  const typeTimerRef = React.useRef(null);
-  const typeIdxRef = React.useRef(0);
+  const typeTimerRef = useRef(null);
+  const typeIdxRef = useRef(0);
 
-  // Auto-play on mount
-  React.useEffect(() => {
+  // ── Auth check on mount ──────────────────────────────────────────────
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const justConnected = params.get('connected') === '1';
+    const authError = params.get('error');
+    if (justConnected || authError) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
+    api.get('/api/auth/me')
+      .then(data => {
+        setAuthState('connected');
+        setGmailEmail(data.gmail_email);
+        setBusiness(data.profile || {});
+        if (justConnected) {
+          setToastMsg('✅ Gmail connected!');
+          setShowToast(true);
+          setTimeout(() => setShowToast(false), 3000);
+        }
+        return loadEmails(false);
+      })
+      .catch(err => {
+        if (authError) {
+          setToastMsg('⚠️ Connection failed — please try again.');
+          setShowToast(true);
+          setTimeout(() => setShowToast(false), 4000);
+        }
+        setAuthState('demo');
+      });
+  }, []);
+
+  // ── Demo animation (only in demo mode) ──────────────────────────────
+  useEffect(() => {
+    if (authState !== 'demo') return;
     const timers = [];
     const t = (ms, fn) => { const id = setTimeout(fn, ms); timers.push(id); };
 
-    // Email A arrives
     t(1400, () => { setToastMsg('📧 New email'); setShowToast(true); });
-    t(2200, () => {
-      setArrivingId(10);
-      setLiveEmails(prev => [DEMO_EMAIL_A, ...prev]);
-      setAiReadingId(10);
-    });
+    t(2200, () => { setArrivingId(10); setLiveEmails(prev=>[DEMO_EMAIL_A,...prev]); setAiReadingId(10); });
     t(4200, () => { setAiReadingId(null); setShowToast(false); });
     t(4800, () => { setArrivingId(null); });
-
-    // Email B arrives
     t(6000, () => { setToastMsg('📧 New email'); setShowToast(true); });
-    t(6800, () => {
-      setArrivingId(11);
-      setLiveEmails(prev => [DEMO_EMAIL_B, ...prev]);
-      setAiReadingId(11);
-    });
+    t(6800, () => { setArrivingId(11); setLiveEmails(prev=>[DEMO_EMAIL_B,...prev]); setAiReadingId(11); });
     t(8600, () => { setAiReadingId(null); setShowToast(false); });
     t(9200, () => { setArrivingId(null); setSelectedId(11); });
-
-    // Draft typewriter
     t(10000, () => {
       setIsTypingDraft(true);
       typeIdxRef.current = 0;
@@ -1235,28 +1107,54 @@ function App() {
       }, 22);
     });
 
-    return () => {
-      timers.forEach(clearTimeout);
-      if (typeTimerRef.current) clearInterval(typeTimerRef.current);
-    };
-  }, []);
+    return () => { timers.forEach(clearTimeout); if (typeTimerRef.current) clearInterval(typeTimerRef.current); };
+  }, [authState]);
 
-  const selectedEmail = liveEmails.find(e => e.id === selectedId);
+  // ── Load real emails ─────────────────────────────────────────────────
+  async function loadEmails(forceRefresh = false) {
+    setIsSyncing(true);
+    try {
+      const data = await api.get(`/api/emails${forceRefresh ? '?refresh=1' : ''}`);
+      const mapped = (data.emails || []).map(mapDbEmail);
+      setEmails(mapped);
+      // Restore approved state from DB
+      const newApproved = new Set();
+      mapped.forEach(e => { if (e.approved) newApproved.add(e.id); });
+      setApprovedIds(newApproved);
+    } catch (err) {
+      console.error('Failed to load emails:', err);
+    } finally {
+      setIsSyncing(false);
+    }
+  }
 
-  const unreadCount = liveEmails.filter(e => e.unread && !approvedIds.has(e.id)).length;
-  const pendingDraftCount = liveEmails.filter(e => !approvedIds.has(e.id)).length;
-  const pendingInvoiceCount = liveEmails.filter(e => e.hasInvoice && !approvedInvoices.has(e.id)).length;
+  // ── Derived ──────────────────────────────────────────────────────────
+  const isDemo      = authState !== 'connected';
+  const activeEmails = isDemo ? liveEmails : emails;
+  const activeBiz   = isDemo ? DEMO_BUSINESS : business;
 
-  const handleApprove = id => {
-    setApprovedIds(prev => new Set([...prev, id]));
+  const unreadCount       = activeEmails.filter(e => e.unread && !approvedIds.has(e.id)).length;
+  const pendingDraftCount = activeEmails.filter(e => !approvedIds.has(e.id)).length;
+
+  // ── Handlers ─────────────────────────────────────────────────────────
+  const handleApprove = async (emailId, draftText) => {
+    if (isDemo) { setApprovedIds(prev => new Set([...prev, emailId])); return; }
+    try {
+      await api.post('/api/send', { email_cache_id: emailId, draft_text: draftText });
+      setApprovedIds(prev => new Set([...prev, emailId]));
+    } catch (err) {
+      console.error('Send failed:', err);
+      alert('Failed to send — please check your Gmail connection and try again.');
+    }
   };
 
   const handleApproveInvoice = id => {
     setApprovedInvoices(prev => new Set([...prev, id]));
-    handleApprove(id); // also approve the email reply
+    const email = activeEmails.find(e => e.id === id);
+    handleApprove(id, email?.draft || '');
   };
 
-  const handleLearn = (email, editedText) => {
+  const handleLearn = async (email, editedText) => {
     const newItem = {
       id: Date.now(),
       rule: `Adapted reply style for ${email.category} emails from ${email.from.split(' ')[0]}`,
@@ -1266,12 +1164,43 @@ function App() {
     };
     setLearningHistory(prev => [...prev, newItem]);
     setNewLearningItems(prev => [...prev, newItem]);
+    if (!isDemo) {
+      try {
+        await api.post('/api/learning', { email_cache_id: email.id, edited_reply: editedText, rule_description: newItem.rule });
+      } catch (err) {
+        console.error('Learn save failed:', err);
+      }
+    }
   };
 
-  const handleSelectEmail = id => {
-    setSelectedId(id);
-    setView('triage');
+  const handleSelectEmail = id => { setSelectedId(id); setView('triage'); };
+
+  const handleSaveBusiness = async (profile) => {
+    setBusiness(profile);
+    if (!isDemo) {
+      await api.post('/api/business', { profile });
+    }
   };
+
+  const handleSync = () => { if (!isDemo) loadEmails(true); };
+
+  // ── Loading screen ───────────────────────────────────────────────────
+  if (authState === 'loading') {
+    return (
+      <div className="app" style={{alignItems:'center',justifyContent:'center',background:'var(--bg0)'}}>
+        <div style={{textAlign:'center'}}>
+          <div style={{display:'flex',alignItems:'center',gap:10,justifyContent:'center',marginBottom:12}}>
+            <div style={{width:10,height:10,borderRadius:'50%',background:'var(--gold)',boxShadow:'0 0 8px rgba(245,158,11,0.5)',animation:'pulse 2s infinite'}}/>
+            <div style={{fontSize:20,fontWeight:900,letterSpacing:'-0.02em'}}>OTW TriageAI</div>
+          </div>
+          <div style={{fontSize:12,color:'var(--t3)'}}>Loading…</div>
+        </div>
+      </div>
+    );
+  }
+
+  const selectedEmail = activeEmails.find(e => e.id === selectedId);
+  const combinedLearning = [...DEMO_LEARNING, ...learningHistory];
 
   return (
     <div className="app">
@@ -1288,21 +1217,27 @@ function App() {
           setView={setView}
           unreadCount={unreadCount}
           pendingDraftCount={pendingDraftCount}
-          pendingInvoiceCount={pendingInvoiceCount}
+          business={activeBiz}
+          gmailEmail={gmailEmail}
+          isDemo={isDemo}
+          isSyncing={isSyncing}
+          onSync={handleSync}
         />
 
         <div className="main-content">
           {view === 'triage' && (
             <div className="triage-view">
               <EmailListPane
-                emails={liveEmails}
+                emails={activeEmails}
                 selectedId={selectedId}
                 onSelect={setSelectedId}
                 filter={filter}
                 setFilter={setFilter}
                 approvedIds={approvedIds}
-                aiReadingId={aiReadingId}
-                arrivingId={arrivingId}
+                aiReadingId={isDemo ? aiReadingId : null}
+                arrivingId={isDemo ? arrivingId : null}
+                isSyncing={isSyncing}
+                onSync={!isDemo ? handleSync : null}
               />
               {selectedEmail
                 ? <DetailPane
@@ -1312,18 +1247,26 @@ function App() {
                     onApprove={handleApprove}
                     onApproveInvoice={handleApproveInvoice}
                     onLearn={handleLearn}
-                    learningCount={learningHistory.length}
-                    typingDraft={typingDraft}
-                    isTypingDraft={isTypingDraft}
-                    draftReady={draftReady}
+                    learningCount={combinedLearning.length}
+                    typingDraft={isDemo ? typingDraft : ''}
+                    isTypingDraft={isDemo ? isTypingDraft : false}
+                    draftReady={isDemo ? draftReady : false}
                   />
                 : <div className="detail-pane">
                     <div className="detail-empty">
-                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(15,23,42,0.18)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
-                        <path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/>
-                      </svg>
-                      <div className="empty-text">Emails arrive here automatically<br/>Watch the AI triage them in real time</div>
+                      {isSyncing
+                        ? <div style={{textAlign:'center'}}>
+                            <div style={{fontSize:11,color:'var(--gold)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:8}}>Syncing & triaging emails…</div>
+                            <div style={{display:'flex',gap:4,justifyContent:'center'}}><span className="ai-dot"/><span className="ai-dot"/><span className="ai-dot"/></div>
+                          </div>
+                        : <>
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(15,23,42,0.18)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+                              <path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/>
+                            </svg>
+                            <div className="empty-text">{isDemo ? 'Emails arrive here automatically\nWatch the AI triage them in real time' : 'Select an email to view and reply'}</div>
+                          </>
+                      }
                     </div>
                   </div>
               }
@@ -1331,19 +1274,19 @@ function App() {
           )}
 
           {view === 'drafts' && (
-            <DraftsView emails={liveEmails} approvedIds={approvedIds} onSelectEmail={handleSelectEmail}/>
+            <DraftsView emails={activeEmails} approvedIds={approvedIds} onSelectEmail={handleSelectEmail}/>
           )}
 
           {view === 'invoices' && (
-            <InvoicesView approvedInvoices={approvedInvoices}/>
+            <InvoicesView approvedInvoices={approvedInvoices} isDemo={isDemo}/>
           )}
 
           {view === 'learning' && (
-            <LearningView history={learningHistory} newItems={newLearningItems}/>
+            <LearningView history={combinedLearning} newItems={newLearningItems}/>
           )}
 
           {view === 'settings' && (
-            <SettingsView/>
+            <SettingsView business={activeBiz} onSave={handleSaveBusiness} isDemo={isDemo}/>
           )}
         </div>
       </div>
