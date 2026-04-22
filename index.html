@@ -70,14 +70,21 @@
     .prod-grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:3px; }
     .prod-divider { border-top:1px solid #f1f5f9; margin:12px 0 10px; }
     /* ── Tech stack marquee (GSAP velocity-driven) ── */
-    .marquee-track { display:flex; width:max-content; gap:14px; will-change:transform; }
-    /* ── Tech stack icon cards ── */
-    .tech-card { display:flex; flex-direction:column; align-items:center; gap:9px; padding:14px 14px 12px; border-radius:18px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); flex-shrink:0; width:86px; cursor:default; transition:background 0.2s,border-color 0.2s; }
-    .tech-card:hover { background:rgba(255,255,255,0.09); border-color:rgba(245,158,11,0.3); }
-    .tech-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-    .tech-icon img { width:28px; height:28px; display:block; }
-    .tech-name { font-size:11px; font-weight:700; color:#fff; text-align:center; line-height:1.3; }
-    .tech-tag { font-size:9.5px; color:rgba(255,255,255,0.35); text-align:center; margin-top:1px; }
+    .marquee-track { display:flex; width:max-content; will-change:transform; }
+    /* ── Tech stack chips (matching receptionist page style) ── */
+    .stack-chip { display:inline-flex; align-items:center; gap:10px; flex-shrink:0; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); border-radius:12px; padding:10px 16px; white-space:nowrap; }
+    .stack-chip:hover { background:rgba(255,255,255,0.08); border-color:rgba(245,158,11,0.3); }
+    .stack-tag { font-size:11px; color:rgba(255,255,255,0.35); font-weight:400; padding-left:8px; border-left:1px solid rgba(255,255,255,0.12); }
+    /* ── Floating badge animations ── */
+    @keyframes float    { 0%,100%{transform:translateY(0)}    50%{transform:translateY(-14px)} }
+    @keyframes floatAlt { 0%,100%{transform:translateY(-8px)} 50%{transform:translateY(6px)}  }
+    @keyframes floatSlow{ 0%,100%{transform:translateY(0)}    50%{transform:translateY(-10px)} }
+    .float-a  { animation: float     5.2s ease-in-out infinite; }
+    .float-b  { animation: floatAlt  4.0s ease-in-out 0.8s infinite; }
+    .float-c  { animation: floatSlow 6.4s ease-in-out 1.6s infinite; }
+    /* ── Ecosystem pipeline animation ── */
+    @keyframes pipeIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+    .pipe-row-in { animation: pipeIn 0.35s ease forwards; }
     /* ── GSAP scroll reveal ── */
     .gsap-reveal { opacity:0; transform:translateY(40px); }
     .gsap-hero-el { opacity:0; transform:translateY(30px); }
@@ -567,6 +574,96 @@ function WorkflowChart() {
   );
 }
 
+// ── ECOSYSTEM ANIMATION CARD ─────────────────────────
+function EcosystemCard() {
+  const [activeIdx, setActiveIdx] = React.useState(0);
+  const [seenIdx, setSeenIdx]   = React.useState(-1);
+  const PIPELINE = [
+    { emoji:'📞', product:'AI Receptionist', event:"Dave R. — Burst pipe, Northbridge", badge:'Lead captured', live:true },
+    { emoji:'📧', product:'TriageAI',         event:"Quote request — Sarah Thompson",   badge:'Draft ready', live:true },
+    { emoji:'📅', product:'Scheduling',       event:"Job booked — 8 Aug, 2pm",          badge:'Confirmed',   live:false },
+    { emoji:'⭐', product:'ReviewGenius',     event:"Job complete — Mike Alvarez",       badge:'5★ sent',     live:false },
+    { emoji:'💰', product:'DebtCollector',    event:"Invoice #142 — 14 days overdue",   badge:'Chasing',     live:false },
+  ];
+
+  React.useEffect(() => {
+    const id = setInterval(() => {
+      setActiveIdx(i => { const n = (i+1)%PIPELINE.length; setSeenIdx(n); return n; });
+    }, 2200);
+    return () => clearInterval(id);
+  }, []);
+
+  const GOLD = '#F59E0B', DIM = 'rgba(255,255,255,0.06)';
+
+  return (
+    <div style={{position:'relative',paddingTop:24,paddingBottom:32,paddingLeft:8}}>
+      {/* Floating ambient badges */}
+      <div className="float-a" style={{position:'absolute',top:-16,right:-8,zIndex:10,display:'flex',alignItems:'center',gap:9,borderRadius:16,border:'1px solid rgba(245,158,11,0.3)',background:'rgba(245,158,11,0.08)',backdropFilter:'blur(8px)',padding:'10px 14px',boxShadow:'0 8px 28px rgba(0,0,0,0.25)',whiteSpace:'nowrap'}}>
+        <div style={{width:8,height:8,borderRadius:'50%',background:GOLD,flexShrink:0}}/>
+        <div>
+          <div style={{fontSize:11,fontWeight:700,color:GOLD}}>+$1,240 recovered</div>
+          <div style={{fontSize:10,color:'rgba(255,255,255,0.4)'}}>avg per month, per client</div>
+        </div>
+      </div>
+      <div className="float-c" style={{position:'absolute',bottom:4,left:20,zIndex:10,display:'flex',alignItems:'center',gap:9,borderRadius:16,border:'1px solid rgba(34,197,94,0.28)',background:'rgba(13,12,10,0.72)',backdropFilter:'blur(8px)',padding:'10px 14px',boxShadow:'0 8px 28px rgba(0,0,0,0.3)',whiteSpace:'nowrap'}}>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'center',width:24,height:24,borderRadius:'50%',background:'rgba(34,197,94,0.12)',border:'1px solid rgba(34,197,94,0.3)',flexShrink:0}}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+        </div>
+        <div>
+          <div style={{fontSize:11,fontWeight:700,color:'#fff'}}>0 missed today</div>
+          <div style={{fontSize:10,color:'rgba(255,255,255,0.35)'}}>All calls handled by OTW</div>
+        </div>
+      </div>
+
+      {/* Main pipeline card */}
+      <div style={{background:'#0A0F1E',borderRadius:22,overflow:'hidden',border:'1px solid rgba(255,255,255,0.08)',boxShadow:'0 32px 80px rgba(0,0,0,0.3),0 0 0 1px rgba(0,0,0,0.4)',position:'relative'}}>
+        {/* Header */}
+        <div style={{padding:'14px 20px',borderBottom:'1px solid rgba(255,255,255,0.06)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <div style={{width:7,height:7,borderRadius:'50%',background:GOLD,boxShadow:'0 0 8px rgba(245,158,11,0.6)',flexShrink:0}}/>
+            <span style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,0.45)',textTransform:'uppercase',letterSpacing:'0.13em'}}>OTW Automation — Live</span>
+          </div>
+          <span style={{fontSize:10,fontWeight:600,color:'rgba(255,255,255,0.25)'}}>5 products running</span>
+        </div>
+
+        {/* Pipeline rows */}
+        {PIPELINE.map((item, i) => {
+          const isActive  = i === activeIdx;
+          const hasFired  = i <= seenIdx;
+          return (
+            <div key={i} style={{
+              display:'flex',alignItems:'center',gap:14,padding:'13px 20px',
+              borderBottom:i<PIPELINE.length-1?'1px solid rgba(255,255,255,0.04)':'none',
+              background:isActive?'rgba(245,158,11,0.05)':'transparent',
+              transition:'background 0.4s ease',
+            }}>
+              <span style={{fontSize:20,flexShrink:0,opacity:hasFired?1:0.35,transition:'opacity 0.4s'}}>{item.emoji}</span>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:10,fontWeight:700,color:hasFired?GOLD:'rgba(255,255,255,0.28)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:2,transition:'color 0.4s'}}>{item.product}{item.live?<span style={{marginLeft:6,fontSize:9,background:'rgba(34,197,94,0.12)',border:'1px solid rgba(34,197,94,0.28)',color:'#22c55e',borderRadius:50,padding:'1px 6px',fontWeight:700}}>Live</span>:null}</div>
+                <div style={{fontSize:12,fontWeight:500,color:hasFired?'rgba(255,255,255,0.82)':'rgba(255,255,255,0.28)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',transition:'color 0.4s'}}>{item.event}</div>
+              </div>
+              <span style={{
+                fontSize:10,fontWeight:700,borderRadius:50,padding:'4px 10px',flexShrink:0,
+                background:hasFired?'rgba(34,197,94,0.10)':DIM,
+                color:hasFired?'#22c55e':'rgba(255,255,255,0.18)',
+                border:hasFired?'1px solid rgba(34,197,94,0.28)':'1px solid rgba(255,255,255,0.06)',
+                transition:'all 0.4s ease',
+                whiteSpace:'nowrap',
+              }}>{hasFired?item.badge:'—'}</span>
+            </div>
+          );
+        })}
+
+        {/* Footer */}
+        <div style={{padding:'12px 20px',background:'rgba(245,158,11,0.04)',borderTop:'1px solid rgba(245,158,11,0.08)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <span style={{fontSize:11,color:'rgba(255,255,255,0.3)'}}>Live since 7:42am</span>
+          <span style={{fontSize:12,fontWeight:800,color:GOLD}}>+${(1240 + activeIdx * 180).toLocaleString('en-AU')} this month</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AuditCTA({ light = false, label = 'Start your free audit' }) {
   return (
     <a href="otw_audit.html"
@@ -619,6 +716,11 @@ function App() {
       start: 'top 88%',
       once: true,
     });
+
+    // Floating badges — override CSS with GSAP for cleaner control
+    gsap.to('.float-a', { y: -10, duration: 5.2, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+    gsap.to('.float-b', { y:   6, duration: 4.0, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.8 });
+    gsap.to('.float-c', { y:  -6, duration: 6.4, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 1.6 });
 
     // Scroll-velocity–driven marquee
     const track = document.getElementById('marquee-track');
@@ -767,44 +869,53 @@ function App() {
 
       <main>
         {/* ── HERO ────────────────────────────────────────── */}
-        <section ref={heroRef} className="bg-white pt-28 pb-20 lg:pt-36 lg:pb-24">
+        <section ref={heroRef} className="bg-white pt-28 pb-16 lg:pt-36 lg:pb-20">
           <div className="mx-auto max-w-7xl px-6">
-            <div className="max-w-4xl">
-              <div className="gsap-hero-el mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-medium text-slate-500">
-                <span className="h-1.5 w-1.5 rounded-full bg-gold-500"></span>
-                Workflow automation for Australian service businesses
-              </div>
-              <h1 className="gsap-hero-el text-4xl font-extrabold tracking-tight text-slate-950 leading-[1.07] sm:text-5xl lg:text-7xl">
-                Your business runs better when the admin{' '}
-                <span className="text-gold-600">runs itself.</span>
-              </h1>
-              <p className="gsap-hero-el mt-7 max-w-2xl text-lg leading-8 text-slate-500">
-                OTW Studios builds AI-powered workflow tools for service businesses — starting with your phone and inbox. We configure, manage, and improve everything. You just run your business.
-              </p>
-              <div className="gsap-hero-el mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <a href="otw_audit.html"
-                  className="rounded-full bg-gold-500 px-7 py-3.5 text-sm font-semibold text-white hover:bg-gold-600 transition-colors shadow-sm gold-glow">
-                  Start your free audit
-                </a>
-                <a href="otw_ai_receptionist.html#demo"
-                  className="rounded-full border border-slate-300 px-7 py-3.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2">
-                  <svg className="h-4 w-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="5,3 19,12 5,21"/>
-                  </svg>
-                  Hear the AI receptionist live
-                </a>
-              </div>
-              <p className="gsap-hero-el mt-4 text-xs text-slate-400">Free audit · No obligation · Setup in 48 hours · No tech skills needed</p>
-            </div>
 
-            {/* Stats */}
-            <div className="mt-16 grid gap-px bg-slate-200 sm:grid-cols-2 lg:grid-cols-4 rounded-2xl overflow-hidden border border-slate-200">
-              {stats.map(s => (
-                <div key={s.label} className="bg-white px-6 py-6">
-                  <div className="text-3xl font-bold tracking-tight text-slate-950">{s.value}</div>
-                  <div className="mt-1.5 text-sm text-slate-400">{s.label}</div>
+            <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
+              {/* Left — copy */}
+              <div>
+                <div className="gsap-hero-el mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-medium text-slate-500">
+                  <span className="h-1.5 w-1.5 rounded-full bg-gold-500"></span>
+                  Workflow automation for Australian service businesses
                 </div>
-              ))}
+                <h1 className="gsap-hero-el text-4xl font-extrabold tracking-tight text-slate-950 leading-[1.07] sm:text-5xl lg:text-[56px]">
+                  Your business runs better when the admin{' '}
+                  <span className="text-gold-600">runs itself.</span>
+                </h1>
+                <p className="gsap-hero-el mt-7 text-lg leading-8 text-slate-500">
+                  OTW Studios builds AI-powered workflow tools for Australian service businesses — starting with your phone and inbox. We configure, manage, and improve everything. You just run your business.
+                </p>
+                <div className="gsap-hero-el mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <a href="otw_audit.html"
+                    className="rounded-full bg-gold-500 px-7 py-3.5 text-sm font-semibold text-white hover:bg-gold-600 transition-colors shadow-sm gold-glow">
+                    Start your free audit
+                  </a>
+                  <a href="otw_ai_receptionist.html#demo"
+                    className="rounded-full border border-slate-300 px-7 py-3.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2">
+                    <svg className="h-4 w-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="5,3 19,12 5,21"/>
+                    </svg>
+                    Hear the AI live
+                  </a>
+                </div>
+                <p className="gsap-hero-el mt-4 text-xs text-slate-400">Free audit · No obligation · Setup in 48 hours · No tech skills needed</p>
+
+                {/* Stats row */}
+                <div className="gsap-hero-el mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  {stats.map(s => (
+                    <div key={s.label}>
+                      <div className="text-2xl font-bold tracking-tight text-slate-950">{s.value}</div>
+                      <div className="mt-0.5 text-xs text-slate-400 leading-4">{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right — live ecosystem animation */}
+              <div className="gsap-hero-el hidden lg:block">
+                <EcosystemCard/>
+              </div>
             </div>
           </div>
         </section>
@@ -847,43 +958,38 @@ function App() {
 
         {/* ── TECH STACK MARQUEE ──────────────────────────── */}
         {(() => {
-          const techItems = [
-            { name:'Retell AI',    tag:'Voice AI',        bg:'#2D1B69', icon:null,              svg:<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> },
-            { name:'ElevenLabs',  tag:'Voice synthesis', bg:'#000000', icon:'elevenlabs',      svg:null },
-            { name:'Claude AI',   tag:'Intelligence',    bg:'#CC785C', icon:'anthropic',       svg:null },
-            { name:'Make',        tag:'Automation',      bg:'#3D0099', icon:'make',            svg:null },
-            { name:'Twilio',      tag:'Communications',  bg:'#CE0E2D', icon:'twilio',          svg:null },
-            { name:'Stripe',      tag:'Payments',        bg:'#5851EA', icon:'stripe',          svg:null },
-            { name:'Google Cal',  tag:'Scheduling',      bg:'#1A73E8', icon:'googlecalendar',  svg:null },
-            { name:'Cloudflare',  tag:'Infrastructure',  bg:'#F6821F', icon:'cloudflare',      svg:null },
-            { name:'ServiceM8',   tag:'Job Management',  bg:'#0F4C81', icon:null,              svg:<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg> },
-            { name:'Xero',        tag:'Accounting',      bg:'#13B5EA', icon:'xero',            svg:null },
+          const chips = [
+            { name:'Retell AI',    tag:'Voice infrastructure',  color:'text-amber-400',  svgPath:<path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/> },
+            { name:'ElevenLabs',   tag:'Voice synthesis',       color:'text-purple-400', svgPath:<path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/> },
+            { name:'Claude AI',    tag:'Intelligence layer',    color:'text-orange-400', svgPath:<path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/> },
+            { name:'Make.com',     tag:'Workflow automation',   color:'text-blue-400',   svgPath:<path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/> },
+            { name:'Twilio',       tag:'Telephony backbone',    color:'text-red-400',    svgPath:<path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/> },
+            { name:'Stripe',       tag:'Payments & billing',    color:'text-green-400',  svgPath:<path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/> },
+            { name:'Google Cal',   tag:'Scheduling & bookings', color:'text-sky-400',    svgPath:<><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></> },
+            { name:'Cloudflare',   tag:'Edge & security',       color:'text-orange-300', svgPath:<path d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/> },
+            { name:'ServiceM8',    tag:'Job management',        color:'text-blue-300',   svgPath:<path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/> },
+            { name:'Xero',         tag:'Accounting & invoicing', color:'text-cyan-400',  svgPath:<><circle cx="12" cy="12" r="10"/><path d="M8 12l4-4 4 4M12 8v8"/></> },
           ];
-          const doubled = [...techItems, ...techItems];
+          const doubled = [...chips, ...chips];
           return (
             <section style={{background:'#060a16', borderBottom:'1px solid rgba(255,255,255,0.06)', paddingTop:'36px', paddingBottom:'36px', overflow:'hidden'}}>
-              <div style={{textAlign:'center', marginBottom:'24px'}}>
-                <p style={{fontSize:'10px', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.14em', color:'rgba(255,255,255,0.28)'}}>Powered by industry-leading technology</p>
+              <div style={{textAlign:'center', marginBottom:'22px'}}>
+                <p style={{fontSize:'10px', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.14em', color:'rgba(255,255,255,0.28)'}}>Built on world-class infrastructure</p>
               </div>
-              <div style={{overflow:'hidden', WebkitMaskImage:'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)', maskImage:'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)'}}>
-                <div id="marquee-track" className="marquee-track">
-                  {doubled.map((item, i) => (
-                    <div key={i} className="tech-card">
-                      <div className="tech-icon" style={{background:item.bg}}>
-                        {item.icon
-                          ? <img src={`https://cdn.simpleicons.org/${item.icon}/ffffff`} alt={item.name} width="28" height="28"/>
-                          : item.svg
-                        }
-                      </div>
-                      <div>
-                        <div className="tech-name">{item.name}</div>
-                        <div className="tech-tag">{item.tag}</div>
-                      </div>
+              <div style={{overflow:'hidden', WebkitMaskImage:'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)', maskImage:'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)'}}>
+                <div id="marquee-track" className="marquee-track" style={{gap:12}}>
+                  {doubled.map((chip, i) => (
+                    <div key={i} className="stack-chip">
+                      <svg className={`h-5 w-5 ${chip.color} shrink-0`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        {chip.svgPath}
+                      </svg>
+                      <span style={{fontSize:13,fontWeight:600,color:'#fff'}}>{chip.name}</span>
+                      <span className="stack-tag">{chip.tag}</span>
                     </div>
                   ))}
                 </div>
               </div>
-              <p style={{textAlign:'center', marginTop:'22px', fontSize:'12px', color:'rgba(255,255,255,0.22)', fontWeight:500}}>Need a custom integration? We adapt our stack to match your existing tools.</p>
+              <p style={{textAlign:'center', marginTop:'20px', fontSize:'12px', color:'rgba(255,255,255,0.22)', fontWeight:500}}>Need a custom integration? We adapt our stack to match your existing tools.</p>
             </section>
           );
         })()}

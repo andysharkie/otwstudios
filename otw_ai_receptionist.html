@@ -128,6 +128,8 @@
     .dark-section { background:#0a0f1e; }
     .dark-section .feature-card { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.08); }
     .dark-section .feature-card:hover { box-shadow:0 8px 24px rgba(0,0,0,0.3); }
+    /* ── White→dark section transition ── */
+    .section-fade { background: linear-gradient(180deg, #ffffff 0%, #020811 100%); height: 90px; margin-top: -1px; pointer-events:none; }
     /* ── GSAP scroll reveal ── */
     .gsap-reveal { opacity:0; transform:translateY(40px); }
     .gsap-hero-el { opacity:0; transform:translateY(30px); }
@@ -376,8 +378,11 @@
     </div>
   </section>
 
+  <!-- ── WHITE→DARK TRANSITION ── -->
+  <div class="section-fade"></div>
+
   <!-- ── TECH STACK MARQUEE ── -->
-  <section class="bg-slate-950 border-t border-white/5 py-14 overflow-hidden">
+  <section class="bg-slate-950 py-14 overflow-hidden" style="margin-top:-1px">
     <div class="mx-auto max-w-7xl px-6 mb-10 text-center fade-up">
       <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Built on world-class AI infrastructure</p>
       <h2 class="text-2xl font-bold tracking-tight text-white sm:text-3xl">We adapt our technology to perfectly<br class="hidden sm:block"/> match your trade business</h2>
