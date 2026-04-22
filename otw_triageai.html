@@ -63,8 +63,41 @@
     }
     @keyframes tagPop { to { opacity: 1; transform: scale(1); } }
 
-    /* Products dropdown */
-    .prod-dropdown:hover .prod-menu { display: block; }
+    /* ── Products mega-menu dropdown (sophiie.ai-inspired) ── */
+    .prod-dropdown { position: relative; }
+    .prod-menu {
+      visibility: hidden; opacity: 0;
+      transform: translateX(-50%) translateY(8px);
+      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s 0.18s;
+      position: absolute; top: calc(100% + 14px); left: 50%;
+      z-index: 60; min-width: 480px;
+    }
+    .prod-dropdown:hover .prod-menu {
+      visibility: visible; opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s;
+    }
+    .prod-panel {
+      background: #fff; border-radius: 20px;
+      box-shadow: 0 4px 6px -4px rgba(0,0,0,0.18), 0 10px 15px -3px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+      padding: 18px;
+    }
+    .prod-slabel { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; color:#94a3b8; padding:0 10px 8px; }
+    .prod-item { display:flex; align-items:flex-start; gap:11px; padding:10px; border-radius:10px; text-decoration:none; transition:background 0.15s ease; color:inherit; }
+    .prod-item:hover { background:#f9fafb; }
+    .prod-item-active { background:#fffbeb !important; }
+    .prod-item-active:hover { background:#fef3c7 !important; }
+    .prod-icon-box { flex-shrink:0; display:flex; align-items:center; justify-content:center; width:40px; height:40px; border:1px solid #e5e7eb; border-radius:10px; box-shadow:inset 0 -2px 2px rgba(0,0,0,0.05); color:#64748b; background:#fff; }
+    .prod-icon-box-gold { border-color:rgba(245,158,11,0.4); background:#fffbeb; color:#d97706; }
+    .prod-icon-sm { width:32px; height:32px; border-radius:8px; }
+    .prod-title { font-size:13px; font-weight:600; color:#1e293b; line-height:1.3; }
+    .prod-desc  { font-size:11.5px; color:#94a3b8; line-height:1.4; margin-top:2px; }
+    .prod-badge { display:inline-block; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; padding:2px 7px; border-radius:20px; margin-top:4px; }
+    .prod-badge-here { background:#fef3c7; color:#d97706; }
+    .prod-badge-live { background:#ecfdf5; color:#059669; }
+    .prod-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:3px; }
+    .prod-grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:3px; }
+    .prod-divider { border-top:1px solid #f1f5f9; margin:12px 0 10px; }
   </style>
 </head>
 <body class="bg-white text-slate-900 antialiased">
@@ -84,29 +117,53 @@
             Products
             <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
-          <div class="prod-menu absolute top-full left-1/2 -translate-x-1/2 pt-3 hidden z-50">
-            <div class="w-60 rounded-2xl border border-slate-200 bg-white shadow-xl p-2">
-              <a href="otw_ai_receptionist.html" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-slate-50 transition-colors">
-                <span class="text-sm font-semibold text-slate-800">OTW Receptionist</span>
-                <span class="text-[10px] font-bold uppercase tracking-wide text-gold-600">Live</span>
-              </a>
-              <a href="otw_triageai.html" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-50">
-                <span class="text-sm font-semibold text-slate-800">OTW TriageAI</span>
-                <span class="text-[10px] font-bold uppercase tracking-wide text-gold-600">You're here</span>
-              </a>
-              <div class="my-1.5 border-t border-slate-100"></div>
-              <a href="otw_scheduling.html" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-slate-50 transition-colors">
-                <span class="text-sm font-medium text-slate-400">OTW Scheduling</span>
-                <span class="text-[10px] font-medium uppercase tracking-wide text-slate-300">Soon</span>
-              </a>
-              <a href="otw_debtcollector.html" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-slate-50 transition-colors">
-                <span class="text-sm font-medium text-slate-400">OTW DebtCollector</span>
-                <span class="text-[10px] font-medium uppercase tracking-wide text-slate-300">Soon</span>
-              </a>
-              <a href="otw_reviewgenius.html" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-slate-50 transition-colors">
-                <span class="text-sm font-medium text-slate-400">OTW ReviewGenius</span>
-                <span class="text-[10px] font-medium uppercase tracking-wide text-slate-300">Soon</span>
-              </a>
+          <div class="prod-menu">
+            <div class="prod-panel">
+              <div class="prod-slabel">Products</div>
+              <div class="prod-grid2">
+                <a href="otw_ai_receptionist.html" class="prod-item">
+                  <div class="prod-icon-box">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 014.69 11a19.79 19.79 0 01-3.07-8.67A2 2 0 013.6 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.91 8.09a16 16 0 006 6l1.46-1.45a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+                  </div>
+                  <div>
+                    <div class="prod-title">OTW Receptionist</div>
+                    <div class="prod-desc">AI that answers calls &amp; books jobs 24/7</div>
+                    <span class="prod-badge prod-badge-live">Live</span>
+                  </div>
+                </a>
+                <a href="otw_triageai.html" class="prod-item prod-item-active">
+                  <div class="prod-icon-box prod-icon-box-gold">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
+                  </div>
+                  <div>
+                    <div class="prod-title">OTW TriageAI</div>
+                    <div class="prod-desc">Auto-sort emails, draft AI replies fast</div>
+                    <span class="prod-badge prod-badge-here">You're here</span>
+                  </div>
+                </a>
+              </div>
+              <div class="prod-divider"></div>
+              <div class="prod-slabel">Coming Soon</div>
+              <div class="prod-grid3">
+                <div class="prod-item" style="opacity:0.45;cursor:default;">
+                  <div class="prod-icon-box prod-icon-sm">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  </div>
+                  <div><div class="prod-title" style="font-size:12px;">Scheduling</div><div class="prod-desc">Smart booking</div></div>
+                </div>
+                <div class="prod-item" style="opacity:0.45;cursor:default;">
+                  <div class="prod-icon-box prod-icon-sm">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                  </div>
+                  <div><div class="prod-title" style="font-size:12px;">DebtCollector</div><div class="prod-desc">Chase invoices</div></div>
+                </div>
+                <div class="prod-item" style="opacity:0.45;cursor:default;">
+                  <div class="prod-icon-box prod-icon-sm">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  </div>
+                  <div><div class="prod-title" style="font-size:12px;">ReviewGenius</div><div class="prod-desc">Auto-collect reviews</div></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
