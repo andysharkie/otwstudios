@@ -523,7 +523,7 @@ function InvoicePanel({ email, onApprove, approved }) {
 /* ═══════════════════════════════════════════════════════════
    DRAFT PANEL
 ═══════════════════════════════════════════════════════════ */
-function DraftPanel({ email, onApprove, onLearn, approved, learningCount, typingDraft, isTypingDraft, draftReady }) {
+function DraftPanel({ email, onApprove, onLearn, onRegen, approved, learningCount, typingDraft, isTypingDraft, draftReady }) {
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(email.draft);
   const [regen, setRegen] = useState(false);
@@ -535,7 +535,18 @@ function DraftPanel({ email, onApprove, onLearn, approved, learningCount, typing
 
   const handleRegen = () => {
     setRegen(true);
-    setTimeout(() => { setText(email.draft); setRegen(false); }, 900);
+    if (email.gmailId && onRegen) {
+      // Real email — call API to regenerate
+      onRegen(email.id).then(draft => {
+        setText(draft || email.draft);
+        setRegen(false);
+      }).catch(() => {
+        setText(email.draft);
+        setRegen(false);
+      });
+    } else {
+      setTimeout(() => { setText(email.draft); setRegen(false); }, 900);
+    }
   };
 
   const handleSaveLearn = () => {
@@ -622,7 +633,7 @@ function DraftPanel({ email, onApprove, onLearn, approved, learningCount, typing
 /* ═══════════════════════════════════════════════════════════
    DETAIL PANE
 ═══════════════════════════════════════════════════════════ */
-function DetailPane({ email, approvedIds, approvedInvoices, onApprove, onApproveInvoice, onLearn, learningCount, typingDraft, isTypingDraft, draftReady }) {
+function DetailPane({ email, approvedIds, approvedInvoices, onApprove, onApproveInvoice, onLearn, onRegen, learningCount, typingDraft, isTypingDraft, draftReady }) {
   const [tab, setTab] = useState('email');
   const approved = approvedIds.has(email.id);
   const invApproved = approvedInvoices.has(email.id);
@@ -659,6 +670,7 @@ function DetailPane({ email, approvedIds, approvedInvoices, onApprove, onApprove
               email={email}
               onApprove={onApprove}
               onLearn={onLearn}
+              onRegen={onRegen}
               approved={approved}
               learningCount={learningCount}
               typingDraft={typingDraft}
@@ -1172,7 +1184,25 @@ function App() {
     }
   };
 
-  const handleSelectEmail = id => { setSelectedId(id); setView('triage'); };
+  const handleSelectEmail = async id => {
+    setSelectedId(id);
+    setView('triage');
+    if (isDemo) return;
+    const email = emails.find(e => e.id === id);
+    if (!email || email.draft) return; // already has a draft
+    // Show loading placeholder while Gemini generates
+    setEmails(prev => prev.map(e => e.id === id ? { ...e, draft: '✦  Generating AI draft…' } : e));
+    try {
+      const result = await api.post('/api/triage', { emailId: id });
+      setEmails(prev => prev.map(e => e.id === id
+        ? { ...e, draft: result.draft, category: result.category }
+        : e
+      ));
+    } catch (err) {
+      console.error('[triage] Draft generation failed:', err);
+      setEmails(prev => prev.map(e => e.id === id ? { ...e, draft: '' } : e));
+    }
+  };
 
   const handleSaveBusiness = async (profile) => {
     setBusiness(profile);
@@ -1246,6 +1276,12 @@ function App() {
                     onApprove={handleApprove}
                     onApproveInvoice={handleApproveInvoice}
                     onLearn={handleLearn}
+                    onRegen={async (emailId) => {
+                      setEmails(prev => prev.map(e => e.id === emailId ? { ...e, draft: '✦  Regenerating…' } : e));
+                      const result = await api.post('/api/triage', { emailId });
+                      setEmails(prev => prev.map(e => e.id === emailId ? { ...e, draft: result.draft, category: result.category } : e));
+                      return result.draft;
+                    }}
                     learningCount={combinedLearning.length}
                     typingDraft={isDemo ? typingDraft : ''}
                     isTypingDraft={isDemo ? isTypingDraft : false}
