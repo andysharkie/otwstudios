@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>OTW TriageAI — Smart Email Triage for Trade Businesses | OTW Studios</title>
+<title>OTW TriageAI â Smart Email Triage for Trade Businesses | OTW Studios</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.4/babel.min.js"></script>
@@ -41,7 +41,7 @@ textarea, input, select { font-family: inherit; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 2px; }
 
-/* ─── LAYOUT ─────────────────────────────────── */
+/* âââ LAYOUT âââââââââââââââââââââââââââââââââââ */
 .app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 .app-main { display: flex; flex: 1; overflow: hidden; }
 .sidebar { width: 204px; min-width: 204px; background: var(--bg1); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 1px 0 0 rgba(0,0,0,0.04); }
@@ -49,7 +49,7 @@ textarea, input, select { font-family: inherit; }
 .triage-view { flex: 1; display: flex; overflow: hidden; }
 .app-footer { flex-shrink: 0; padding: 7px 20px; background: var(--bg1); border-top: 1px solid var(--border); text-align: center; font-size: 10px; font-weight: 500; letter-spacing: 0.07em; color: rgba(15,23,42,0.25); }
 
-/* ─── SIDEBAR ────────────────────────────────── */
+/* âââ SIDEBAR ââââââââââââââââââââââââââââââââââ */
 .sb-logo { padding: 18px 16px 14px; border-bottom: 1px solid var(--border); }
 .sb-logo-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
 .sb-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); flex-shrink: 0; box-shadow: 0 0 6px rgba(245,158,11,0.5); }
@@ -77,7 +77,7 @@ textarea, input, select { font-family: inherit; }
 .sb-profile-sub { font-size: 10px; color: var(--t3); }
 .connection-pill { display: inline-flex; align-items: center; gap: 4px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-radius: 10px; padding: 2px 7px; font-size: 9px; font-weight: 700; color: #16A34A; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 5px; }
 
-/* ─── EMAIL LIST ─────────────────────────────── */
+/* âââ EMAIL LIST âââââââââââââââââââââââââââââââ */
 .email-list-pane { width: 304px; min-width: 304px; background: var(--bg1); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 1px 0 0 rgba(0,0,0,0.04); }
 .list-header { padding: 16px 16px 0; flex-shrink: 0; }
 .list-title { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 12px; }
@@ -111,7 +111,7 @@ textarea, input, select { font-family: inherit; }
 .cat-pill.inbox { background: rgba(255,255,255,0.04); color: var(--t3); border: 1px solid var(--border); }
 .approved-check { font-size: 10px; font-weight: 700; color: var(--green); background: var(--green-dim); border: 1px solid rgba(34,197,94,0.2); padding: 1px 6px; border-radius: 8px; margin-top: 4px; display: inline-block; }
 
-/* ─── DETAIL PANE ────────────────────────────── */
+/* âââ DETAIL PANE ââââââââââââââââââââââââââââââ */
 .detail-pane { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg0); border-left: 1px solid var(--border); }
 .detail-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
 .empty-icon { font-size: 36px; opacity: 0.2; }
@@ -143,7 +143,7 @@ textarea, input, select { font-family: inherit; }
 .email-body { padding: 22px 28px; flex-shrink: 0; border-bottom: 1px solid var(--border); }
 .email-body-text { font-size: 14px; line-height: 1.8; color: var(--t2); white-space: pre-wrap; }
 
-/* ─── AI DRAFT PANEL ─────────────────────────── */
+/* âââ AI DRAFT PANEL âââââââââââââââââââââââââââ */
 .draft-panel { padding: 22px 28px 28px; }
 .draft-eyebrow { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
 .draft-eyebrow-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em; color: var(--gold); }
@@ -171,7 +171,7 @@ textarea, input, select { font-family: inherit; }
 .sent-banner-text { font-size: 13px; font-weight: 600; color: var(--green); }
 .sent-banner-sub { font-size: 11px; color: rgba(22,163,74,0.7); margin-top: 2px; }
 
-/* ─── INVOICE PANEL ──────────────────────────── */
+/* âââ INVOICE PANEL ââââââââââââââââââââââââââââ */
 .invoice-wrap { padding: 22px 28px 32px; }
 .invoice-card { background: #fff; border-radius: 12px; overflow: hidden; color: #111; }
 .inv-header { background: #0A0F1E; padding: 24px 28px; display: flex; justify-content: space-between; align-items: flex-start; }
@@ -203,7 +203,7 @@ textarea, input, select { font-family: inherit; }
 .btn-inv-approve:hover { background: #FBBF24; }
 .btn-inv-ghost { padding: 10px 18px; border-radius: 50px; background: transparent; border: 1px solid rgba(0,0,0,0.15); color: #555; font-size: 13px; font-weight: 600; cursor: pointer; }
 
-/* ─── FULL VIEWS ─────────────────────────────── */
+/* âââ FULL VIEWS âââââââââââââââââââââââââââââââ */
 .full-view { flex: 1; overflow-y: auto; padding: 32px; }
 .view-header { margin-bottom: 28px; }
 .view-eyebrow { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em; color: var(--gold); margin-bottom: 6px; }
@@ -221,7 +221,7 @@ textarea, input, select { font-family: inherit; }
 @keyframes fadeIn { from{opacity:0; transform:translateY(-6px)} to{opacity:1; transform:translateY(0)} }
 .nlb-text { font-size: 13px; font-weight: 600; color: var(--gold); }
 
-/* ─── LIVE DEMO ANIMATIONS ───────────────────── */
+/* âââ LIVE DEMO ANIMATIONS âââââââââââââââââââââ */
 @keyframes emailSlideIn { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
 .email-arriving { animation: emailSlideIn 0.45s cubic-bezier(.34,1.56,.64,1) forwards; }
 @keyframes aiScan { 0%{left:-80%;opacity:0} 15%{opacity:1} 85%{opacity:1} 100%{left:180%;opacity:0} }
@@ -270,16 +270,71 @@ textarea, input, select { font-family: inherit; }
 .inv-status.pending { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold-border); }
 .inv-status.sent { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
 .inv-status.draft { background: rgba(255,255,255,0.04); color: var(--t3); border: 1px solid var(--border); }
-</style>
-</head>
-<body>
-<div id="root"></div>
-<script type="text/babel">
-const { useState, useEffect, useRef } = React;
 
-/* ═══════════════════════════════════════════════════════════
-   API HELPERS
-═══════════════════════════════════════════════════════════ */
+/* ââ Labels âââââââââââââââââââââââââââââââââââââââââââââââ */
+.label-chip { display:inline-flex; align-items:center; gap:5px; background:var(--gold-dim); border:1px solid var(--gold-border); color:var(--gold); border-radius:20px; font-size:10px; font-weight:700; padding:3px 9px; letter-spacing:0.04em; white-space:nowrap; }
+.label-chip svg { opacity:0.7; cursor:pointer; flex-shrink:0; }
+.label-chip svg:hover { opacity:1; }
+.label-btn { display:flex; align-items:center; gap:5px; padding:5px 10px; border-radius:20px; border:1px dashed var(--border); background:transparent; color:var(--t3); font-size:11px; font-weight:600; cursor:pointer; transition:all 0.15s; letter-spacing:0.03em; white-space:nowrap; }
+.label-btn:hover { border-color:var(--gold-border); color:var(--gold); background:var(--gold-dim); }
+.label-chips-row { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:8px; }
+.label-dropdown { position:absolute; z-index:200; top:calc(100% + 6px); right:0; background:var(--bg2); border:1px solid var(--border); border-radius:12px; min-width:200px; box-shadow:0 8px 32px rgba(0,0,0,0.5); overflow:hidden; }
+.label-dropdown-header { padding:10px 14px 6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--t3); }
+.label-dropdown-item { display:flex; align-items:center; gap:10px; padding:8px 14px; cursor:pointer; font-size:13px; color:var(--t1); transition:background 0.1s; }
+.label-dropdown-item:hover { background:rgba(255,255,255,0.04); }
+.label-dropdown-item.checked { color:var(--gold); }
+.label-dropdown-divider { height:1px; background:var(--border); margin:4px 0; }
+.label-dropdown-new { padding:8px 14px 10px; }
+.label-dropdown-new input { width:100%; background:var(--bg0); border:1px solid var(--border); border-radius:6px; color:var(--t1); font-size:12px; padding:6px 10px; outline:none; }
+.label-dropdown-new input:focus { border-color:var(--gold-border); }
+.label-dropdown-new-btn { margin-top:6px; width:100%; background:var(--gold); color:#04080F; border:none; border-radius:6px; padding:6px 10px; font-size:11px; font-weight:800; cursor:pointer; letter-spacing:0.04em; }
+.label-dropdown-new-btn:hover { opacity:0.9; }
+.label-wrap { position:relative; }
+
+/* ââ Floating Chat âââââââââââââââââââââââââââââââââââââââââ */
+.chat-fab { position:fixed; bottom:28px; right:28px; z-index:300; width:52px; height:52px; border-radius:50%; background:var(--gold); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 20px rgba(245,158,11,0.4); transition:transform 0.15s, box-shadow 0.15s; }
+.chat-fab:hover { transform:scale(1.08); box-shadow:0 6px 28px rgba(245,158,11,0.55); }
+.chat-fab.open { background:var(--bg2); border:1px solid var(--border); border-radius:50%; }
+.chat-panel { position:fixed; bottom:90px; right:28px; z-index:299; width:340px; background:var(--bg2); border:1px solid var(--border); border-radius:16px; box-shadow:0 16px 56px rgba(0,0,0,0.7); display:flex; flex-direction:column; overflow:hidden; }
+.chat-panel-header { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:var(--bg3); }
+.chat-panel-title { font-size:13px; font-weight:700; color:var(--t1); display:flex; align-items:center; gap:8px; }
+.chat-close-btn { background:none; border:none; color:var(--t3); cursor:pointer; padding:4px; display:flex; align-items:center; border-radius:6px; transition:all 0.15s; }
+.chat-close-btn:hover { background:rgba(255,255,255,0.08); color:var(--t1); }
+.chat-messages { flex:1; overflow-y:auto; max-height:320px; padding:14px; display:flex; flex-direction:column; gap:12px; }
+.chat-msg { max-width:85%; }
+.chat-msg.user { align-self:flex-end; }
+.chat-msg.ai { align-self:flex-start; }
+.chat-msg-bubble { padding:9px 13px; border-radius:12px; font-size:13px; line-height:1.5; }
+.chat-msg.user .chat-msg-bubble { background:var(--gold); color:#04080F; border-bottom-right-radius:3sx; }
+.chat-msg.ai .chat-msg-bubble { background:var(--bg3); color:var(--t1); border:1px solid var(--border); border-bottom-left-radius:3px; }
+.chat-input-wrap { padding:12px; border-top:1px solid var(--border); display:flex; gap:8px; align-items:flex-end; }
+.chat-input { flex:1; background:var(--bg0); border:1px solid var(--border2); border-radius:10px; padding:8px 12px; font-size:13px; color:var(--t1); outline:none; resize:none; min-height:38px; max-height:120px; overflow-y:auto; }
+.chat-input::\"textarea":focus { outline:none; }
+.chat-send-btn { width:38px; height:38px; border-radius:9px; background:var(--gold); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; flex-shrink:0; }
+.chat-send-btn:hover { background:#FBBF24; }
+.chat-send-btn:disabled { opacity:0.4; cursor:default; }
+.chat-typing-indicator { display:flex; gap:4px; align-items:center; padding:9px 13px; background:var(--bg3); border:1px solid var(--border); border-radius:12px; border-bottom-left-radius:3px; align-self:flex-start; }
+.chat-context-badge { margin:0 12px 8px; padding:6px 10px; background:var(--gold-dim); border:1px solid var(--gold-border); border-radius:8px; font-size:11px; color:var(--gold); }
+
+/* Legacy styles */
+.detail-section { margin-bottom: 24px; }
+.detail-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--t3); margin-bottom: 6px; }
+.detail-value { font-size: 13px; color: var(--t1); }
+.from-block { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.from-avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(245,158,11,0.15); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; color: var(--gold); flex-shrink: 0; }
+.from-info { flex: 1; min-width: 0; }
+
+/* Fresh scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+</style>
+
+<script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.23.2/babel.min.js"></script>
+
+<script type="text/babel">âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 const api = {
   get: async function(path) {
     const r = await fetch(path, { credentials: 'include' });
@@ -297,9 +352,9 @@ const api = {
   },
 };
 
-/* ═══════════════════════════════════════════════════════════
+/* âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
    HELPERS
-═══════════════════════════════════════════════════════════ */
+âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 const getInitials = name => name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
 const AVATAR_COLORS = ['#7C3AED','#0EA5E9','#059669','#DC2626','#9333EA','#0284C7','#BE185D','#B45309','#0F766E','#1D4ED8'];
 const avatarColor = email => AVATAR_COLORS[(email||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0) % AVATAR_COLORS.length];
@@ -335,9 +390,9 @@ function mapDbEmail(row) {
   };
 }
 
-/* ═══════════════════════════════════════════════════════════
-   DEMO DATA — used when not authenticated (marketing view)
-═══════════════════════════════════════════════════════════ */
+/* âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+   DEMO DATA â used when not authenticated (marketing view)
+âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 const DEMO_BUSINESS = {
   name: 'OTW Plumbing & Gas',
   owner: 'Jake Mitchell',
@@ -346,8 +401,8 @@ const DEMO_BUSINESS = {
   services: 'Hot water systems, Gas fitting, Leak detection & repair, Drain unblocking, New builds & rough-in, Grease traps',
   hourlyRate: '140',
   callOutFee: '95',
-  serviceArea: 'Inner-north Melbourne — Northcote, Thornbury, Preston, Fitzroy, Carlton',
-  tone: 'Professional but approachable — like a trusted expert, not a salesperson. Always mention our 12-month workmanship guarantee.',
+  serviceArea: 'Inner-north Melbourne â Northcote, Thornbury, Preston, Fitzroy, Carlton',
+  tone: 'Professional but approachable â like a trusted expert, not a salesperson. Always mention our 12-month workmanship guarantee.',
   signature: 'Cheers,\nJake Mitchell\nOTW Plumbing & Gas  |  0412 888 777\nFully licensed & insured  |  otwplumbing.com.au',
 };
 
@@ -355,23 +410,23 @@ const _sig = DEMO_BUSINESS.signature;
 const DEMO_EMAILS = [
   {
     id:1, category:'urgent', from:'Sarah Chen', email:'sarah.chen@gmail.com', avatarBg:'#7C3AED',
-    subject:'URGENT — burst pipe, flooding under floorboards',
+    subject:'URGENT â burst pipe, flooding under floorboards',
     preview:'Our main bathroom pipe just burst about 20 minutes ago...',
     body:`Hi,\n\nOur main bathroom pipe just burst about 20 minutes ago and water is flooding under the floorboards. We've turned off the mains but there's already a lot of damage spreading into the hallway.\n\nWe're at 14 Rosella Street, Northcote. Can someone please come out as soon as possible?\n\nWe're in a bit of a panic.\n\nSarah Chen\n0423 111 222`,
     time:'8:42 AM', date:'Today', unread:true, hasInvoice:false,
-    draft:`Hi Sarah,\n\nWe're on our way — expect us between 9:30–10:00 AM.\n\nIn the meantime:\n• Keep the mains turned off\n• Place towels along the water line to limit spread\n• Move any electronics or valuables out of the affected area\n• Don't use any electrical appliances near the water\n\nWe'll assess the full extent when we arrive and walk you through the work and cost before we start anything. Our call-out is $95 and any work after that we'll quote on-site.\n\nHang tight — we'll be there shortly.\n\n${_sig}`,
+    draft:`Hi Sarah,\n\nWe're on our way â expect us between 9:30â10:00 AM.\n\nIn the meantime:\nâ¢ Keep the mains turned off\nâ¢ Place towels along the water line to limit spread\nâ¢ Move any electronics or valuables out of the affected area\nâ¢ Don't use any electrical appliances near the water\n\nWe'll assess the full extent when we arrive and walk you through the work and cost before we start anything. Our call-out is $95 and any work after that we'll quote on-site.\n\nHang tight â we'll be there shortly.\n\n${_sig}`,
   },
   {
     id:2, category:'work', from:'Dave Thompson', email:'d.thompson@icloud.com', avatarBg:'#0EA5E9',
-    subject:'Quote request — hot water system replacement',
+    subject:'Quote request â hot water system replacement',
     preview:'Our Rheem system is about 14 years old and has been playing up...',
-    body:`Hi there,\n\nOur Rheem hot water system is about 14 years old and has been playing up lately — slow to heat, and I think there might be a slow leak at the base.\n\nWe're a family of 4 and we're interested in replacing it with a gas continuous flow. We're at 7 Elm Street, Thornbury.\n\nCould you give us a quote? Happy to have someone come and take a look.\n\nThanks,\nDave Thompson`,
+    body:`Hi there,\n\nOur Rheem hot water system is about 14 years old and has been playing up lately â slow to heat, and I think there might be a slow leak at the base.\n\nWe're a family of 4 and we're interested in replacing it with a gas continuous flow. We're at 7 Elm Street, Thornbury.\n\nCould you give us a quote? Happy to have someone come and take a look.\n\nThanks,\nDave Thompson`,
     time:'7:15 AM', date:'Today', unread:true, hasInvoice:true,
-    draft:`Hi Dave,\n\nThanks for reaching out — a 14-year-old Rheem has had a solid run. Based on what you've described (slow heating + possible base leak), it's likely at end-of-life rather than worth repairing.\n\nFor a family of 4 on continuous flow, we'd typically recommend a Rinnai 26L or Rinnai B26 — reliable, gas-efficient, and excellent pressure. All-in installed, you're generally looking at $2,100–$2,600 depending on the complexity of the run and whether the gas line needs extending.\n\nI'd like to pop out and take a look before we lock anything in — no charge for the site visit. Are you free this week, or would Saturday morning work?\n\n${_sig}`,
+    draft:`Hi Dave,\n\nThanks for reaching out â a 14-year-old Rheem has had a solid run. Based on what you've described (slow heating + possible base leak), it's likely at end-of-life rather than worth repairing.\n\nFor a family of 4 on continuous flow, we'd typically recommend a Rinnai 26L or Rinnai B26 â reliable, gas-efficient, and excellent pressure. All-in installed, you're generally looking at $2,100â$2,600 depending on the complexity of the run and whether the gas line needs extending.\n\nI'd like to pop out and take a look before we lock anything in â no charge for the site visit. Are you free this week, or would Saturday morning work?\n\n${_sig}`,
     invoiceData: {
       number:'QTE-2026-0041', date:'16 Apr 2026', to:'Dave Thompson', address:'7 Elm Street, Thornbury VIC 3071',
       items:[
-        {desc:'Rinnai 26L Continuous Flow Gas Hot Water System (B26 — supply & install)',qty:1,rate:1850,amount:1850},
+        {desc:'Rinnai 26L Continuous Flow Gas Hot Water System (B26 â supply & install)',qty:1,rate:1850,amount:1850},
         {desc:'Removal & disposal of existing Rheem storage unit',qty:1,rate:185,amount:185},
         {desc:'Gas line inspection, pressure test & connection',qty:1,rate:160,amount:160},
         {desc:'Certificate of compliance (gas work)',qty:1,rate:95,amount:95},
@@ -381,34 +436,34 @@ const DEMO_EMAILS = [
   },
   {
     id:3, category:'work', from:'Marcus Reid', email:'marcus@reidbuilds.com.au', avatarBg:'#059669',
-    subject:"Rough-in quote — 4-bed townhouse, Coburg North",
+    subject:"Rough-in quote â 4-bed townhouse, Coburg North",
     preview:"Hi Jake, Marcus here from Reid Builds. We've got a 4-bedroom...",
-    body:`Hi Jake,\n\nMarcus here from Reid Builds. We've got a 4-bedroom townhouse going up on Smith Street, Coburg North — slab pour is in 3 weeks so we need a rough-in quote sorted ASAP.\n\nSpec sheet attached (3 bathrooms + ensuite, laundry, kitchen, outdoor entertaining area with sink). We use copper throughout, no shortcuts.\n\nLet me know if you want to do a site visit before quoting. We've worked with you before on the Alphington project and the quality was excellent.\n\nMarcus\nReid Builds | 0412 999 333`,
+    body:`Hi Jake,\n\nMarcus here from Reid Builds. We've got a 4-bedroom townhouse going up on Smith Street, Coburg North â slab pour is in 3 weeks so we need a rough-in quote sorted ASAP.\n\nSpec sheet attached (3 bathrooms + ensuite, laundry, kitchen, outdoor entertaining area with sink). We use copper throughout, no shortcuts.\n\nLet me know if you want to do a site visit before quoting. We've worked with you before on the Alphington project and the quality was excellent.\n\nMarcus\nReid Builds | 0412 999 333`,
     time:'Yesterday', date:'Yesterday', unread:false, hasInvoice:false,
-    draft:`Hi Marcus,\n\nGreat to hear from you — glad the Alphington job worked out well, the team enjoyed that one.\n\nWe've got capacity starting next month so the timing lines up well. A site visit before the slab is the right call — saves headaches later, especially with 4 wet areas and an outdoor run.\n\nAre you free Thursday afternoon, say 1:30–2pm? I can walk the plans with you on-site and get you a firm number by end of week. For a 4-bed, 3.5-bath copper rough-in you're typically looking at $16k–$22k depending on run distances and fitting spec, but I'll nail that down after the site visit.\n\n${_sig}`,
+    draft:`Hi Marcus,\n\nGreat to hear from you â glad the Alphington job worked out well, the team enjoyed that one.\n\nWe've got capacity starting next month so the timing lines up well. A site visit before the slab is the right call â saves headaches later, especially with 4 wet areas and an outdoor run.\n\nAre you free Thursday afternoon, say 1:30â2pm? I can walk_the plans with you on-site and get you a firm number by end of week. For a 4-bed, 3.5-bath copper rough-in you're typically looking at $16kâ$22k depending on run distances and fitting spec, but I'll nail that down after the site visit.\n\n${_sig}`,
   },
   {
     id:4, category:'inbox', from:'Tony Caruso', email:'tcaruso@tonysbistro.com.au', avatarBg:'#DC2626',
-    subject:'Invoice #1089 — can you resend?',
+    subject:'Invoice #1089 â can you resend?',
     preview:'Could you resend invoice #1089 for the grease trap work...',
-    body:`Hi,\n\nCould you resend invoice #1089 for the grease trap work you did on the 3rd? Our accounts person can't find the original email and the due date is coming up.\n\nNo urgency — just when you get a chance.\n\nCheers,\nTony\nTony's Bistro`,
+    body:`Hi,\n\nCould you resend invoice #1089 for the grease trap work you did on the 3rd? Our accounts person can't find the original email and the due date is coming up.\n\nNo urgency â just when you get a chance.\n\nCheers,\nTony\nTony's Bistro`,
     time:'2 days ago', date:'Tuesday', unread:false, hasInvoice:false,
-    draft:`Hi Tony,\n\nNo worries — I'll have our accounts team resend invoice #1089 to your address this afternoon. If it ends up in spam, check your junk folder, or let me know if you'd prefer it sent to a different email address.\n\n${_sig}`,
+    draft:`Hi Tony,\n\nNo worries â I'll have our accounts team resend invoice #1089 to your address this afternoon. If it ends up in spam, check your junk folder, or let me know if you'd prefer it sent to a different email address.\n\n${_sig}`,
   },
   {
     id:5, category:'inbox', from:'Priya Sharma', email:'priya.sharma@gmail.com', avatarBg:'#9333EA',
-    subject:"5 stars — best plumber we've ever used",
+    subject:"5 stars â best plumber we've ever used",
     preview:'Just wanted to say the team was absolutely fantastic yesterday...',
-    body:`Hi Jake,\n\nJust wanted to say the team were absolutely fantastic yesterday. They arrived on time, explained everything clearly before starting, left the place completely spotless, and the price was exactly what you quoted — no surprises.\n\nWe've already recommended you to our neighbours at number 12. I'm going to leave you a Google review right now.\n\nThanks again,\nPriya`,
+    body:`Hi Jake,\n\nJust wanted to say the team were absolutely fantastic yesterday. They arrived on time, explained everything clearly before starting, left the place completely spotless, and the price was exactly what you quoted â no surprises.\n\nWe've already recommended you to our neighbours at number 12. I'm going to leave you a Google review right now.\n\nThanks again,\nPriya`,
     time:'3 days ago', date:'Monday', unread:false, hasInvoice:false,
-    draft:`Hi Priya,\n\nThat genuinely made our day — thank you so much! The lads will be chuffed to hear it.\n\nA Google review means the world to a small business like ours — it really does help people find us when they need a plumber in a pinch.\n\nAnd thanks for the recommendation to number 12 — we'll take great care of them.\n\n${_sig}`,
+    draft:`Hi Priya,\n\nThat genuinely made our day â thank you so much! The lads will be chuffed to hear it.\n\nA Google review means the world to a small business like ours â it really does help people find us when they need a plumber in a pinch.\n\nAnd thanks for the recommendation to number 12 â we'll take great care of them.\n\n${_sig}`,
   },
 ];
 
 const DEMO_LEARNING = [
   {id:1,rule:'Always include specific product model recommendations (Rinnai, Rheem, etc.) in hot water quotes',source:'Edited draft for Dave Thompson',timestamp:'2 days ago',applied:14},
-  {id:2,rule:'Sign off as "Cheers, Jake" — not "Kind regards" or "Best"',source:'Pattern detected across 12 approved drafts',timestamp:'1 week ago',applied:31},
-  {id:3,rule:'For urgent jobs, include an arrival ETA and 3–4 bullet-point safety instructions before any other content',source:'Edited draft for Sarah Chen',timestamp:'Today',applied:3},
+  {id:2,rule:'Sign off as "Cheers, Jake" â not "Kind regards" or "Best"',source:'Pattern detected across 12 approved drafts',timestamp:'1 week ago',applied:31},
+  {id:3,rule:'For urgent jobs, include an arrival ETA and 3â4 bullet-point safety instructions before any other content',source:'Edited draft for Sarah Chen',timestamp:'Today',applied:3},
   {id:4,rule:'When quoting builders, always reference a previous job together to reinforce the relationship',source:'Edited draft for Marcus Reid',timestamp:'3 days ago',applied:7},
 ];
 
@@ -416,29 +471,29 @@ const DEMO_INVOICE_LIST = [
   {id:'INV-2026-0038',to:'Liam Walsh',desc:'Bathroom leak repair + pipe reline',amount:1240,status:'sent',date:'12 Apr 2026'},
   {id:'INV-2026-0039',to:"Tony's Bistro",desc:'Grease trap service & clean',amount:580,status:'sent',date:'3 Apr 2026'},
   {id:'QTE-2026-0041',to:'Dave Thompson',desc:'Rinnai 26L continuous flow supply & install',amount:2519,status:'pending',date:'16 Apr 2026'},
-  {id:'QTE-2026-0040',to:'Marcus Reid (Reid Builds)',desc:'Rough-in quote — Smith St townhouse',amount:null,status:'draft',date:'15 Apr 2026'},
+  {id:'QTE-2026-0040',to:'Marcus Reid (Reid Builds)',desc:'Rough-in quote â Smith St townhouse',amount:null,status:'draft',date:'15 Apr 2026'},
 ];
 
 const DEMO_EMAIL_A = {
   id:10, category:'work', from:'Chloe Bartlett', email:'chloe.b@outlook.com', avatarBg:'#BE185D',
-  subject:'No hot water since yesterday — Reservoir',
+  subject:'No hot water since yesterday â Reservoir',
   preview:"Hi, we've had no hot water since yesterday morning and we're a family of 3...",
-  body:`Hi,\n\nWe've had no hot water since yesterday morning. We're a family of 3 and starting to struggle. Not sure if it's the element or the whole system — it's about 8 years old.\n\nWe're at 22 Station Street, Reservoir. Can you come take a look?\n\nThanks,\nChloe\n0411 888 999`,
+  body:`Hi,\n\nWe've had no hot water since yesterday morning. We're a family of 3 and starting to struggle. Not sure if it's the element or the whole system â it's about 8 years old.\n\nWe're at 22 Station Street, Reservoir. Can you come take a look?\n\nThanks,\nChloe\n0411 888 999`,
   time:'Just now', date:'Today', unread:true, hasInvoice:false,
-  draft:`Hi Chloe,\n\nNo hot water with a young family is no fun — let's get this sorted quickly.\n\nBased on what you've described it could be a faulty element, thermostat, or end-of-life unit at 8 years. Worth a look before we call it.\n\nI can have someone out tomorrow morning — does 8–9am work? We'll diagnose on-site and give you a clear quote before touching anything.\n\nCheers,\nJake\nJake's Plumbing · 0400 123 456`,
+  draft:`Hi Chloe,\n\nNo hot water with a young family is no fun â let's get this sorted quickly.\n\nBased on what you've described it could be a faulty element, thermostat, or end-of-life unit at 8 years. Worth a look before we call it.\n\nI can have someone out tomorrow morning â does 8â9am work? We'll diagnose on-site and give you a clear quote before touching anything.\n\nCheers,\nJake\nJake's Plumbing Â· 0400 123 456`,
 };
 const DEMO_EMAIL_B = {
   id:11, category:'work', from:'Tom Nguyen', email:'tom.nguyen@gmail.com', avatarBg:'#0284C7',
-  subject:'Quote — full bathroom reno, Preston',
+  subject:'Quote â full bathroom reno, Preston',
   preview:"Hi, we're planning a complete bathroom renovation starting next month...",
-  body:`Hi,\n\nWe're planning a full bathroom renovation starting next month. Complete strip-out — new shower, freestanding bath, double vanity, and the toilet needs to move about 400mm to the left for the new layout.\n\nProperty is at 8 Oakton Ave, Preston. We have a builder for tiling and fitout — just need a plumber for rough-in and final connections.\n\nCan you quote? Happy to do a site visit.\n\nThanks,\nTom\n0422 777 888`,
+  body:`Hi,\n\nWe're planning a full bathroom renovation starting next month. Complete strip-out â new shower, freestanding bath, double vanity, and the toilet needs to move about 400mm to the left for the new layout.\n\nProperty is at 8 Oakton Ave, Preston. We have a builder for tiling and fitout â just need a plumber for rough-in and final connections.\n\nCan you quote? Happy to do a site visit.\n\nThanks,\nTom\n0422 777 888`,
   time:'Just now', date:'Today', unread:true, hasInvoice:false,
-  draft:`Hi Tom,\n\nThanks for reaching out — a full bathroom reno is a great project and the timing works well on our end.\n\nMoving a toilet 400mm is very doable; just depends on slab vs suspended floor, but nothing unusual for Preston homes.\n\nFor a full rough-in (shower, freestanding bath, double vanity, toilet relocation) plus final connections, you're typically looking at $3,200–$4,800 all-in — but I'd like to walk the space before locking in a number.\n\nAre you free for a quick site visit this week? Thursday afternoon or Friday morning work well for me. I can have a written quote to you within 24 hours of the visit.\n\nCheers,\nJake\nJake's Plumbing · 0400 123 456`,
+  draft:`Hi Tom,\n\nThanks for reaching out â a full bathroom reno is a great project and the timing works well on our end.\n\nMoving a toilet 400mm is very doable; just depends on slab vs suspended floor, but nothing unusual for Preston homes.\n\nFor a full rough-in (shower, freestanding bath, double vanity, toilet relocation) plus final connections, you're typically looking at $3,200â$4,800 all-in â but I'd like to walk the space before locking in a number.\n\nAre you free for a quick site visit this week? Thursday afternoon or Friday morning work well for me. I can have a written quote to you within 24 hours of the visit.\n\nCheers,\nJake\nJake's Plumbing Â· 0400 123 456`,
 };
 
-/* ═══════════════════════════════════════════════════════════
+/* âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
    SVG ICONS
-═══════════════════════════════════════════════════════════ */
+âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 const s = { fill:'none', stroke:'currentColor', strokeWidth:'1.5', strokeLinecap:'round', strokeLinejoin:'round' };
 
 function NavIcon({ id }) {
@@ -467,9 +522,9 @@ function CatPill({ cat, size='sm' }) {
   return <span className={`${cls} ${cat}`}><CatIcon cat={cat}/>{labels[cat]}</span>;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   INVOICE PANEL (demo only — real invoice sending is future)
-═══════════════════════════════════════════════════════════ */
+/* âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+   INVOICE PANEL (demo only â real invoice sending is future)
+âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 function InvoicePanel({ email, onApprove, approved }) {
   const d = email.invoiceData;
   if (!d) return null;
@@ -484,11 +539,11 @@ function InvoicePanel({ email, onApprove, approved }) {
         <div className="inv-header">
           <div>
             <div className="inv-logo-name">{DEMO_BUSINESS.name}</div>
-            <div className="inv-logo-sub">{DEMO_BUSINESS.phone}  ·  {DEMO_BUSINESS.email}</div>
+            <div className="inv-logo-sub">{DEMO_BUSINESS.phone}  Â·  {DEMO_BUSINESS.email}</div>
           </div>
           <div className="inv-title-block">
             <div className="inv-title">QUOTE</div>
-            <div className="inv-num">{d.number} · {d.date}</div>
+            <div className="inv-num">{d.number} Â· {d.date}</div>
           </div>
         </div>
         <div className="inv-body">
@@ -508,22 +563,22 @@ function InvoicePanel({ email, onApprove, approved }) {
             <div className="inv-total-row grand"><span className="inv-total-label">Total (AUD)</span><span className="inv-total-val">${d.total.toLocaleString()}</span></div>
           </div>
         </div>
-        <div className="inv-footer"><span>12-month workmanship guarantee  ·  All work fully insured</span><span>ABN: XX XXX XXX XXX</span></div>
+        <div className="inv-footer"><span>12-month workmanship guarantee  Â·  All work fully insured</span><span>ABN: XX XXX XXX XXX</span></div>
       </div>
       <div className="inv-actions">
         {approved
-          ? <div className="sent-banner" style={{flex:1}}><span className="sent-banner-icon">✓</span><div><div className="sent-banner-text">Quote sent to {email.from}</div><div className="sent-banner-sub">Sent along with your reply email</div></div></div>
-          : <><button className="btn-inv-approve" onClick={onApprove}>✓ Approve & Send Quote</button><button className="btn-inv-ghost">✏ Edit Quote</button><button className="btn-inv-ghost">⬇ Download PDF</button></>
+          ? <div className="sent-banner" style={{flex:1}}><span className="sent-banner-icon">â</span><div><div className="sent-banner-text">Quote sent to {email.from}</div><div className="sent-banner-sub">Sent along with your reply email</div></div></div>
+          : <><button className="btn-inv-approve" onClick={onApprove}>â Approve & Send Quote</button><button className="btn-inv-ghost">â Edit Quote</button><button className="btn-inv-ghost">â¬ Download PDF</button></>
         }
       </div>
     </div>
   );
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
    DRAFT PANEL
-═══════════════════════════════════════════════════════════ */
-function DraftPanel({ email, onApprove, onLearn, onRegen, approved, learningCount, typingDraft, isTypingDraft, draftReady }) {
+âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+function DraftPanel({ email, onApprove, onLearn, approved, learningCount, typingDraft, isTypingDraft, draftReady }) {
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(email.draft);
   const [regen, setRegen] = useState(false);
@@ -536,7 +591,7 @@ function DraftPanel({ email, onApprove, onLearn, onRegen, approved, learningCoun
   const handleRegen = () => {
     setRegen(true);
     if (email.gmailId && onRegen) {
-      // Real email — call API to regenerate
+      // Real email â call API to regenerate
       onRegen(email.id).then(draft => {
         setText(draft || email.draft);
         setRegen(false);
@@ -568,8 +623,8 @@ function DraftPanel({ email, onApprove, onLearn, onRegen, approved, learningCoun
       <div className="draft-panel">
         <div className="draft-eyebrow"><span className="draft-eyebrow-label">AI Draft</span><div className="draft-divider-line"/></div>
         <div className="sent-banner">
-          <span className="sent-banner-icon">✅</span>
-          <div><div className="sent-banner-text">Reply sent to {email.from}</div><div className="sent-banner-sub">Draft approved and sent via Gmail · {email.time}</div></div>
+          <span className="sent-banner-icon">â</span>
+          <div><div className="sent-banner-text">Reply sent to {email.from}</div><div className="sent-banner-sub">Draft approved and sent via Gmail Â· {email.time}</div></div>
         </div>
       </div>
     );
@@ -578,7 +633,7 @@ function DraftPanel({ email, onApprove, onLearn, onRegen, approved, learningCoun
   return (
     <div className="draft-panel">
       <div className="draft-eyebrow">
-        <span className="draft-eyebrow-label">{isTypingDraft && email.id===11 ? 'AI Drafting Reply…' : 'AI Draft'}</span>
+        <span className="draft-eyebrow-label">{isTypingDraft && email.id===11 ? 'AI Drafting Replyâ¦' : 'AI Draft'}</span>
         <div className="draft-divider-line"/>
         {isTypingDraft && email.id===11
           ? <span style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:9,fontWeight:700,color:'var(--gold)',textTransform:'uppercase',letterSpacing:'0.08em'}}>
@@ -594,12 +649,12 @@ function DraftPanel({ email, onApprove, onLearn, onRegen, approved, learningCoun
             {isTypingDraft ? typingDraft : text}
             {isTypingDraft && <span className="cursor-blink"/>}
           </div>
-        : <textarea className="draft-text" value={regen ? '✦  Rewriting draft...' : text} onChange={e=>setText(e.target.value)} readOnly={!editing || regen} rows={10} style={regen?{color:'var(--t3)',fontStyle:'italic'}:{}}/>
+        : <textarea className="draft-text" value={regen ? 'â¦  Rewriting draft...' : text} onChange={e=>setText(e.target.value)} readOnly={!editing || regen} rows={10} style={regen?{color:'var(--t3)',fontStyle:'italic'}:{}}/>
       }
 
       <div className="draft-actions">
         {isTypingDraft && email.id===11
-          ? <button className="btn-approve" style={{opacity:0.4,cursor:'not-allowed'}} disabled>✓ Approve & Send</button>
+          ? <button className="btn-approve" style={{opacity:0.4,cursor:'not-allowed'}} disabled>â Approve & Send</button>
           : !editing ? (
             <>
               <button
@@ -607,15 +662,15 @@ function DraftPanel({ email, onApprove, onLearn, onRegen, approved, learningCoun
                 onClick={handleApprove}
                 disabled={sending}
               >
-                {sending ? '⏳ Sending…' : '✓ Approve & Send'}
+                {sending ? 'â³ Sendingâ¦' : 'â Approve & Send'}
               </button>
-              <button className="btn-ghost" onClick={()=>setEditing(true)}>✏ Edit Draft</button>
-              <button className="btn-ghost" onClick={handleRegen}><span className={regen?'regen-spin':''}>↺</span> Regenerate</button>
+              <button className="btn-ghost" onClick={()=>setEditing(true)}>â Edit Draft</button>
+              <button className="btn-ghost" onClick={handleRegen}><span className={regen?'regen-spin':''}>âº</span> Regenerate</button>
             </>
           ) : (
             <>
-              <button className="btn-teach" onClick={handleSaveLearn}>⚡ Save + Teach AI</button>
-              <button className="btn-ghost" onClick={()=>{ setEditing(false); setText(email.draft); }}>Cancel</button>
+              <button className="btn-teach" onClick={handleSaveLearn}>â¡ Save + Teach AI</button>
+  #           <button className="btn-ghost" onClick={()=>{ setEditing(false); setText(email.draft); }}>Cancel</button>
             </>
           )
         }
@@ -623,17 +678,215 @@ function DraftPanel({ email, onApprove, onLearn, onRegen, approved, learningCoun
 
       {editing && (
         <p style={{fontSize:11,color:'var(--t3)',marginTop:10,lineHeight:1.7}}>
-          💡 After saving, the AI will learn from your changes and apply them to future drafts like this one.
+          ð¡ After saving, the AI will learn from your changes and apply them to future drafts like this one.
         </p>
       )}
     </div>
   );
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
    DETAIL PANE
-═══════════════════════════════════════════════════════════ */
-function DetailPane({ email, approvedIds, approvedInvoices, onApprove, onApproveInvoice, onLearn, onRegen, learningCount, typingDraft, isTypingDraft, draftReady }) {
+âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+/* âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+   LABEL BUTTON (email detail header)
+âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+function LabelButton({ emailId, emailLabels, allLabels, onAdd, onRemove, onCreateNew, isDemo }) {
+  const [open, setOpen]     = useState(false);
+  const [newName, setNewName] = useState('');
+  const [creating, setCreating] = useState(false);
+  const dropRef = useRef(null);
+
+  const applied = emailLabels || [];
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    const handler = e => { if (dropRef.current && !dropRef.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  const handleCreate = async () => {
+    if (!newName.trim()) return;
+    setCreating(true);
+    await onCreateNew(newName.trim());
+    setNewName('');
+    setCreating(false);
+  };
+
+  return (
+    <div className="label-wrap" ref={dropRef}>
+      <button className="label-btn" onClick={() => setOpen(o => !o)}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+        </svg>
+        Labels
+        {applied.length > 0 && <span style={{background:'var(--gold)',color:'#04080F',borderRadius:'50%',width:14,height:14,fontSize:9,fontWeight:900,display:'inline-flex',alignItems:'center',justifyContent:'center'}}>{applied.length}</span>}
+      </button>
+
+      {open && (
+        <div className="label-dropdown">
+          <div className="label-dropdown-header">Labels</div>
+          {allLabels.length === 0 && !isDemo && (
+            <div style={{padding:'6px 14px 8px',fontSize:12,color:'var(--t3)'}}>No labels yet â create one below.</div>
+          )}
+          {allLabels.map(label => {
+            const checked = applied.some(a => a.id === label.id);
+            return (
+              <div key={label.id} className={`label-dropdown-item ${checked ? 'checked' : ''}`}
+                onClick={() => { if (isDemo) return; checked ? onRemove(emailId, label.id) : onAdd(emailId, label.id, label); }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill={checked ? 'var(--gold)' : 'none'} stroke={checked ? 'var(--gold)' : 'var(--border)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="3"/>
+                  {checked && <polyline points="9 12 11 14 15 10"/>}
+                </svg>
+                {label.name}
+              </div>
+            );
+          })}
+          {!isDemo && (
+            <>
+              <div className="label-dropdown-divider"/>
+              <div className="label-dropdown-new">
+                <input
+                  type="text"
+                  placeholder="New label nameâ¦"
+                  value={newName}
+                  onChange={e => setNewName(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleCreate()}
+                />
+                <button className="label-dropdown-new-btn" onClick={handleCreate} disabled={!newName.trim() || creating}>
+                  {creating ? 'Creatingâ¦' : '+ Create & Apply'}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+   FLOATING CHAT PANEL
+âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+function ChatPanel({ open, onClose, selectedEmail, isDemo, onAction }) {
+  const SUGGESTIONS = [
+    "Don't draft this email",
+    "Label as Subscriptions",
+    "Mark as urgent",
+    "No replies from this sender",
+    "File under Marketing",
+  ];
+
+  const [messages, setMessages] = useState([
+    { role: 'ai', text: "Hi! I can help manage your emails. Try \"don't draft this email\", \"label as Subscriptions\", or \"mark as urgent\"." },
+  ]);
+  const [input, setInput]     = useState('');
+  const [loading, setLoading] = useState(false);
+  const bottomRef             = useRef(null);
+  const inputRef              = useRef(null);
+
+  useEffect(() => {
+    if (open) setTimeout(() => inputRef.current?.focus(), 100);
+  }, [open]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const send = async (text) => {
+    const msg = text || input.trim();
+    if (!msg || loading) return;
+    setInput('');
+    setMessages(prev => [...prev, { role: 'user', text: msg }]);
+    setLoading(true);
+
+    if (isDemo) {
+      setTimeout(() => {
+        setMessages(prev => [...prev, { role: 'ai', text: "Got it! (Demo mode â connect Gmail to enable AI commands.)" }]);
+        setLoading(false);
+      }, 800);
+      return;
+    }
+
+    try {
+      const result = await api.post('/api/chat', {
+        message: msg,
+        email_cache_id: selectedEmail?.id || undefined,
+      });
+      setMessages(prev => [...prev, { role: 'ai', text: result.confirmation }]);
+      if (onAction && result.effects?.length > 0) onAction(result.effects);
+    } catch (err) {
+      setMessages(prev => [...prev, { role: 'ai', text: 'Sorry, something went wrong. Please try again.' }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      {/* Floating button */}
+      <button className={`chat-fab ${open ? 'open' : ''}`} onClick={open ? onClose : () => {}}>
+        {open
+          ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#04080F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><path d="M9.5 9h5M9.5 12.5h3"/></svg>
+        }
+      </button>
+
+      {/* Panel */}
+      <div className={`chat-panel ${open ? '' : 'hidden'}`}>
+        <div className="chat-panel-header">
+          <div>
+            <div className="chat-panel-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              AI Assistant
+            </div>
+            {selectedEmail && (
+              <div className="chat-panel-context">Re: {selectedEmail.subject}</div>
+            )}
+          </div>
+          <button className="chat-close" onClick={onClose}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <div className="chat-messages">
+          {messages.map((m, i) => (
+            <div key={i} className={`chat-msg ${m.role}`}>{m.text}</div>
+          ))}
+          {loading && <div className="chat-msg ai thinking">Thinkingâ¦</div>}
+          <div ref={bottomRef}/>
+        </div>
+
+        {messages.length <= 1 && (
+          <div className="chat-suggestions">
+            {SUGGESTIONS.slice(0,3).map(s => (
+              <button key={s} className="chat-suggestion" onClick={() => send(s)}>{s}</button>
+            ))}
+          </div>
+        )}
+
+        <div className="chat-input-row">
+          <textarea
+            ref={inputRef}
+            className="chat-input"
+            rows={1}
+            placeholder="Give me a commandâ¦"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
+          />
+          <button className="chat-send" onClick={() => send()} disabled={!input.trim() || loading}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#04080F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function DetailPane({ email, approvedIds, approvedInvoices, onApprove, onApproveInvoice, onLearn, onRegen, learningCount, typingDraft, isTypingDraft, draftReady, labels, emailLabels, onAddLabel, onRemoveLabel, onCreateLabel, isDemo }) {
   const [tab, setTab] = useState('email');
   const approved = approvedIds.has(email.id);
   const invApproved = approvedInvoices.has(email.id);
@@ -644,7 +897,7 @@ function DetailPane({ email, approvedIds, approvedInvoices, onApprove, onApprove
     <div className="detail-pane">
       <div className="detail-tabs">
         <button className={`detail-tab ${tab==='email'?'active':''}`} onClick={()=>setTab('email')}>Email & Reply</button>
-        {email.hasInvoice && <button className={`detail-tab ${tab==='invoice'?'active':''}`} onClick={()=>setTab('invoice')}>📋 Quote / Invoice</button>}
+        {email.hasInvoice && <button className={`detail-tab ${tab==='invoice'?'active':''}`} onClick={()=>setTab('invoice')}>ð Quote / Invoice</button>}
       </div>
       <div className="detail-scroll">
         {tab === 'email' && (
@@ -652,15 +905,39 @@ function DetailPane({ email, approvedIds, approvedInvoices, onApprove, onApprove
             <div className="email-header">
               <div className="email-header-top">
                 <div className="email-subject-big">{email.subject}</div>
-                <CatPill cat={email.category} size="lg"/>
+                <div style={{display:'flex',alignItems:'center',gap:8,flexShrink:0}}>
+                  <CatPill cat={email.category} size="lg"/>
+                  <LabelButton
+                    emailId={email.id}
+                    emailLabels={emailLabels}
+                    allLabels={labels}
+                    onAdd={onAddLabel}
+                    onRemove={onRemoveLabel}
+                    onCreateNew={async (name) => { await onCreateLabel(email.id, name); }}
+                    isDemo={isDemo}
+                  />
+                </div>
               </div>
+              {emailLabels && emailLabels.length > 0 && (
+                <div className="label-chips-row">
+                  {emailLabels.map(label => (
+                    <span key={label.id} className="label-chip">
+                      {label.name}
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                        onClick={() => onRemoveLabel(email.id, label.id)}>
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+        #           </span>
+                  ))}
+                </div>
+              )}
               <div className="sender-row">
                 <div className="sender-avatar" style={{background:email.avatarBg}}>{getInitials(email.from)}</div>
                 <div className="sender-info">
                   <div className="sender-name">{email.from}</div>
                   <div className="sender-email">{email.email}</div>
                 </div>
-                <div className="email-date">{email.date} · {email.time}</div>
+                <div className="email-date">{email.date} Â· {email.time}</div>
               </div>
             </div>
             <div className="email-body">
@@ -687,9 +964,9 @@ function DetailPane({ email, approvedIds, approvedInvoices, onApprove, onApprove
   );
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
    EMAIL LIST PANE
-═══════════════════════════════════════════════════════════ */
+âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 function EmailListPane({ emails, selectedId, onSelect, filter, setFilter, approvedIds, aiReadingId, arrivingId, isSyncing, onSync }) {
   const filtered = filter === 'all' ? emails : emails.filter(e=>e.category===filter);
   const counts = { urgent:emails.filter(e=>e.category==='urgent').length, work:emails.filter(e=>e.category==='work').length, inbox:emails.filter(e=>e.category==='inbox').length };
@@ -705,7 +982,7 @@ function EmailListPane({ emails, selectedId, onSelect, filter, setFilter, approv
           </span>
           {onSync && (
             <button onClick={onSync} disabled={isSyncing} style={{background:'none',border:'1px solid var(--border2)',borderRadius:6,padding:'3px 8px',fontSize:10,fontWeight:600,color:isSyncing?'var(--t4)':'var(--t3)',cursor:isSyncing?'not-allowed':'pointer',display:'flex',alignItems:'center',gap:4}}>
-              <span style={isSyncing?{display:'inline-block',animation:'spin 1s linear infinite'}:{}}>↺</span>
+              <span style={isSyncing?{display:'inline-block',animation:'spin 1s linear infinite'}:{}}>âº</span>
               {isSyncing?'Syncing':'Sync'}
             </button>
           )}
@@ -729,7 +1006,7 @@ function EmailListPane({ emails, selectedId, onSelect, filter, setFilter, approv
           return (
             <div key={email.id} className={`email-row ${selectedId===email.id?'selected':''} ${!isUnread?'read':''} ${arrivingId===email.id?'email-arriving':''}`} style={{position:'relative',overflow:'hidden'}} onClick={()=>onSelect(email.id)}>
               <div className={`email-unread-dot ${isUnread?email.category:'read'}`}/>
-              <div className="email-row-main">
+    !         <div className="email-row-main">
                 <div className="email-row-top">
                   <span className="email-sender">{email.from}</span>
                   <span className="email-time">{email.time}</span>
@@ -742,7 +1019,7 @@ function EmailListPane({ emails, selectedId, onSelect, filter, setFilter, approv
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{color:'var(--gold)'}}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>
                         AI reading <span className="ai-dot"/> <span className="ai-dot"/> <span className="ai-dot"/>
                       </span>
-                    : isApproved ? <span className="approved-check">✓ Sent</span>
+                    : isApproved ? <span className="approved-check">â Sent</span>
                     : <CatPill cat={email.category}/>
                   }
                 </div>
@@ -756,9 +1033,9 @@ function EmailListPane({ emails, selectedId, onSelect, filter, setFilter, approv
   );
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
    LEARNING VIEW
-═══════════════════════════════════════════════════════════ */
+âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 function LearningView({ history, newItems }) {
   const totalApplied = history.reduce((s,h)=>s+(h.applied||1),0);
   return (
@@ -792,18 +1069,18 @@ function LearningView({ history, newItems }) {
         <div key={item.id} className="learning-card">
           <div className="lc-header">
             <div className="lc-rule">"{item.rule}"</div>
-            <div className="lc-applied">Applied {item.applied||1}×</div>
+            <div className="lc-applied">Applied {item.applied||1}Ã</div>
           </div>
-          <div className="lc-meta"><span className="lc-source">Learned from: {item.source}</span>&nbsp;·&nbsp;{item.timestamp}</div>
+          <div className="lc-meta"><span className="lc-source">Learned from: {item.source}</span>&nbsp;Â·&nbsp;{item.timestamp}</div>
         </div>
       ))}
     </div>
   );
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
    DRAFTS VIEW
-═══════════════════════════════════════════════════════════ */
+âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 function DraftsView({ emails, approvedIds, onSelectEmail }) {
   const pending = emails.filter(e=>!approvedIds.has(e.id));
   return (
@@ -827,7 +1104,7 @@ function DraftsView({ emails, approvedIds, onSelectEmail }) {
               <div className="dt-subject">{email.subject}</div>
               <div className="dt-preview">{(email.draft||'').slice(0,100)}...</div>
             </div>
-            <div className="dt-action"><button className="btn-ghost" style={{fontSize:12,padding:'7px 14px'}}>Review →</button></div>
+            <div className="dt-action"><button className="btn-ghost" style={{fontSize:12,padding:'7px 14px'}}>Review â</button></div>
           </div>
         ))
       }
@@ -835,9 +1112,9 @@ function DraftsView({ emails, approvedIds, onSelectEmail }) {
   );
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
    INVOICES VIEW
-═══════════════════════════════════════════════════════════ */
+âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 function InvoicesView({ approvedInvoices, isDemo }) {
   const list = isDemo ? DEMO_INVOICE_LIST.map(inv=>
     inv.id==='QTE-2026-0041' && approvedInvoices.has(2) ? {...inv,status:'sent'} : inv
@@ -849,25 +1126,25 @@ function InvoicesView({ approvedInvoices, isDemo }) {
       <div className="view-header">
         <div className="view-eyebrow">Automated Invoicing</div>
         <div className="view-title">Quotes & Invoices</div>
-        <div className="view-desc">AI extracts job details from email conversations and generates professional quotes ready for your approval.</div>
+  #     <div className="view-desc">AI extracts job details from email conversations and generates professional quotes ready for your approval.</div>
       </div>
       {!isDemo && (
         <div style={{background:'var(--gold-dim)',border:'1px solid var(--gold-border)',borderRadius:10,padding:'14px 18px',marginBottom:24,fontSize:13,color:'var(--gold)',fontWeight:600}}>
-          ✦ Invoice automation coming soon — AI-generated quotes will appear here.
+          â¦ Invoice automation coming soon â AI-generated quotes will appear here.
         </div>
       )}
       <div style={{display:'flex',gap:16,marginBottom:24}}>
         <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:12,padding:'16px 20px',flex:1}}>
           <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em',color:'var(--t3)',marginBottom:6}}>Pending approval</div>
-          <div style={{fontSize:24,fontWeight:900,color:'var(--gold)'}}>{isDemo?`$${totalPending.toLocaleString()}`:'—'}</div>
+          <div style={{fontSize:24,fontWeight:900,color:'var(--gold)'}}>{isDemo?`$${totalPending.toLocaleString()}`:'â'}</div>
         </div>
         <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:12,padding:'16px 20px',flex:1}}>
           <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em',color:'var(--t3)',marginBottom:6}}>Sent this month</div>
-          <div style={{fontSize:24,fontWeight:900,color:'var(--green)'}}>{isDemo?'$1,820':'—'}</div>
+          <div style={{fontSize:24,fontWeight:900,color:'var(--green)'}}>{isDemo?'$1,820':'â'}</div>
         </div>
         <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:12,padding:'16px 20px',flex:1}}>
           <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em',color:'var(--t3)',marginBottom:6}}>Total generated</div>
-          <div style={{fontSize:24,fontWeight:900,color:'var(--t1)'}}>{isDemo?list.length:'—'}</div>
+          <div style={{fontSize:24,fontWeight:900,color:'var(--t1)'}}>{isDemo?list.length:'â'}</div>
         </div>
       </div>
       {list.map(inv=>(
@@ -875,7 +1152,7 @@ function InvoicesView({ approvedInvoices, isDemo }) {
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:13,fontWeight:700,color:'var(--t1)',marginBottom:2}}>{inv.to}</div>
             <div style={{fontSize:12,color:'var(--t2)'}}>{inv.desc}</div>
-            <div style={{fontSize:10,color:'var(--t3)',marginTop:3}}>{inv.id}  ·  {inv.date}</div>
+            <div style={{fontSize:10,color:'var(--t3)',marginTop:3}}>{inv.id}  Â·  {inv.date}</div>
           </div>
           <div style={{textAlign:'right',flexShrink:0}}>
             <div className="inv-amount">{inv.amount?'$'+inv.amount.toLocaleString():<span style={{color:'var(--t3)',fontSize:14}}>TBC</span>}</div>
@@ -887,9 +1164,9 @@ function InvoicesView({ approvedInvoices, isDemo }) {
   );
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
    SETTINGS VIEW
-═══════════════════════════════════════════════════════════ */
+âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 function SettingsView({ business: initialBusiness, onSave, isDemo }) {
   const [profile, setProfile] = useState(initialBusiness || DEMO_BUSINESS);
   const [saved, setSaved] = useState(false);
@@ -921,12 +1198,12 @@ function SettingsView({ business: initialBusiness, onSave, isDemo }) {
       </div>
       {isDemo && (
         <div style={{background:'var(--gold-dim)',border:'1px solid var(--gold-border)',borderRadius:10,padding:'12px 16px',marginBottom:20,fontSize:12,color:'var(--gold)',fontWeight:600}}>
-          Demo mode — <a href="/api/auth/gmail" style={{color:'var(--gold)'}}>Connect your Gmail</a> to save a real profile.
+          Demo mode â <a href="/api/auth/gmail" style={{color:'var(--gold)'}}>Connect your Gmail</a> to save a real profile.
         </div>
       )}
       <div className="settings-card">
         <div className="settings-card-title">Business Identity</div>
-        <div className="settings-row">
+      # <div className="settings-row">
           <div className="field"><label>Business name</label><input value={profile.name||''} onChange={e=>set('name',e.target.value)}/></div>
           <div className="field"><label>Owner name</label><input value={profile.owner||''} onChange={e=>set('owner',e.target.value)}/></div>
         </div>
@@ -950,16 +1227,16 @@ function SettingsView({ business: initialBusiness, onSave, isDemo }) {
         <div className="field"><label>Email signature</label><textarea value={profile.signature||''} onChange={e=>set('signature',e.target.value)} rows={4}/></div>
       </div>
       <button className="btn-save" onClick={handleSave} disabled={saving||isDemo}>
-        {saving?'Saving…':saved?'✓ Saved':'Save Profile'}
+        {saving?'Savingâ¦':saved?'â Saved':'Save Profile'}
       </button>
       {saved && <span style={{fontSize:12,color:'var(--green)',marginLeft:12}}>AI will use these settings on your next draft.</span>}
     </div>
   );
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
    SIDEBAR
-═══════════════════════════════════════════════════════════ */
+âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 function Sidebar({ view, setView, unreadCount, pendingDraftCount, business, gmailEmail, isDemo, isSyncing, onSync }) {
   const navItems = [
     { id:'triage',   label:'Triage Queue',   badge:unreadCount,       badgeType:'red' },
@@ -1017,14 +1294,14 @@ function Sidebar({ view, setView, unreadCount, pendingDraftCount, business, gmai
   );
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
    ANIMATIONS
-═══════════════════════════════════════════════════════════ */
+âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 // (CSS animations are defined in the stylesheet above)
 
-/* ═══════════════════════════════════════════════════════════
+/* âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
    APP ROOT
-═══════════════════════════════════════════════════════════ */
+âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 function App() {
   // Auth: 'loading' | 'demo' | 'connected'
   const [authState, setAuthState] = useState('loading');
@@ -1048,6 +1325,13 @@ function App() {
   const [showToast, setShowToast] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
 
+  // Labels state
+  const [labels, setLabels]           = useState([]);
+  const [emailLabels, setEmailLabels] = useState({}); // { emailId: [label, ...] }
+
+  // Chat state
+  const [chatOpen, setChatOpen] = useState(false);
+
   // Demo animation state
   const [liveEmails, setLiveEmails] = useState(DEMO_EMAILS.slice(1));
   const [aiReadingId, setAiReadingId] = useState(null);
@@ -1058,7 +1342,7 @@ function App() {
   const typeTimerRef = useRef(null);
   const typeIdxRef = useRef(0);
 
-  // ── Auth check on mount ──────────────────────────────────────────────
+  // ââ Auth check on mount ââââââââââââââââââââââââââââââââââââââââââââââ
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const justConnected = params.get('connected') === '1';
@@ -1073,15 +1357,16 @@ function App() {
         setGmailEmail(data.gmail_email);
         setBusiness(data.profile || {});
         if (justConnected) {
-          setToastMsg('✅ Gmail connected!');
+          setToastMsg('â Gmail connected!');
           setShowToast(true);
           setTimeout(() => setShowToast(false), 3000);
         }
+        loadLabels();
         return loadEmails(false);
       })
       .catch(err => {
         if (authError) {
-          setToastMsg('⚠️ Connection failed — please try again.');
+          setToastMsg('â ï¸ Connection failed â please try again.');
           setShowToast(true);
           setTimeout(() => setShowToast(false), 4000);
         }
@@ -1089,17 +1374,17 @@ function App() {
       });
   }, []);
 
-  // ── Demo animation (only in demo mode) ──────────────────────────────
+  // ââ Demo animation (only in demo mode) ââââââââââââââââââââââââââââââ
   useEffect(() => {
     if (authState !== 'demo') return;
     const timers = [];
     const t = (ms, fn) => { const id = setTimeout(fn, ms); timers.push(id); };
 
-    t(1400, () => { setToastMsg('📧 New email'); setShowToast(true); });
+    t(1400, () => { setToastMsg('ð§ New email'); setShowToast(true); });
     t(2200, () => { setArrivingId(10); setLiveEmails(prev=>[DEMO_EMAIL_A,...prev]); setAiReadingId(10); });
     t(4200, () => { setAiReadingId(null); setShowToast(false); });
     t(4800, () => { setArrivingId(null); });
-    t(6000, () => { setToastMsg('📧 New email'); setShowToast(true); });
+    t(6000, () => { setToastMsg('ð§ New email'); setShowToast(true); });
     t(6800, () => { setArrivingId(11); setLiveEmails(prev=>[DEMO_EMAIL_B,...prev]); setAiReadingId(11); });
     t(8600, () => { setAiReadingId(null); setShowToast(false); });
     t(9200, () => { setArrivingId(null); setSelectedId(11); });
@@ -1121,7 +1406,7 @@ function App() {
     return () => { timers.forEach(clearTimeout); if (typeTimerRef.current) clearInterval(typeTimerRef.current); };
   }, [authState]);
 
-  // ── Load real emails ─────────────────────────────────────────────────
+  // ââ Load real emails âââââââââââââââââââââââââââââââââââââââââââââââââ
   async function loadEmails(forceRefresh = false) {
     setIsSyncing(true);
     try {
@@ -1139,7 +1424,7 @@ function App() {
     }
   }
 
-  // ── Derived ──────────────────────────────────────────────────────────
+  // ââ Derived ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
   const isDemo      = authState !== 'connected';
   const activeEmails = isDemo ? liveEmails : emails;
   const activeBiz   = isDemo ? DEMO_BUSINESS : business;
@@ -1147,7 +1432,7 @@ function App() {
   const unreadCount       = activeEmails.filter(e => e.unread && !approvedIds.has(e.id)).length;
   const pendingDraftCount = activeEmails.filter(e => !approvedIds.has(e.id)).length;
 
-  // ── Handlers ─────────────────────────────────────────────────────────
+  // ââ Handlers âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
   const handleApprove = async (emailId, draftText) => {
     if (isDemo) { setApprovedIds(prev => new Set([...prev, emailId])); return; }
     try {
@@ -1155,7 +1440,7 @@ function App() {
       setApprovedIds(prev => new Set([...prev, emailId]));
     } catch (err) {
       console.error('Send failed:', err);
-      alert('Failed to send — please check your Gmail connection and try again.');
+      alert('Failed to send â please check your Gmail connection and try again.');
     }
   };
 
@@ -1188,10 +1473,12 @@ function App() {
     setSelectedId(id);
     setView('triage');
     if (isDemo) return;
+    // Load labels for this email if not already loaded
+    if (!emailLabels[id]) loadEmailLabels(id);
     const email = emails.find(e => e.id === id);
     if (!email || email.draft) return; // already has a draft
     // Show loading placeholder while Gemini generates
-    setEmails(prev => prev.map(e => e.id === id ? { ...e, draft: '✦  Generating AI draft…' } : e));
+    setEmails(prev => prev.map(e => e.id === id ? { ...e, draft: 'â¦  Generating AI draftâ¦' } : e));
     try {
       const result = await api.post('/api/triage', { emailId: id });
       setEmails(prev => prev.map(e => e.id === id
@@ -1213,7 +1500,95 @@ function App() {
 
   const handleSync = () => { if (!isDemo) loadEmails(true); };
 
-  // ── Loading screen ───────────────────────────────────────────────────
+  // ââ Labels âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  async function loadLabels() {
+    try {
+      const data = await api.get('/api/labels');
+      setLabels(data.labels || []);
+    } catch (err) {
+      console.error('[labels] Load failed:', err);
+    }
+  }
+
+  async function loadEmailLabels(emailId) {
+    try {
+      const data = await api.get(`/api/email-labels?email_cache_id=${emailId}`);
+      setEmailLabels(prev => ({ ...prev, [emailId]: data.labels || [] }));
+    } catch (err) {
+      console.error('[email-labels] Load failed:', err);
+    }
+  }
+
+  const handleAddLabel = async (emailId, labelId, labelObj) => {
+    // Optimistic update
+    setEmailLabels(prev => ({
+      ...prev,
+      [emailId]: [...(prev[emailId] || []).filter(l => l.id !== labelId), labelObj],
+    }));
+    try {
+      await api.post('/api/email-labels', { email_cache_id: emailId, label_id: labelId });
+    } catch (err) {
+      console.error('[email-labels] Add failed:', err);
+      loadEmailLabels(emailId); // roll back on failure
+    }
+  };
+
+  const handleRemoveLabel = async (emailId, labelId) => {
+    // Optimistic update
+    setEmailLabels(prev => ({
+      ...prev,
+      [emailId]: (prev[emailId] || []).filter(l => l.id !== labelId),
+    }));
+    try {
+      await fetch('/api/email-labels', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email_cache_id: emailId, label_id: labelId }),
+      });
+    } catch (err) {
+      console.error('[email-labels] Remove failed:', err);
+      loadEmailLabels(emailId);
+    }
+  };
+
+  const handleCreateLabel = async (emailId, name) => {
+    try {
+      const data = await api.post('/api/labels', { name });
+      const newLabel = data.label;
+      // Update master label list
+      setLabels(prev => prev.find(l => l.id === newLabel.id) ? prev : [...prev, newLabel]);
+      // Apply to this email
+      await handleAddLabel(emailId, newLabel.id, newLabel);
+    } catch (err) {
+      console.error('[labels] Create failed:', err);
+    }
+  };
+
+  // ââ Chat action effects ââââââââââââââââââââââââââââââââââââââââââââââ
+  const handleChatAction = (effects) => {
+    effects.forEach(effect => {
+      if (effect.type === 'email-updated') {
+        setEmails(prev => prev.map(e =>
+          e.id === effect.email_cache_id ? { ...e, ...effect.changes } : e
+        ));
+      }
+      if (effect.type === 'label-applied') {
+        const { label, email_cache_id } = effect;
+        setEmailLabels(prev => ({
+          ...prev,
+          [email_cache_id]: [...(prev[email_cache_id] || []).filter(l => l.id !== label.id), label],
+        }));
+        setLabels(prev => prev.find(l => l.id === label.id) ? prev : [...prev, label]);
+      }
+      if (effect.type === 'category-updated') {
+        setEmails(prev => prev.map(e =>
+          e.id === effect.email_cache_id ? { ...e, category: effect.category } : e
+        ));
+      }
+    });
+  };
+
+  // ââ Loading screen âââââââââââââââââââââââââââââââââââââââââââââââââââ
   if (authState === 'loading') {
     return (
       <div className="app" style={{alignItems:'center',justifyContent:'center',background:'var(--bg0)'}}>
@@ -1222,7 +1597,7 @@ function App() {
             <div style={{width:10,height:10,borderRadius:'50%',background:'var(--gold)',boxShadow:'0 0 8px rgba(245,158,11,0.5)',animation:'pulse 2s infinite'}}/>
             <div style={{fontSize:20,fontWeight:900,letterSpacing:'-0.02em'}}>OTW TriageAI</div>
           </div>
-          <div style={{fontSize:12,color:'var(--t3)'}}>Loading…</div>
+          <div style={{fontSize:12,color:'var(--t3)'}}>Loadingâ¦</div>
         </div>
       </div>
     );
@@ -1277,7 +1652,7 @@ function App() {
                     onApproveInvoice={handleApproveInvoice}
                     onLearn={handleLearn}
                     onRegen={async (emailId) => {
-                      setEmails(prev => prev.map(e => e.id === emailId ? { ...e, draft: '✦  Regenerating…' } : e));
+                      setEmails(prev => prev.map(e => e.id === emailId ? { ...e, draft: 'â¦  Regeneratingâ¦' } : e));
                       const result = await api.post('/api/triage', { emailId });
                       setEmails(prev => prev.map(e => e.id === emailId ? { ...e, draft: result.draft, category: result.category } : e));
                       return result.draft;
@@ -1286,12 +1661,18 @@ function App() {
                     typingDraft={isDemo ? typingDraft : ''}
                     isTypingDraft={isDemo ? isTypingDraft : false}
                     draftReady={isDemo ? draftReady : false}
+                    labels={labels}
+                    emailLabels={emailLabels[selectedEmail.id] || []}
+                    onAddLabel={handleAddLabel}
+                    onRemoveLabel={handleRemoveLabel}
+                    onCreateLabel={handleCreateLabel}
+                    isDemo={isDemo}
                   />
                 : <div className="detail-pane">
                     <div className="detail-empty">
                       {isSyncing
                         ? <div style={{textAlign:'center'}}>
-                            <div style={{fontSize:11,color:'var(--gold)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:8}}>Syncing & triaging emails…</div>
+                            <div style={{fontSize:11,color:'var(--gold)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:8}}>Syncing & triaging emailsâ¦</div>
                             <div style={{display:'flex',gap:4,justifyContent:'center'}}><span className="ai-dot"/><span className="ai-dot"/><span className="ai-dot"/></div>
                           </div>
                         : <>
@@ -1326,6 +1707,23 @@ function App() {
         </div>
       </div>
       <div className="app-footer">Powered by OTW Studios</div>
+
+      {/* Floating AI Chat â outside app-main so it overlays everything */}
+      <ChatPanel
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        selectedEmail={activeEmails.find(e => e.id === selectedId) || null}
+        isDemo={isDemo}
+        onAction={handleChatAction}
+      />
+      {!chatOpen && (
+        <button className="chat-fab" onClick={() => setChatOpen(true)} title="AI Assistant">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#04080F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+            <path d="M9.5 9h5M9.5 12.5h3"/>
+          </svg>
+        </button>
+      )}
     </div>
   );
 }
