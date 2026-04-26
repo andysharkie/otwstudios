@@ -14,6 +14,11 @@
         { "key": "Cache-Control", "value": "no-store" }
       ]
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/daily-summary",
+      "schedule": "0 21 * * *"
+    }
   ]
 }
-
