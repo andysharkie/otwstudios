@@ -107,7 +107,7 @@ function clientWelcomeEmail(c, phoneNumber, agentCreated) {
     </div>`
     : `
     <div style="background:#1a2235;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px 24px;margin:24px 0;">
-      <div style="font-size:13px;color:rgba(248,250,252,0.65);">ð Your phone number is being finalised â Andy will be in touch within 24 hours with your dedicated number and setup instructions.</div>
+      <div style="font-size:13px;color:rgba(248,250,252,0.65);">ð Your phone number is being finalised â Your AI receptionist number is being provisioned automatically — it will be ready within the hour. No action needed from you.</div>
     </div>`;
 
   return `<!DOCTYPE html>
@@ -159,7 +159,7 @@ function clientWelcomeEmail(c, phoneNumber, agentCreated) {
 
           <table cellpadding="0" cellspacing="0" width="100%">
             ${[
-              ["1", "Your agent gets a test call", "Andy will call your number to verify everything sounds exactly right for your business."],
+              ["1", "Test your AI receptionist", `Call ${phoneNumber || "your new number"} from your mobile to hear your AI receptionist live — make sure it sounds right for your business.`],
               ["2", "Forward your number (optional)", `If you have an existing business number, forward it to ${phoneNumber || "your new number"} â callers won't notice any difference.`],
               ["3", "Go live", "Your AI starts answering every call, collecting leads, handling after-hours, and sending you summaries."],
               ["4", "Check your summaries", `Call summaries will be emailed to ${c.notification_email || c.owner_email} after every call.`],
@@ -181,7 +181,7 @@ function clientWelcomeEmail(c, phoneNumber, agentCreated) {
         <!-- FREE TRIAL REMINDER -->
         <tr><td style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.20);border-radius:12px;padding:18px 24px;">
           <div style="font-size:13px;color:#F8FAFC;line-height:1.6;">
-            <strong style="color:#F59E0B;">30-day free trial.</strong> No charge until your trial ends. Andy will reach out before then â no surprises.
+            <strong style="color:#F59E0B;">30-day free trial.</strong> No charge until your trial ends. You'll receive a reminder before it ends — no surprises.
           </div>
         </td></tr>
 
@@ -585,7 +585,7 @@ export default async function handler(req, res) {
         method: "POST",
         headers: { Authorization: `Bearer ${retellKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          llm_websocket_url: `wss://api.retellai.com/llm-websocket/${retellLlmId}`,
+          response_engine: { type: "retell-llm", llm_id: retellLlmId },
           agent_name: `${clientData.business_name} â ${clientData.agent_name}`,
           voice_id: "11labs-Adrian",
           language: "en-AU",
@@ -651,7 +651,7 @@ export default async function handler(req, res) {
           owner_first_name:   clientData.owner_first_name,
           owner_email:        clientData.owner_email,
           owner_mobile:       clientData.owner_mobile,
-          trade:              clientData.trade,
+          trade_type:         clientData.trade,
           state:              clientData.state,
           service_area:       clientData.service_area,
           operating_hours:    clientData.operating_hours,
