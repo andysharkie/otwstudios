@@ -653,7 +653,6 @@ export default async function handler(req, res) {
           state:              clientData.state,
           service_area:       clientData.service_area,
           operating_hours:    clientData.operating_hours,
-          after_hours_handling: clientData.after_hours_handling,
           services_offered:   clientData.services_offered,
           services_not_offered: clientData.services_not_offered,
           pricing_info:       clientData.pricing_info,
