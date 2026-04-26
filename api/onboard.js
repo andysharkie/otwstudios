@@ -658,17 +658,12 @@ export default async function handler(req, res) {
           pricing_info:       clientData.pricing_info,
           free_quotes:        clientData.free_quotes === "Yes",
           urgency_keywords:   clientData.urgency_keywords,
-          emergency_contact:  clientData.emergency_contact,
-          callback_time:      clientData.callback_time,
           agent_name:         clientData.agent_name,
-          custom_notes:       clientData.custom_notes,
-          notification_email: clientData.notification_email,
           phone_number:       phoneNumber,
           phone_provisioned:  phoneProvisioned,
           retell_agent_id:    retellAgentId,
           retell_llm_id:      retellLlmId,
           status:             retellAgentId ? "active" : "pending_setup",
-          tally_submission_id: body.data?.submissionId,
         }),
       });
       if (!sbRes.ok) throw new Error(`Supabase insert: ${sbRes.status} ${await sbRes.text()}`);
