@@ -406,19 +406,20 @@ async function appendToGoogleSheet(sheetId, serviceAccountJson, row) {
   try {
     const sa = JSON.parse(serviceAccountJson);
     const now = Math.floor(Date.now() / 1000);
-    const jwtHeader = btoa(JSON.stringify({ alg: "RS256", typ: "JWT" }));
-    const jwtPayload = btoa(JSON.stringify({
+    const b64url = (o) => Buffer.from(JSON.stringify(o)).toString("base64").replace(/\+/g,"-").replace(/\//g,"_").replace(/=/g,"");
+    const jwtHeader = b64url({ alg: "RS256", typ: "JWT" });
+    const jwtPayload = b64url({
       iss: sa.client_email,
       scope: "https://www.googleapis.com/auth/spreadsheets",
       aud: "https://oauth2.googleapis.com/token",
       iat: now,
       exp: now + 3600,
-    }));
+    });
     const signingInput = `${jwtHeader}.${jwtPayload}`;
 
     // Sign with RS256 using Web Crypto API (available in Vercel Edge / Node 18+)
     const privateKey = sa.private_key;
-    const keyImport = await crypto.subtle.importKey(
+    const keyImport = await globalThis.crypto.subtle.importKey(
       "pkcs8",
       Uint8Array.from(
         atob(privateKey.replace(/-----.*?-----|\n/g, "")),
@@ -428,12 +429,13 @@ async function appendToGoogleSheet(sheetId, serviceAccountJson, row) {
       false,
       ["sign"]
     );
-    const sig = await crypto.subtle.sign(
+    const sig = await globalThis.crypto.subtle.sign(
       "RSASSA-PKCS1-v1_5",
       keyImport,
       new TextEncoder().encode(signingInput)
     );
-    const jwt = `${signingInput}.${btoa(String.fromCharCode(...new Uint8Array(sig)))}`;
+    const sigB64 = Buffer.from(sig).toString("base64").replace(/\+/g,"-").replace(/\//g,"_").replace(/=/g,"");
+    const jwt = `${signingInput}.${sigB64}`;
 
     // Exchange JWT for access token
     const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
@@ -449,7 +451,7 @@ async function appendToGoogleSheet(sheetId, serviceAccountJson, row) {
 
     // Append row
     const appendRes = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Clients!A:Z:append?valueInputOption=USER_ENTERED`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A:H:append?valueInputOption=USER_ENTERED`,
       {
         method: "POST",
         headers: {
@@ -680,28 +682,17 @@ export default async function handler(req, res) {
     }
   }
 
-  // ââ STEP 10: Google Sheets Logging ââââââââââââââââââââ
+  // ─── STEP 10: Google Sheets Logging ────────────────────────────────────────
   if (sheetId && sheetSaKey) {
     const row = [
-      new Date().toLocaleDateString("en-AU"),
-      clientData.business_name,
-      clientData.owner_first_name,
-      clientData.owner_email,
-      clientData.owner_mobile,
-      clientData.trade,
-      clientData.state,
-      clientData.service_area,
-      phoneNumber || "",
-      clientData.agent_name,
-      retellAgentId || "",
-      retellLlmId || "",
-      "Active",
-      "Free Trial",
-      "$0",
-      "", // Instagram
-      "", // Facebook
-      "", // Website
-      "", // Notes
+      new Date().toISOString(),        // Timestamp
+      clientData.business_name,        // Business Name
+      clientData.owner_first_name,     // Owner Name
+      clientData.owner_email,          // Email
+      clientData.owner_mobile || "",   // Phone
+      retellAgentId || "",             // Agent ID
+      phoneNumber || "",               // Phone Number
+      "Free Trial",                    // Plan
     ];
     await appendToGoogleSheet(sheetId, sheetSaKey, row);
   }
