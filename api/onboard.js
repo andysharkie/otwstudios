@@ -605,7 +605,7 @@ export default async function handler(req, res) {
   }
 
   // ââ STEP 7: Phone Number Provisioning âââââââââââââââââ
-  c// Always provision a Twilio number — used directly (new number) or as a forwarding backend (own number)
+  // Always provision a Twilio number — used directly (new number) or as a forwarding backend (own number)
   if (retellAgentId && twilioSid && twilioAuth) {
     try {
       const stateKey = (clientData.state || "").toUpperCase().trim();
