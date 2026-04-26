@@ -535,8 +535,8 @@ export default async function handler(req, res) {
     custom_notes:       d.custom_notes,
     notification_email: d.notification_email || d.owner_email,
     // Phone number fields (new in v2)
-    phone_preference:    d.phone_number_preference || d.do_you_want_a_new_number_or_use_your_existing || "provision_new",
-    existing_phone_number: d.existing_phone_number || d.your_existing_phone_number || null,
+    phone_preference:    d.phone_number_setup || d.phone_number_preference || d.do_you_want_a_new_number_or_use_your_existing || "provision_new",
+    existing_phone_number: d.existing_phone_number_if_using_your_own || d.existing_phone_number || d.your_existing_phone_number || null,
   };
 
   console.log("[onboard] Processing:", clientData.business_name, "| Phone pref:", clientData.phone_preference);
@@ -605,10 +605,8 @@ export default async function handler(req, res) {
   }
 
   // ââ STEP 7: Phone Number Provisioning âââââââââââââââââ
-  const wantsNewNumber = clientData.phone_preference?.toLowerCase().includes("new") ||
-                         clientData.phone_preference === "provision_new";
-
-  if (wantsNewNumber && retellAgentId && twilioSid && twilioAuth) {
+  c// Always provision a Twilio number — used directly (new number) or as a forwarding backend (own number)
+  if (retellAgentId && twilioSid && twilioAuth) {
     try {
       const stateKey = (clientData.state || "").toUpperCase().trim();
       const areaCode = STATE_AREA_CODES[stateKey] || "02";
