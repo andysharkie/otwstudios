@@ -589,7 +589,7 @@ export default async function handler(req, res) {
           agent_name: `${clientData.business_name} â ${clientData.agent_name}`,
           voice_id: "11labs-Adrian",
           language: "en-AU",
-          ambient_sound: "office",
+          ambient_sound: "call-center",
           boosted_keywords: clientData.urgency_keywords
             ? clientData.urgency_keywords.split(",").map(k => k.trim()).filter(Boolean)
             : [],
