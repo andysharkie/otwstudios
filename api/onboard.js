@@ -282,7 +282,7 @@ export default async function handler(req, res) {
 
   // ââ 4. Create Retell Agent âââââââââââââââââââââââââââââââââââââââââââââââââââ
   try {
-    const agentRes = await fetch("https://api.retellai.com/v2/create-agent", {
+    const agentRes = await fetch("https://api.retellai.com/create-agent", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.RETELL_API_KEY}`,
