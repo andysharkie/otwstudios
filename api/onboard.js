@@ -689,6 +689,9 @@ export default async function handler(req, res) {
           retell_agent_id:       retellAgentId,
           retell_llm_id:         retellLlmId,
           status:                retellAgentId ? "active" : "pending_setup",
+          trial_start_date:      new Date().toISOString(),
+          trial_end_date:        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          billing_status:        "trial",
         }),
       });
       if (!sbRes.ok) throw new Error(`Supabase insert: ${sbRes.status} ${await sbRes.text()}`);
