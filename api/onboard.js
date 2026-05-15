@@ -342,42 +342,63 @@ function andyWorkOrderEmail(c, retellAgentId, retellLlmId, phoneNumber, phonePro
 // TWILIO HELPERS
 // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const STATE_AREA_CODES = {
-  NSW: "02", VIC: "03", QLD: "07", SA: "08", WA: "08",
-  TAS: "03", ACT: "02", NT: "08",
+  NSW: "2", VIC: "3", QLD: "7", SA: "8", WA: "8",
+  TAS: "3", ACT: "2", NT: "8",
 };
 
 async function searchTwilioNumber(accountSid, authToken, areaCode) {
-  const auth = Buffer.from(`${accountSid}:${authToken}`).toString("base64");
-  const res = await fetch(
-    `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/AvailablePhoneNumbers/AU/Local.json?AreaCode=${areaCode}&Limit=1`,
-    { headers: { Authorization: `Basic ${auth}` } }
-  );
-  const data = await res.json();
-  return data.available_phone_numbers?.[0]?.phone_number || null;
+  const auth = Buffer.from(accountSid + ":" + authToken).toString("base64");
+  const base = "https://api.twilio.com/2010-04-01/Accounts/" + accountSid + "/AvailablePhoneNumbers/AU/Local.json";
+  const urls = areaCode
+    ? [base + "?AreaCode=" + areaCode + "&Limit=5", base + "?Limit=5"]
+    : [base + "?Limit=5"];
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { headers: { Authorization: "Basic " + auth } });
+      if (!res.ok) {
+        const err = await res.text();
+        console.error("[Twilio search] HTTP", res.status, err);
+        continue;
+      }
+      const data = await res.json();
+      const num = data.available_phone_numbers?.[0]?.phone_number;
+      if (num) return num;
+    } catch (e) {
+      console.error("[Twilio search] fetch error:", e.message);
+    }
+  }
+  console.error("[Twilio search] no AU numbers found for areaCode=" + areaCode);
+  return null;
 }
 
 async function buyTwilioNumber(accountSid, authToken, phoneNumber, retellAgentId) {
-  const auth = Buffer.from(`${accountSid}:${authToken}`).toString("base64");
+  const auth = Buffer.from(accountSid + ":" + authToken).toString("base64");
   const body = new URLSearchParams({
     PhoneNumber: phoneNumber,
-    VoiceUrl: `https://api.retellai.com/twilio-voice-webhook/${retellAgentId}`,
+    VoiceUrl: "https://api.retellai.com/twilio-voice-webhook/" + retellAgentId,
     VoiceMethod: "POST",
-    StatusCallback: `https://api.retellai.com/twilio-voice-webhook/${retellAgentId}`,
+    StatusCallback: "https://api.retellai.com/twilio-voice-webhook/" + retellAgentId,
+    StatusCallbackMethod: "POST",
   });
   const res = await fetch(
-    `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/IncomingPhoneNumbers.json`,
+    "https://api.twilio.com/2010-04-01/Accounts/" + accountSid + "/IncomingPhoneNumbers.json",
     {
       method: "POST",
       headers: {
-        Authorization: `Basic ${auth}`,
+        Authorization: "Basic " + auth,
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body,
     }
   );
+  if (!res.ok) {
+    const err = await res.text();
+    console.error("[Twilio buy] HTTP", res.status, err);
+    return null;
+  }
   const data = await res.json();
-  if (!res.ok) throw new Error(`Twilio buy failed: ${JSON.stringify(data)}`);
-  return data.phone_number;
+  console.log("[Twilio buy] purchased:", data.phone_number);
+  return data.phone_number || null;
 }
 
 async function registerNumberWithRetell(retellKey, phoneNumber, agentId) {
