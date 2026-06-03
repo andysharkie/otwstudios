@@ -1,4 +1,4 @@
-<!doctype html>
+TESTPAYLOAD_REPLACE_ALL<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -45,7 +45,7 @@
       "logo": "https://otwstudios.com.au/assets/logo-color.svg",
       "image": "https://otwstudios.com.au/assets/og-card.png",
       "email": "admin@otwstudios.com.au",
-      "telephone": "+61422620900",
+      "telephone": "+61860294657",
       "areaServed": { "@type": "Country", "name": "Australia" },
       "founder": { "@id": "https://otwstudios.com.au/#andy" },
       "knowsAbout": ["Brand design", "Web design", "AI systems", "Voice receptionists", "Workflow automation"]
@@ -57,7 +57,7 @@
       "url": "https://otwstudios.com.au/",
       "image": "https://otwstudios.com.au/assets/og-card.png",
       "email": "admin@otwstudios.com.au",
-      "telephone": "+61422620900",
+      "telephone": "+61860294657",
       "priceRange": "$$",
       "address": {
         "@type": "PostalAddress",
@@ -208,7 +208,7 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
 }
 .pill .dot{
   width:6px;height:6px;border-radius:50%;
-  background:var(--clay);
+  background:#4CA84C;
   margin-right:8px;
 }
 
@@ -345,6 +345,8 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
   width:100%;height:100%;
   object-fit:cover;
   z-index:-2;
+  /* Fallback when the browser releases the paused frame (e.g. iOS Safari) — the poster image fills the gap instead of the cream body showing through. */
+  background:url('assets/hero-poster.jpg') center/cover no-repeat;
 }
 .hero__overlay{
   position:absolute;inset:0;
@@ -380,11 +382,11 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
 @media (prefers-reduced-motion: reduce){
   .hero__video-bg{display:none}
   .hero__overlay{background:var(--cream-alt)}
-  .hero__video-toggle{display:none}
+  .hero__video-toggle{display:none !important}
 }
 @media (max-width: 720px){
-  /* mobile: no video, no pause button — poster carries the hero */
-  .hero__video-toggle{display:none}
+  /* mobile: no video, no pause button — poster carries the hero. !important needed because the base .hero__video-toggle{display:grid} rule below would otherwise win the cascade. */
+  .hero__video-toggle{display:none !important}
 }
 /* pause/play control for the hero video — subtle bottom-right. 44x44 hit target (WCAG AAA touch ceiling) with the visible 36x36 chrome inside via ::before. */
 .hero__video-toggle{
@@ -1393,7 +1395,7 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
       </div>
       <div class="cta__channel">
         <span class="cta__channel-label">Phone</span>
-        <a href="tel:+61422620900">+61 422 620 900</a>
+        <a href="tel:+61860294657">+61 8 6029 4657</a>
       </div>
       <div class="cta__channel">
         <span class="cta__channel-label">Studio</span>
@@ -1403,7 +1405,7 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
         <!-- Book a chat — opens the cal.com/otwstudios/discovery-call event in a popup (namespace "discovery"). -->
         <button type="button" data-cal-namespace="discovery" data-cal-link="otwstudios/discovery-call" data-cal-config='{"layout":"column_view"}' class="btn btn--primary">Book a chat <span class="arr">→</span></button>
         <a href="mailto:admin@otwstudios.com.au?subject=OTW%20Studios%20%E2%80%94%20Conversation" class="btn btn--ghost">Email us <span class="arr">→</span></a>
-        <a href="tel:+61422620900" class="btn btn--ghost">Call us <span class="arr">→</span></a>
+        <a href="tel:+61860294657" class="btn btn--ghost">Call us <span class="arr">→</span></a>
       </div>
     </div>
   </div>
@@ -1419,7 +1421,7 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
         <div class="foot__brand-mark"><img src="assets/logo-white.svg" alt="OTW Studios. Optimise The Workflow." width="91" height="54" loading="lazy" decoding="async"></div>
         <p>An Australian studio building bespoke systems for businesses. Branding, digital assets, systems, workflows. Built for you, run by us.</p>
         <a href="mailto:admin@otwstudios.com.au">admin@otwstudios.com.au</a>
-        <a href="tel:+61422620900">+61 422 620 900</a>
+        <a href="tel:+61860294657">+61 8 6029 4657</a>
       </div>
       <div class="foot__nav">
         <a href="#work">Work</a>
