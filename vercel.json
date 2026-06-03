@@ -1,5 +1,39 @@
 {
   "rewrites": [
+    { "source": "/", "destination": "/OTW Studios Website/index.html" },
+    { "source": "/assets/:path*", "destination": "/OTW Studios Website/assets/:path*" },
+    { "source": "/robots.txt", "destination": "/OTW Studios Website/robots.txt" },
+    { "source": "/sitemap.xml", "destination": "/OTW Studios Website/sitemap.xml" },
+    { "source": "/favicon.svg", "destination": "/OTW Studios Website/favicon.svg" },
+    { "source": "/apple-touch-icon.png", "destination": "/OTW Studios Website/apple-touch-icon.png" },
+    { "source": "/case-study-template.html", "destination": "/OTW Studios Website/case-study-template.html" },
+    { "source": "/otw_privacy.html", "destination": "/OTW Studios Website/otw_privacy.html" }
+  ],
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/daily-summary",
+      "schedule": "0 21 * * *"
+    },
+    {
+      "path": "/api/trial-check",
+      "schedule": "0 22 * * *"
+    }
+  ]
+}{
+  "rewrites": [
     { "source": "/", "destination": "/index.html" }
   ],
   "functions": {
