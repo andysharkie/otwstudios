@@ -32,31 +32,4 @@
       "schedule": "0 22 * * *"
     }
   ]
-}{
-  "rewrites": [
-    { "source": "/", "destination": "/index.html" }
-  ],
-  "functions": {
-    "api/**/*.js": {
-      "maxDuration": 30
-    }
-  },
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store" }
-      ]
-    }
-  ],
-  "crons": [
-    {
-      "path": "/api/daily-summary",
-      "schedule": "0 21 * * *"
-    },
-    {
-      "path": "/api/trial-check",
-      "schedule": "0 22 * * *"
-    }
-  ]
 }
