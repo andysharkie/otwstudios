@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /case-study-template.html
+Disallow: /archive/
+
+Sitemap: https://otwstudios.com.au/sitemap.xml

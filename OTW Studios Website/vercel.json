@@ -1,0 +1,28 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" }
+  ],
+  "redirects": [
+    { "source": "/OTW_Ecosystem.html", "destination": "/", "permanent": true },
+    { "source": "/otw_ai_receptionist.html", "destination": "/#work", "permanent": true },
+    { "source": "/otw_audit.html", "destination": "/#contact", "permanent": true },
+    { "source": "/otw_debtcollector.html", "destination": "/#work", "permanent": true },
+    { "source": "/otw_reviewgenius.html", "destination": "/#work", "permanent": true },
+    { "source": "/otw_scheduling.html", "destination": "/#work", "permanent": true },
+    { "source": "/otw_triageai.html", "destination": "/#work", "permanent": true }
+  ],
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    }
+  ]
+}
+

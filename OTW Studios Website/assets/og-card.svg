@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="iconGrad" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#ef4136"/>
+      <stop offset="1" stop-color="#fbb040"/>
+    </linearGradient>
+  </defs>
+  <!-- cream background -->
+  <rect width="1200" height="630" fill="#F2EEE5"/>
+
+  <!-- decorative dashed clay line, top-right (echoes workflow connector) -->
+  <line x1="780" y1="80" x2="1130" y2="80" stroke="#C25A2A" stroke-width="2" stroke-dasharray="6 10" opacity="0.4"/>
+
+  <!-- icon, centered horizontally, upper portion -->
+  <g transform="translate(540, 90)">
+    <rect width="120" height="120" rx="10" fill="url(#iconGrad)"/>
+    <g transform="translate(60, 60) scale(3) translate(-16, -16)">
+      <path fill="#F2EEE5" d="M16,3.875l-4.802,4.802l-2.52,2.52L3.875,16l2.52,2.52l4.802-4.802L13.48,16l-4.802,4.802l2.52,2.52L16,18.52l2.282,2.282l-4.802,4.802l2.52,2.52l4.802-4.802l2.52-2.52L28.125,16l-2.52-2.52l-4.802,4.802L18.52,16l4.802-4.802l-2.52-2.52L16,13.48l-2.282-2.282l4.802-4.802L16,3.875z"/>
+    </g>
+  </g>
+
+  <!-- Headline: bold + italic family contrast -->
+  <text x="600" y="320" font-family="Helvetica Neue, sans-serif" font-weight="800" font-size="68" fill="#1B1815" text-anchor="middle" letter-spacing="-2">We build the systems</text>
+  <text x="600" y="395" font-family="Georgia, serif" font-style="italic" font-weight="500" font-size="68" fill="#2F4538" text-anchor="middle" letter-spacing="-1">behind yours.</text>
+
+  <!-- wordmark + tagline, bottom centred -->
+  <text x="600" y="520" font-family="Helvetica Neue, sans-serif" font-weight="700" font-size="32" fill="#1B1815" text-anchor="middle" letter-spacing="0">OTW Studios</text>
+  <text x="600" y="555" font-family="Helvetica Neue, sans-serif" font-weight="500" font-size="14" fill="#C25A2A" text-anchor="middle" letter-spacing="4">OPTIMISE THE WORKFLOW</text>
+
+  <!-- bottom hairline + Perth attribution -->
+  <line x1="70" y1="590" x2="1130" y2="590" stroke="#D6D0C0" stroke-width="1"/>
+  <text x="80" y="613" font-family="Helvetica Neue, sans-serif" font-size="13" fill="#65625B" letter-spacing="1">Perth, WA · Serving Australia-wide</text>
+  <text x="1120" y="613" font-family="Helvetica Neue, sans-serif" font-size="13" fill="#65625B" text-anchor="end" letter-spacing="1">otwstudios.com.au</text>
+</svg>
