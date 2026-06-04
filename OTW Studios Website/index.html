@@ -643,14 +643,16 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
   display:flex;align-items:flex-end;padding:20px;
   color:var(--cream);
 }
-/* corner-arrow chip is suppressed while project cards are non-clickable (no case study pages yet). Restore the rule below when cards become <a> again. */
+/* corner-arrow chip is suppressed by default (non-clickable cards). Cards that link out get the chip back via the .proj--linked modifier below. */
 .proj__thumb::after{
   content:"↗";position:absolute;top:16px;right:16px;
   width:34px;height:34px;background:rgba(250,247,240,0.95);
   color:var(--ink);border-radius:50%;
-  display:none;  /* HIDDEN — toggle back to grid when cards link out */
+  display:none;
   place-items:center;font-size:14px;
 }
+/* clickable cards (case study pages exist) get the corner-arrow chip back */
+.proj--linked .proj__thumb::after{display:grid}
 /* solid brand-colour bands per project (no gradient) */
 .proj__thumb--a{background:var(--eucalyptus)}
 .proj__thumb--b{background:var(--clay)}
@@ -1067,8 +1069,8 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
     </div>
 
     <div class="rail reveal-stagger" id="rail" tabindex="0">
-      <!-- 1 · Panda & Co — Delivered (Andy's own business, brand live 10 years) -->
-      <article class="proj proj--ref">
+      <!-- 1 · Panda & Co — Delivered. Andy's own cafe in Perth's CBD. Links out to the case study. -->
+      <a class="proj proj--ref proj--linked" href="case-panda-and-co.html" aria-label="Open the Panda &amp; Co case study">
         <div class="proj__thumb proj__thumb--ref proj__thumb--c">
           <span class="proj__outcome">Full brand. 10 years live.</span>
           <img class="proj__photo" src="assets/projects/project-1.jpg" alt="Panda &amp; Co: brand, identity, site, menus and signage" loading="lazy" decoding="async">
@@ -1082,12 +1084,12 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
             </span>
           </div>
           <h3 class="proj__title">Panda &amp; Co</h3>
-          <p class="proj__desc">My own cafe in Perth. Proudly inauthentic Asian-fusion. Built brand, site, menus, signage from scratch. Ten years on, still running.</p>
+          <p class="proj__desc">A Perth cafe brand, founder-built with co-founder Rebecca Yii. Identity, site, menus, signage. Ten years live, still running the original grammar. The first OTW build. Also the proof.</p>
         </div>
-      </article>
+      </a>
 
-      <!-- 2 · Rural Stone WA — Build -->
-      <article class="proj proj--ref">
+      <!-- 2 · Rural Stone WA — Build — first published case study, links out to the dedicated page. -->
+      <a class="proj proj--ref proj--linked" href="case-rural-stone.html" aria-label="Open the Rural Stone WA case study">
         <div class="proj__thumb proj__thumb--ref proj__thumb--a">
           <span class="proj__outcome">Premium rebrand</span>
           <img class="proj__photo" src="assets/projects/project-2.jpg" alt="Rural Stone WA: brand refresh and digital repositioning" loading="lazy" decoding="async">
@@ -1101,9 +1103,9 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
             </span>
           </div>
           <h3 class="proj__title">Rural Stone WA</h3>
-          <p class="proj__desc">Natural-stone supplier with 50 years in the WA trade. Perth Stadium, Optus Stadium, Kings Park. Site refresh and brand reposition for premium build clientele.</p>
+          <p class="proj__desc">50-year-old WA quarry. Repositioned as a premium B2B supplier to architects and commercial builders. Editorial site, 22 project pages, full SEO architecture. Perth Stadium, Optus Stadium, Kings Park.</p>
         </div>
-      </article>
+      </a>
 
       <!-- 3 · Fremantle Landscape Supplies — Build -->
       <article class="proj proj--ref">
