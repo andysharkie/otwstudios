@@ -5,6 +5,8 @@
     { "source": "/assets/:path*", "destination": "/OTW Studios Website/assets/:path*" },
     { "source": "/case-rural-stone.html", "destination": "/OTW Studios Website/case-rural-stone.html" },
     { "source": "/case-rural-stone/:path*", "destination": "/OTW Studios Website/case-rural-stone/:path*" },
+    { "source": "/case-panda-and-co.html", "destination": "/OTW Studios Website/case-panda-and-co.html" },
+    { "source": "/case-panda-and-co/:path*", "destination": "/OTW Studios Website/case-panda-and-co/:path*" },
     { "source": "/robots.txt", "destination": "/OTW Studios Website/robots.txt" },
     { "source": "/sitemap.xml", "destination": "/OTW Studios Website/sitemap.xml" },
     { "source": "/favicon.svg", "destination": "/OTW Studios Website/favicon.svg" },
