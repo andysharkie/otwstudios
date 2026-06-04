@@ -1,7 +1,10 @@
 {
   "rewrites": [
     { "source": "/", "destination": "/OTW Studios Website/index.html" },
+    { "source": "/index.html", "destination": "/OTW Studios Website/index.html" },
     { "source": "/assets/:path*", "destination": "/OTW Studios Website/assets/:path*" },
+    { "source": "/case-rural-stone.html", "destination": "/OTW Studios Website/case-rural-stone.html" },
+    { "source": "/case-rural-stone/:path*", "destination": "/OTW Studios Website/case-rural-stone/:path*" },
     { "source": "/robots.txt", "destination": "/OTW Studios Website/robots.txt" },
     { "source": "/sitemap.xml", "destination": "/OTW Studios Website/sitemap.xml" },
     { "source": "/favicon.svg", "destination": "/OTW Studios Website/favicon.svg" },
