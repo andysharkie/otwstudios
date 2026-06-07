@@ -1,18 +1,73 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/OTW Studios Website/index.html" },
-    { "source": "/index.html", "destination": "/OTW Studios Website/index.html" },
-    { "source": "/assets/:path*", "destination": "/OTW Studios Website/assets/:path*" },
-    { "source": "/case-rural-stone.html", "destination": "/OTW Studios Website/case-rural-stone.html" },
-    { "source": "/case-rural-stone/:path*", "destination": "/OTW Studios Website/case-rural-stone/:path*" },
-    { "source": "/case-panda-and-co.html", "destination": "/OTW Studios Website/case-panda-and-co.html" },
-    { "source": "/case-panda-and-co/:path*", "destination": "/OTW Studios Website/case-panda-and-co/:path*" },
-    { "source": "/robots.txt", "destination": "/OTW Studios Website/robots.txt" },
-    { "source": "/sitemap.xml", "destination": "/OTW Studios Website/sitemap.xml" },
-    { "source": "/favicon.svg", "destination": "/OTW Studios Website/favicon.svg" },
-    { "source": "/apple-touch-icon.png", "destination": "/OTW Studios Website/apple-touch-icon.png" },
-    { "source": "/case-study-template.html", "destination": "/OTW Studios Website/case-study-template.html" },
-    { "source": "/otw_privacy.html", "destination": "/OTW Studios Website/otw_privacy.html" }
+    {
+      "source": "/",
+      "destination": "/OTW Studios Website/index.html"
+    },
+    {
+      "source": "/index.html",
+      "destination": "/OTW Studios Website/index.html"
+    },
+    {
+      "source": "/assets/:path*",
+      "destination": "/OTW Studios Website/assets/:path*"
+    },
+    {
+      "source": "/journal",
+      "destination": "/OTW Studios Website/journal/index.html"
+    },
+    {
+      "source": "/journal/",
+      "destination": "/OTW Studios Website/journal/index.html"
+    },
+    {
+      "source": "/journal/:path*",
+      "destination": "/OTW Studios Website/journal/:path*"
+    },
+    {
+      "source": "/work/:path*",
+      "destination": "/OTW Studios Website/work/:path*"
+    },
+    {
+      "source": "/case-rural-stone.html",
+      "destination": "/OTW Studios Website/case-rural-stone.html"
+    },
+    {
+      "source": "/case-rural-stone/:path*",
+      "destination": "/OTW Studios Website/case-rural-stone/:path*"
+    },
+    {
+      "source": "/case-panda-and-co.html",
+      "destination": "/OTW Studios Website/case-panda-and-co.html"
+    },
+    {
+      "source": "/case-panda-and-co/:path*",
+      "destination": "/OTW Studios Website/case-panda-and-co/:path*"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/OTW Studios Website/robots.txt"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/OTW Studios Website/sitemap.xml"
+    },
+    {
+      "source": "/favicon.svg",
+      "destination": "/OTW Studios Website/favicon.svg"
+    },
+    {
+      "source": "/apple-touch-icon.png",
+      "destination": "/OTW Studios Website/apple-touch-icon.png"
+    },
+    {
+      "source": "/case-study-template.html",
+      "destination": "/OTW Studios Website/case-study-template.html"
+    },
+    {
+      "source": "/otw_privacy.html",
+      "destination": "/OTW Studios Website/otw_privacy.html"
+    }
   ],
   "functions": {
     "api/**/*.js": {
@@ -23,7 +78,10 @@
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store" }
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
       ]
     }
   ],
