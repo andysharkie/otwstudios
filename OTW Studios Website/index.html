@@ -695,8 +695,10 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
 /* real project screenshot inside the colour band: sage frame visible top/sides/bottom */
 .proj__photo{
   position:absolute;
-  left:16px;right:16px;top:46px;bottom:16px;
-  width:auto;height:auto;
+  /* Explicit width/height calc forces the replaced img element to honour the inset frame. Plain left+right+top+bottom with width:auto isn't enough for <img> — Chrome falls back to the photo's intrinsic dimensions. Calc keeps the coloured band visible on all four sides (46px top for the outcome + arrow chips, 16px on the other three). */
+  top:46px;left:16px;
+  width:calc(100% - 32px);
+  height:calc(100% - 62px);
   object-fit:cover;
   border-radius:6px;
   box-shadow:0 10px 22px rgba(0,0,0,0.22);
@@ -1075,7 +1077,7 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
       <a class="proj proj--ref proj--linked" href="case-panda-and-co.html" aria-label="Open the Panda &amp; Co case study">
         <div class="proj__thumb proj__thumb--ref proj__thumb--c">
           <span class="proj__outcome">Full brand. 10 years live.</span>
-          <img class="proj__photo" src="assets/projects/project-1.jpg" alt="Panda &amp; Co: brand, identity, site, menus and signage" loading="lazy" decoding="async">
+          <img class="proj__photo" src="case-panda-and-co/hero.jpg" alt="Andy Ngo behind the Panda &amp; Co espresso bar, the brand wordmark engraved on the bamboo machine front." loading="lazy" decoding="async">
         </div>
         <div class="proj__body">
           <div class="proj__meta">
@@ -1093,7 +1095,7 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
       <a class="proj proj--ref proj--linked" href="case-rural-stone.html" aria-label="Open the Rural Stone WA case study">
         <div class="proj__thumb proj__thumb--ref proj__thumb--a">
           <span class="proj__outcome">Premium rebrand</span>
-          <img class="proj__photo" src="assets/projects/project-2.jpg" alt="Rural Stone WA: brand refresh and digital repositioning" loading="lazy" decoding="async">
+          <img class="proj__photo" src="case-rural-stone/hero.jpg" alt="Rural Stone Company WA home page. A dry-stone wall and quarried boulders in front of Optus Stadium, with the headline Stone, set in Western Australia." loading="lazy" decoding="async">
         </div>
         <div class="proj__body">
           <div class="proj__meta">
