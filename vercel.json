@@ -94,5 +94,12 @@
       "path": "/api/trial-check",
       "schedule": "0 22 * * *"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/login",
+      "destination": "https://app.otwstudios.com.au",
+      "permanent": false
+    }
   ]
 }
