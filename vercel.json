@@ -45,6 +45,30 @@
       "destination": "/OTW Studios Website/case-panda-and-co/:path*"
     },
     {
+      "source": "/case-aoki-hair.html",
+      "destination": "/OTW Studios Website/case-aoki-hair.html"
+    },
+    {
+      "source": "/case-aoki-hair/:path*",
+      "destination": "/OTW Studios Website/case-aoki-hair/:path*"
+    },
+    {
+      "source": "/case-reddy-carpentry.html",
+      "destination": "/OTW Studios Website/case-reddy-carpentry.html"
+    },
+    {
+      "source": "/case-reddy-carpentry/:path*",
+      "destination": "/OTW Studios Website/case-reddy-carpentry/:path*"
+    },
+    {
+      "source": "/case-prestige-cabinetry.html",
+      "destination": "/OTW Studios Website/case-prestige-cabinetry.html"
+    },
+    {
+      "source": "/case-prestige-cabinetry/:path*",
+      "destination": "/OTW Studios Website/case-prestige-cabinetry/:path*"
+    },
+    {
       "source": "/robots.txt",
       "destination": "/OTW Studios Website/robots.txt"
     },
