@@ -292,6 +292,9 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
 .head__meta{animation-delay:0.95s}
 @keyframes headIn{to{opacity:1;transform:translateY(0)}}
 
+/* hero video — sits in the same framed box as the hero image */
+.hero-image__box:has(video){padding:14px}
+.hero-image__box video{width:100%;height:100%;object-fit:cover;display:block;border-radius:8px;position:relative;z-index:1;background:#000}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
 </style>
 </head>
@@ -329,7 +332,9 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
 
 <section class="hero-image">
   <div class="hero-image__box">
-    <img src="case-prestige-cabinetry/hero.jpg" alt="A bespoke kitchen by Prestige Cabinetry Perth: warm timber and off-white cabinetry, a marble waterfall island, and brushed-brass detailing.">
+    <video autoplay muted loop playsinline poster="case-prestige-cabinetry/hero-poster.jpg" aria-label="The Prestige Cabinetry Perth website hero, a bespoke kitchen rendered in warm timber and off-white cabinetry.">
+      <source src="case-prestige-cabinetry/hero.mp4" type="video/mp4">
+    </video>
   </div>
 </section>
 
@@ -361,8 +366,8 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
         <p><strong>Restraint that reads as quality.</strong> Warm timber tones, generous space, and editorial typography. A site as considered as the joinery, with nothing shouting over the work.</p>
         <p><strong>Built for the trade.</strong> The language speaks to builders and architects: to the drawing, to the millimetre, to the deadline. The pitch is direct access to the makers, with no middleman and no junior rushing a finish.</p>
         <p><strong>The work, up front.</strong> Real projects across Perth's best suburbs, each one shown the way a specifier wants to see it.</p>
-        <div class="chapter__image"><img src="case-prestige-cabinetry/work.jpg" alt="A bespoke walk-in wardrobe by Prestige Cabinetry Perth."></div>
-        <p class="chapter__cap">Bespoke, measured to the millimetre, in your home.</p>
+        <div class="chapter__image"><img src="case-prestige-cabinetry/build-services.jpg" alt="The What We Build section of the Prestige Cabinetry website, listing kitchens, bathrooms, wardrobes and more."></div>
+        <p class="chapter__cap">The site speaks the trade: six things they build, properly.</p>
       </div>
     </section>
 
@@ -376,8 +381,8 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
           <li><span class="k">ii</span><span class="t"><strong>Built for builders and architects.</strong> Structured around how the trade specifies work, with the father-and-son model as the core advantage.</span></li>
           <li><span class="k">iii</span><span class="t"><strong>Editable by the makers.</strong> A simple editor so the workshop can grow the portfolio without a developer.</span></li>
         </ul>
-        <div class="chapter__image"><img src="case-prestige-cabinetry/portfolio.jpg" alt="The recent-work section of the Prestige Cabinetry Perth website."></div>
-        <p class="chapter__cap">A handful of recent jobs, shown the way a specifier wants to see them.</p>
+        <div class="chapter__image"><img src="case-prestige-cabinetry/build-portfolio.jpg" alt="The Recent Work section of the Prestige Cabinetry website, showing project photography in an editorial layout."></div>
+        <p class="chapter__cap">Recent work, shown the way a builder or architect wants to see it.</p>
       </div>
     </section>
 

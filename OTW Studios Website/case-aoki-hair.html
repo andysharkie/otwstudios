@@ -217,6 +217,10 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
 .chapter__image{margin:8px 0 4px;border-radius:12px;overflow:hidden;aspect-ratio:16 / 10;position:relative;background:var(--cream-alt)}
 .chapter__image img{width:100%;height:100%;object-fit:cover;object-position:top}
 .chapter__cap{font-size:13px;color:var(--muted);margin-top:-2px}
+/* ----- multi-photo duo (portrait images shown full, side by side) ----- */
+.chapter__duo{margin:8px 0 4px;display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.chapter__duo img{width:100%;height:auto;display:block;border-radius:12px;background:var(--cream-alt)}
+@media (max-width: 540px){.chapter__duo{grid-template-columns:1fr}}
 
 /* ----- system list ----- */
 .syslist{list-style:none;margin:6px 0 0;border-top:1px solid var(--line)}
@@ -361,8 +365,11 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
         <p><strong>The salon, on the page.</strong> The mural, the Aveda partnership, the neon, Jenni's story. The site carries the personality of the room, not a stock-photo version of it.</p>
         <p><strong>Search built in.</strong> Curl types, the Aveda concept salon status, Mount Pleasant and the surrounding suburbs, mapped to real pages so the searches clients already make have somewhere to land.</p>
         <p><strong>Editable by the team.</strong> Services, prices, the journal, and the gallery all sit behind a simple editor, so Aoki can keep the site current without a developer.</p>
-        <div class="chapter__image"><img src="case-aoki-hair/jenni.jpg" alt="Jenni Spence, founder of Aoki Hair and Perth's leading curly hair specialist."></div>
-        <p class="chapter__cap">Forty years in the craft of curls. Jenni Spence, founder.</p>
+        <div class="chapter__duo">
+          <img src="case-aoki-hair/jenni.jpg" alt="Jenni Spence, founder of Aoki Hair, with pink curls, holding her Curl Pop curl soufflé product.">
+          <img src="case-aoki-hair/clients.jpg" alt="Two Aoki Hair clients showing defined, healthy natural curls.">
+        </div>
+        <p class="chapter__cap">Jenni Spence, founder, and the curls Aoki is known for.</p>
       </div>
     </section>
 

@@ -292,6 +292,9 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
 .head__meta{animation-delay:0.95s}
 @keyframes headIn{to{opacity:1;transform:translateY(0)}}
 
+/* hero video — sits in the same framed box as the hero image */
+.hero-image__box:has(video){padding:14px}
+.hero-image__box video{width:100%;height:100%;object-fit:cover;display:block;border-radius:8px;position:relative;z-index:1;background:#000}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
 </style>
 </head>
@@ -329,7 +332,9 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
 
 <section class="hero-image">
   <div class="hero-image__box">
-    <img src="case-reddy-carpentry/hero.jpg" alt="A finished bathroom fit-out by Reddy for Carpentry in Perth: marble-look tiling, a custom vanity, and a black-framed walk-in shower.">
+    <video autoplay muted loop playsinline poster="case-reddy-carpentry/hero-poster.jpg" aria-label="The Reddy for Carpentry website hero, a finished bathroom fit-out with marble-look tiling and a custom vanity.">
+      <source src="case-reddy-carpentry/hero.mp4" type="video/mp4">
+    </video>
   </div>
 </section>
 
@@ -385,8 +390,8 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
 </section>
 
 <section class="feature reveal">
-  <div class="feature__box"><img src="case-reddy-carpentry/feature.jpg" alt="A finished carpentry project by Reddy for Carpentry, Perth."></div>
-  <p class="feature__cap">A family trade, held to millimetre precision.</p>
+  <div class="feature__box"><img src="case-reddy-carpentry/feature-screens.jpg" alt="Three sections of the Reddy for Carpentry website shown side by side: the family-trade story, the services grid, and the five-star customer reviews."></div>
+  <p class="feature__cap">The website we built: the story, the services, and the reviews, all in one place.</p>
 </section>
 
 <section class="body">
